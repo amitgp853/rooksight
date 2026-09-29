@@ -1,10 +1,15 @@
+import 'package:flutter/foundation.dart';
+
 /// Keys and settings passed in at build time, never stored in the repo:
 ///
 ///     flutter run --dart-define-from-file=.env
 ///
 /// `.env` is git-ignored; `.env.example` shows its format.
 abstract final class ApiKeys {
-  static const gemini = String.fromEnvironment('GEMINI_API_KEY');
+  /// A development key. Always empty in release builds: anything compiled
+  /// into the app can be pulled out of it, so a shipped key would be anyone's.
+  /// Players add their own key in Settings.
+  static const gemini = kReleaseMode ? '' : String.fromEnvironment('GEMINI_API_KEY');
 
   static bool get hasGemini => gemini.isNotEmpty;
 
@@ -20,5 +25,15 @@ abstract final class ApiKeys {
   static const geminiFallbackModel = String.fromEnvironment(
     'GEMINI_FALLBACK_MODEL',
     defaultValue: 'gemini-3.5-flash-lite',
+  );
+
+  /// How much [geminiModel] thinks before answering (`minimal`, `low`,
+  /// `medium` or `high`; empty for the model's default). Thinking is billed
+  /// as output, and the facts it works from are already Stockfish's, so `low`
+  /// is enough. Only the primary model gets it: Flash-Lite doesn't think by
+  /// default, and asking it for `low` would add thinking, not cut it.
+  static const geminiThinkingLevel = String.fromEnvironment(
+    'GEMINI_THINKING_LEVEL',
+    defaultValue: 'low',
   );
 }

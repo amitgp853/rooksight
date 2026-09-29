@@ -160,12 +160,12 @@ void main() {
     await pumpCoach(tester);
     await tester.tap(find.text('Why do I keep losing?'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('free AI limit'), findsOneWidget);
+    expect(find.textContaining('AI limit is used up'), findsOneWidget);
 
     llm.failure = null;
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('free AI limit'), findsNothing);
+    expect(find.textContaining('AI limit is used up'), findsNothing);
     expect(find.text('You opened lines to your own king.'), findsOneWidget);
   });
 

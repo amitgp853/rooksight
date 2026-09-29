@@ -322,6 +322,74 @@ void main() {
       await expectLater(client.generate(request), throwsA(isA<LlmInvalidKey>()));
       expect(calls, 1);
     });
+
+    test('only the primary model gets the thinking level', () async {
+      final thinking = <String, Object?>{};
+      final client = GeminiClient(
+        apiKey: 'k',
+        model: 'big',
+        fallbackModels: ['small'],
+        thinkingLevel: 'low',
+        wait: (_) async {},
+        client: MockClient((r) async {
+          final config = (jsonDecode(r.body) as Map)['generationConfig'] as Map;
+          final model = r.url.pathSegments.last.split(':').first;
+          thinking[model] = config['thinkingConfig'];
+          return model == 'big' ? reply({}, 503) : ok;
+        }),
+      );
+      expect(await client.generate(request), 'fine');
+      expect(thinking, {
+        'big': {'thinkingLevel': 'low'},
+        'small': null,
+      });
+    });
+  });
+
+  group('usage', () {
+    test('the tokens a reply used are read from its metadata', () {
+      final parsed = GeminiClient.parseReply(
+        jsonEncode({
+          ...answer([
+            {'text': 'Hi'},
+          ]),
+          'usageMetadata': {
+            'promptTokenCount': 1200,
+            'cachedContentTokenCount': 800,
+            'candidatesTokenCount': 90,
+            'thoughtsTokenCount': 300,
+            'totalTokenCount': 1590,
+          },
+        }),
+      );
+      final usage = parsed.usage!;
+      expect(usage.input, 1200);
+      expect(usage.cached, 800);
+      expect(usage.output, 90);
+      expect(usage.thinking, 300);
+    });
+
+    test('counts left out are zero, and no metadata is no usage', () {
+      final lean = GeminiClient.parseReply(
+        jsonEncode({
+          ...answer([
+            {'text': 'Hi'},
+          ]),
+          'usageMetadata': {'promptTokenCount': 20, 'candidatesTokenCount': 5},
+        }),
+      );
+      expect(lean.usage!.cached, 0);
+      expect(lean.usage!.thinking, 0);
+
+      final bare = GeminiClient.parseReply(
+        jsonEncode(
+          answer([
+            {'text': 'Hi'},
+          ]),
+        ),
+      );
+      expect(bare.usage, isNull);
+    });
   });
 
   group('tool calling', () {

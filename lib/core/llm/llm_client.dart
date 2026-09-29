@@ -98,13 +98,37 @@ class LlmRequest {
   final LlmToolMode toolMode;
 }
 
+/// Tokens one request used, as the provider counted them (what it bills).
+@immutable
+class LlmUsage {
+  const LlmUsage({this.input = 0, this.cached = 0, this.output = 0, this.thinking = 0});
+
+  /// The whole prompt, [cached] tokens included.
+  final int input;
+
+  /// Prompt tokens served from the provider's cache, billed at a discount.
+  final int cached;
+
+  /// The reply itself.
+  final int output;
+
+  /// Reasoning before the reply, billed as output.
+  final int thinking;
+
+  @override
+  String toString() => 'in $input (cached $cached), out $output, thinking $thinking';
+}
+
 /// A model's turn: text, tool calls, or both.
 @immutable
 class LlmReply {
-  const LlmReply({required this.message});
+  const LlmReply({required this.message, this.usage});
 
   /// The turn as it goes back into the conversation.
   final LlmMessage message;
+
+  /// Tokens the request used, when the provider reported them.
+  final LlmUsage? usage;
 
   String get text => message.text;
   List<LlmToolCall> get toolCalls => message.toolCalls;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,11 +17,15 @@ import 'llm_client.dart';
 /// [maxAttempts] tries. If the model stays overloaded or its free quota is
 /// used up (a rate limit that asks for a long wait), the request moves to the
 /// [fallbackModels] in turn. A rejected key fails at once.
+///
+/// Each reply's token usage is logged, to see what a review or a coach
+/// question really costs.
 class GeminiClient implements LlmClient {
   GeminiClient({
     required String apiKey,
     required this.model,
     this.fallbackModels = const [],
+    this.thinkingLevel,
     http.Client? client,
     Future<void> Function(Duration)? wait,
     Random? random,
@@ -39,6 +44,10 @@ class GeminiClient implements LlmClient {
 
   /// Tried in order when the models before them stay overloaded.
   final List<String> fallbackModels;
+
+  /// The primary model's thinking level (e.g. `low`); null or empty for its
+  /// default. [fallbackModels] always use their own default.
+  final String? thinkingLevel;
 
   /// The model that answered the last request (the primary until then).
   @override
@@ -74,12 +83,13 @@ class GeminiClient implements LlmClient {
   Future<LlmReply> respond(LlmRequest request) async {
     if (_apiKey.isEmpty) throw const LlmMissingKey();
 
-    final encoded = jsonEncode(requestBody(request));
     final models = [_primary, ...fallbackModels];
     for (final (i, candidate) in models.indexed) {
+      final body = requestBody(request, thinkingLevel: candidate == _primary ? thinkingLevel : null);
       try {
-        final reply = await _withRetries(candidate, encoded);
+        final reply = await _withRetries(candidate, jsonEncode(body));
         model = candidate;
+        if (reply.usage case final usage?) debugPrint('Gemini $candidate: $usage');
         return reply;
       } on LlmFailure catch (failure) {
         // Still overloaded after the retries, or this model's free quota is
@@ -91,8 +101,9 @@ class GeminiClient implements LlmClient {
     throw const LlmUnavailable(); // Not reached: the last model rethrows.
   }
 
-  /// The `generateContent` body for [request].
-  static Map<String, Object?> requestBody(LlmRequest request) => {
+  /// The `generateContent` body for [request], thinking at [thinkingLevel]
+  /// when given.
+  static Map<String, Object?> requestBody(LlmRequest request, {String? thinkingLevel}) => {
     if (request.system != null)
       'systemInstruction': {
         'parts': [
@@ -120,6 +131,8 @@ class GeminiClient implements LlmClient {
     },
     'generationConfig': {
       'temperature': request.temperature,
+      if (thinkingLevel != null && thinkingLevel.isNotEmpty)
+        'thinkingConfig': {'thinkingLevel': thinkingLevel},
       if (request.jsonSchema != null) ...{
         'responseMimeType': 'application/json',
         'responseJsonSchema': request.jsonSchema,
@@ -221,7 +234,8 @@ class GeminiClient implements LlmClient {
   }
 
   /// The model's turn in a `generateContent` response: its text (without
-  /// the "thought" parts of thinking models) and any tool calls.
+  /// the "thought" parts of thinking models), any tool calls, and the tokens
+  /// used.
   static LlmReply parseReply(String body) {
     final Map<String, Object?> json;
     try {
@@ -253,6 +267,18 @@ class GeminiClient implements LlmClient {
     if (text.isEmpty && calls.isEmpty) throw const LlmUnavailable('empty reply');
     return LlmReply(
       message: LlmMessage.model(text, toolCalls: calls, raw: content),
+      usage: _usage(json['usageMetadata']),
+    );
+  }
+
+  static LlmUsage? _usage(Object? metadata) {
+    if (metadata is! Map<String, Object?>) return null;
+    int count(String key) => (metadata[key] as num?)?.toInt() ?? 0;
+    return LlmUsage(
+      input: count('promptTokenCount'),
+      cached: count('cachedContentTokenCount'),
+      output: count('candidatesTokenCount'),
+      thinking: count('thoughtsTokenCount'),
     );
   }
 }
@@ -274,6 +300,7 @@ final llmClientProvider = Provider<LlmClient>(
   (ref) => GeminiClient(
     apiKey: ref.watch(geminiKeyProvider),
     model: ApiKeys.geminiModel,
+    thinkingLevel: ApiKeys.geminiThinkingLevel,
     fallbackModels: [
       if (ApiKeys.geminiFallbackModel != ApiKeys.geminiModel) ApiKeys.geminiFallbackModel,
     ],

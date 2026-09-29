@@ -368,7 +368,7 @@ void main() {
       await tester.tap(find.text('Explain key moments'));
       await tester.pumpAndSettle();
 
-      await scrollTo(tester, find.textContaining('free AI limit'));
+      await scrollTo(tester, find.textContaining('AI limit is used up'));
       llm.failure = null;
       await tester.tap(find.text('Try again'));
       await tester.pumpAndSettle();

@@ -154,6 +154,31 @@ void main() {
     expect(container.read(resumePassGameProvider).take(), isTrue);
   });
 
+  testWidgets('the Continue card fits long names and a large system font', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    UnfinishedPassGameStore.write(
+      store,
+      PassSession(
+        config: PassConfig.initial.copyWith(
+          firstName: 'Alexandrina Kov',
+          secondName: 'Opponent Name',
+        ),
+        game: GameState.start().play(Move.parse('e2e4')!)!,
+        clock: GameClock.stopped(
+          white: const Duration(minutes: 9),
+          black: const Duration(minutes: 10),
+          increment: const Duration(seconds: 5),
+        ),
+      ),
+      DateTime(2026, 1, 2),
+    );
+    await pumpHome(tester);
+
+    expect(tester.takeException(), isNull, reason: 'no overflow');
+    expect(find.text('Resume'), findsOneWidget);
+  });
+
   testWidgets('the top weakness from the last 20 games', (tester) async {
     for (var i = 0; i < 2; i++) {
       analyses.analyses[await games.save(foolsMate)] = foolsMateAnalysis;

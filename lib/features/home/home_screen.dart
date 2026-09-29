@@ -266,66 +266,67 @@ class _ContinueCard extends StatelessWidget {
     return Semantics(
       container: true,
       label: 'Continue last game',
+      // Sized by its content, not by the board: a line that wraps or a
+      // larger system font can't push Resume out of the card.
       child: _Card(
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpacing.s4,
-            children: [
-              MoveWiseStaticBoard(
-                fen: game.position.fen,
-                size: 124,
-                lastMove: game.lastMove,
-                orientation: orientation,
-                coordinates: false,
-                borderRadius: BorderRadius.circular(10),
+        child: Row(
+          spacing: AppSpacing.s4,
+          children: [
+            MoveWiseStaticBoard(
+              fen: game.position.fen,
+              size: 124,
+              lastMove: game.lastMove,
+              orientation: orientation,
+              coordinates: false,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppSpacing.s1,
+                children: [
+                  Text('CONTINUE GAME', style: type.overline.copyWith(color: colors.textSecondary)),
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: type.heading.copyWith(height: 24 / 17),
+                  ),
+                  Text(
+                    details,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: type.label.copyWith(
+                      fontWeight: FontWeight.w400,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    status,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: type.mono.copyWith(fontSize: 13, color: colors.textTertiary),
+                  ),
+                  const SizedBox(height: AppSpacing.s2),
+                  FilledButton(
+                    onPressed: onResume,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(40),
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      textStyle: type.heading.copyWith(fontSize: 15),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: AppSpacing.s2,
+                      children: [Text('Resume'), Icon(Icons.arrow_forward_rounded, size: 18)],
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: AppSpacing.s1,
-                  children: [
-                    Text(
-                      'CONTINUE GAME',
-                      style: type.overline.copyWith(color: colors.textSecondary),
-                    ),
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: type.heading.copyWith(height: 24 / 17),
-                    ),
-                    Text(
-                      details,
-                      style: type.label.copyWith(
-                        fontWeight: FontWeight.w400,
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    Text(
-                      status,
-                      style: type.mono.copyWith(fontSize: 13, color: colors.textTertiary),
-                    ),
-                    const Spacer(),
-                    FilledButton(
-                      onPressed: onResume,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(40),
-                        padding: EdgeInsets.zero,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        textStyle: type.heading.copyWith(fontSize: 15),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: AppSpacing.s2,
-                        children: [Text('Resume'), Icon(Icons.arrow_forward_rounded, size: 18)],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -356,10 +357,11 @@ class _PlayCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(
-          height: 96,
+        // At least 96 high; taller with a larger system font.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 96),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: AppSpacing.s3),
             child: Row(
               spacing: AppSpacing.s4,
               children: [
@@ -420,11 +422,12 @@ class _Tile extends StatelessWidget {
     final type = context.type;
     return _Card(
       onTap: onTap,
-      child: SizedBox(
-        height: 128 - 32,
+      // At least 96 high inside the padding; taller with a larger system font.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 128 - 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          spacing: AppSpacing.s4,
           children: [
             _IconTile(icon: icon, color: iconColor),
             Column(

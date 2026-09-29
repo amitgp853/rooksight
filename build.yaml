@@ -1,0 +1,10 @@
+# Code generation runs only where it's needed (keeps build_runner fast).
+targets:
+  $default:
+    builders:
+      drift_dev:
+        generate_for:
+          - lib/core/storage/**
+      source_gen:combining_builder:
+        generate_for:
+          - lib/core/storage/**

@@ -1,0 +1,2 @@
+CREATE TABLE "games" ("id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "source" TEXT NOT NULL, "external_id" TEXT NULL UNIQUE, "pgn" TEXT NOT NULL, "player_side" TEXT NOT NULL, "result" TEXT NOT NULL, "end_reason" TEXT NULL, "engine_elo" INTEGER NULL, "time_control" TEXT NULL, "practice" INTEGER NOT NULL DEFAULT 0 CHECK ("practice" IN (0, 1)), "hints_used" INTEGER NOT NULL DEFAULT 0, "ply_count" INTEGER NOT NULL, "started_at" INTEGER NOT NULL, "ended_at" INTEGER NOT NULL);
+CREATE TABLE "settings" ("key" TEXT NOT NULL, "value" TEXT NOT NULL, PRIMARY KEY ("key"));

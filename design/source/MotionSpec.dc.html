@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MoveWise motion spec</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>body{margin:0;background:#0E1217}</style>
+</helmet>
+<div style="width: 1600px; height: 2400px; box-sizing: border-box; padding: 72px; background: #0E1217; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 40px">
+
+<header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 48px; padding-bottom: 32px; border-bottom: 1px solid #2A3441">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #7C8898">Game screen · motion spec</span>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 48px; line-height: 1.05; letter-spacing: -0.02em">Quick, quiet, and never in the way.</h1>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; max-width: 820px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">Nothing over 360ms</span>
+<span style="font-size: 14px; line-height: 20px; color: #A3AFBD">Board motion confirms a move, it doesn’t perform it. Loops only for waiting states.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">Input never waits</span>
+<span style="font-family: inherit; font-size: 14px; line-height: 20px; color: #A3AFBD">A new tap or drag jumps any running animation to its end state first.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">Reduced motion</span>
+<span style="font-size: 14px; line-height: 20px; color: #A3AFBD">When <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px">MediaQuery.disableAnimations</span> is true: no travel, no scale, no shake — 150ms fades and colour only.</span>
+</div>
+</div>
+</header>
+
+<div role="table" aria-label="Motion timings" style="display: flex; flex-direction: column; border-radius: 20px; overflow: hidden; background: #151B22">
+<div role="row" style="display: grid; grid-template-columns: 190px minmax(0, 1.6fr) 130px 190px minmax(0, 1.1fr) 170px; gap: 20px; padding: 14px 24px; background: #1C242E; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">
+<span role="columnheader">Interaction</span>
+<span role="columnheader">Full motion</span>
+<span role="columnheader">Duration</span>
+<span role="columnheader">Curve (Flutter)</span>
+<span role="columnheader">Reduced motion</span>
+<span role="columnheader">Haptic</span>
+</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="20">
+<div role="row" style="display: grid; grid-template-columns: 190px minmax(0, 1.6fr) 130px 190px minmax(0, 1.1fr) 170px; gap: 20px; padding: 14px 24px; border-top: 1px solid #222B36; align-items: start; font-size: 14px; line-height: 20px">
+<span role="cell" style="font-weight: 600; color: #E9EDF2">{{r.name}}</span>
+<span role="cell" style="color: #C4CCD6">{{r.full}}</span>
+<span role="cell" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A9C0FF">{{r.ms}}</span>
+<span role="cell" style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: #A3AFBD">{{r.curve}}</span>
+<span role="cell" style="color: #C4CCD6">{{r.reduced}}</span>
+<span role="cell" style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: #A3AFBD">{{r.haptic}}</span>
+</div>
+</sc-for>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1600,"height":2400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      rows: [
+        { name: 'Tap a piece', full: 'Square tints focus blue; legal-move dots and capture rings pop in (scale 0.3 → 1).', ms: '120', curve: 'Curves.easeOutCubic', reduced: 'Tint, dots and rings fade in, no scale.', haptic: 'selectionClick' },
+        { name: 'Deselect', full: 'Tap the piece again or an empty non-target square: dots and tint fade out.', ms: '90', curve: 'Curves.easeIn', reduced: 'Same.', haptic: '—' },
+        { name: 'Drag start', full: 'Piece lifts: scale 1 → 1.1, shadow blur 2 → 10px, drawn 0.4 square above the finger. Origin keeps a 28% ghost.', ms: '100', curve: 'Curves.easeOut', reduced: 'No scale; shadow and ghost only.', haptic: 'selectionClick' },
+        { name: 'Drag over square', full: 'Legal target under the finger gets a 4px light ring.', ms: '0 (instant)', curve: '—', reduced: 'Same.', haptic: '—' },
+        { name: 'Move', full: 'Piece slides from → to. Tap-to-move and drop-from-drag both use it (a drop slides from the release point).', ms: '200', curve: 'Cubic(0.22, 0.9, 0.3, 1)', reduced: 'Crossfade: out at origin, in at target.', haptic: 'lightImpact' },
+        { name: 'Last move', full: 'From and to squares keep a soft brass tint until the next move.', ms: '120 fade', curve: 'Curves.linear', reduced: 'Same.', haptic: '—' },
+        { name: 'Illegal move', full: 'Snap back to origin, then shake ±5 / ±5 / ±3 px. Origin flashes coral (70ms in, 400ms out).', ms: '150 + 200', curve: 'easeOutCubic, then linear', reduced: 'Piece fades back to origin + coral flash. No shake.', haptic: 'mediumImpact' },
+        { name: 'Capture', full: 'Attacker slides; captured piece fades and shrinks to 0.55, starting 100ms before the attacker lands.', ms: '200 / 190', curve: 'Curves.easeIn (captured)', reduced: 'Captured piece fades out as attacker fades in.', haptic: 'mediumImpact' },
+        { name: 'Captured tray', full: 'Icon appears beside the name; material difference (+2) updates.', ms: '150', curve: 'Curves.easeOut', reduced: 'Same (fade only).', haptic: '—' },
+        { name: 'Castling', full: 'King and rook slide together in one animation. Works by dragging the king two squares or onto its rook (dashed brass ring marks the rook).', ms: '240', curve: 'Curves.easeOutCubic', reduced: 'Both crossfade together.', haptic: 'lightImpact' },
+        { name: 'En passant', full: 'Attacker slides diagonally; captured pawn beside it fades and shrinks.', ms: '200 / 190', curve: 'as Capture', reduced: 'Crossfade + fade.', haptic: 'mediumImpact' },
+        { name: 'Promotion picker', full: 'Board dims to 58%; picker grows from the promotion square. Queen first and largest, then rook, bishop, knight, cancel.', ms: '160', curve: 'Curves.easeOutCubic', reduced: 'Picker fades in.', haptic: 'selectionClick' },
+        { name: 'Promotion morph', full: 'Pawn shrinks out (to 0.7); new piece grows in 0.6 → 1.08 → 1.', ms: '120 + 200', curve: 'Curves.easeOutBack', reduced: 'Crossfade.', haptic: 'lightImpact' },
+        { name: 'Check', full: 'King square pulses coral once as the checking piece lands (0 → 1 → 0.45 → 1), then stays tinted until check is resolved.', ms: '360', curve: 'Curves.linear', reduced: 'Tint fades in, no pulse.', haptic: 'heavyImpact (your king)' },
+        { name: 'Engine thinking', full: 'Three dots bob beside “Stockfish”, 150ms stagger. Shown only after 300ms so instant replies don’t flicker.', ms: '1200 loop', curve: 'Curves.easeInOut', reduced: 'Static “Thinking…” chip.', haptic: '—' },
+        { name: 'Engine move', full: 'Identical to a player move. Minimum 400ms think time so the reply never feels instant.', ms: '200', curve: 'as Move', reduced: 'as Move', haptic: '—' },
+        { name: 'Hint', full: 'Brass arrow draws from piece to target; head appears in the last 100ms. Hint text fades in below the board.', ms: '360', curve: 'Curves.easeOutCubic', reduced: 'Arrow and text fade in.', haptic: '—' },
+        { name: 'Flip board', full: 'Board rotates 180° while each piece counter-rotates so it stays upright; coordinates swap at the midpoint.', ms: '300', curve: 'Curves.easeInOutCubic', reduced: 'Crossfade to the flipped board.', haptic: '—' },
+        { name: 'Clock under 30s', full: 'Active clock fill turns brass; inactive clock shows brass digits and outline.', ms: '200 tween', curve: 'Curves.linear', reduced: 'Same (colour only).', haptic: '—' },
+        { name: 'Clock under 10s', full: 'Fill turns coral and breathes (opacity 1 → 0.7) once per second.', ms: '1000 loop', curve: 'Curves.easeInOut', reduced: 'Coral, no breathing.', haptic: 'selectionClick at 10s' },
+        { name: 'Options sheet', full: 'Sheet slides up from the bottom; scrim fades to 55%.', ms: '320 / 200', curve: 'Cubic(0.2, 0.9, 0.3, 1)', reduced: 'Sheet and scrim fade.', haptic: '—' },
+        { name: 'Game over', full: 'Hold 600ms on the final position, then the result sheet slides up with scrim.', ms: '600 hold + 320', curve: 'Cubic(0.2, 0.9, 0.3, 1)', reduced: 'Hold, then fade 200ms.', haptic: 'mediumImpact' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

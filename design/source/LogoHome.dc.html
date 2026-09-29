@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MoveWise app icon on a home screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>body{margin:0;background:#151B22}</style>
+</helmet>
+<div style="width: 960px; height: 980px; box-sizing: border-box; padding: 40px; background: #151B22; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; gap: 80px; justify-content: center">
+<dc-import name="PhoneHome" theme="light" hint-size="400px,860px"></dc-import>
+<dc-import name="PhoneHome" theme="dark" hint-size="400px,860px"></dc-import>
+</div>
+<div style="display: flex; gap: 80px; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A3AFBD">
+<span style="width: 400px; text-align: center">Light wallpaper</span>
+<span style="width: 400px; text-align: center">Dark wallpaper</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":960,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

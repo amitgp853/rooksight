@@ -1,0 +1,819 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Board.dc.html": {
+      "h": 390,
+      "title": "Board component",
+      "w": 390,
+      "x": 1520,
+      "y": 0
+    },
+    "Coach.dc.html": {
+      "h": 960,
+      "is_interactive": true,
+      "title": "5 · Coach chat",
+      "w": 390,
+      "x": 2350,
+      "y": 3360
+    },
+    "Game.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "3 · Game",
+      "w": 390,
+      "x": 1410,
+      "y": 3360
+    },
+    "GameScreen.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "interactions",
+      "title": "GameScreen component (Tweaks: state, motion)",
+      "w": 390,
+      "x": 2190,
+      "y": 7540
+    },
+    "Home.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "1 · Home",
+      "w": 390,
+      "x": 0,
+      "y": 3360
+    },
+    "HomeLight.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "1 · Home (light mode)",
+      "w": 390,
+      "x": 470,
+      "y": 3360
+    },
+    "IX01-Tap.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Tap a piece",
+      "w": 390,
+      "x": 0,
+      "y": 2820
+    },
+    "IX02-Drag.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Drag a piece",
+      "w": 390,
+      "x": 470,
+      "y": 2820
+    },
+    "IX03-Move.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Move slides",
+      "w": 390,
+      "x": 940,
+      "y": 2820
+    },
+    "IX04-Illegal.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Illegal move",
+      "w": 390,
+      "x": 1410,
+      "y": 2820
+    },
+    "IX05-LastMove.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Last move highlight",
+      "w": 390,
+      "x": 1880,
+      "y": 2820
+    },
+    "IX06-Capture.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Capture",
+      "w": 390,
+      "x": 0,
+      "y": 4400
+    },
+    "IX07-CastleSelect.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Castling — targets",
+      "w": 390,
+      "x": 470,
+      "y": 4400
+    },
+    "IX08-Castle.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Castling — king + rook slide",
+      "w": 390,
+      "x": 940,
+      "y": 4400
+    },
+    "IX09-EnPassant.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "En passant",
+      "w": 390,
+      "x": 1410,
+      "y": 4400
+    },
+    "IX10-Promotion.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Promotion — picker",
+      "w": 390,
+      "x": 1880,
+      "y": 4400
+    },
+    "IX11-PromotionMorph.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Promotion — pawn morphs",
+      "w": 390,
+      "x": 2350,
+      "y": 4400
+    },
+    "IX12-Check.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Check",
+      "w": 390,
+      "x": 2820,
+      "y": 4400
+    },
+    "IX13-Thinking.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Stockfish thinking",
+      "w": 390,
+      "x": 0,
+      "y": 5970
+    },
+    "IX14-EngineMove.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Engine move",
+      "w": 390,
+      "x": 470,
+      "y": 5970
+    },
+    "IX15-Hint.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Hint arrow",
+      "w": 390,
+      "x": 940,
+      "y": 5970
+    },
+    "IX16-ClockLow.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Clock under 30s / 10s",
+      "w": 390,
+      "x": 1410,
+      "y": 5970
+    },
+    "IX17-Flip.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Board flipped",
+      "w": 390,
+      "x": 1880,
+      "y": 5970
+    },
+    "IX18-More.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Options — draw, resign, undo",
+      "w": 390,
+      "x": 2350,
+      "y": 5970
+    },
+    "IX19-Result.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "interactions",
+      "title": "Result card slides up",
+      "w": 390,
+      "x": 0,
+      "y": 7540
+    },
+    "Main.dc.html": {
+      "h": 3000,
+      "title": "Design system — Night Study",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "MotionSpec.dc.html": {
+      "h": 2400,
+      "page": "interactions",
+      "title": "Motion spec",
+      "w": 1600,
+      "x": 0,
+      "y": 0
+    },
+    "PlaySetup.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "2 · Play setup",
+      "w": 390,
+      "x": 940,
+      "y": 3360
+    },
+    "RM01-Drag.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · drag",
+      "w": 390,
+      "x": 0,
+      "y": 9110
+    },
+    "RM02-Move.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · move",
+      "w": 390,
+      "x": 470,
+      "y": 9110
+    },
+    "RM03-Illegal.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · illegal move",
+      "w": 390,
+      "x": 940,
+      "y": 9110
+    },
+    "RM04-Capture.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · capture",
+      "w": 390,
+      "x": 1410,
+      "y": 9110
+    },
+    "RM05-Castle.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · castling",
+      "w": 390,
+      "x": 1880,
+      "y": 9110
+    },
+    "RM06-EnPassant.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · en passant",
+      "w": 390,
+      "x": 2350,
+      "y": 9110
+    },
+    "RM07-Promotion.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · promotion picker",
+      "w": 390,
+      "x": 2820,
+      "y": 9110
+    },
+    "RM08-PromotionMorph.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · pawn becomes queen",
+      "w": 390,
+      "x": 3290,
+      "y": 9110
+    },
+    "RM09-Check.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · check",
+      "w": 390,
+      "x": 3760,
+      "y": 9110
+    },
+    "RM10-Thinking.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · thinking",
+      "w": 390,
+      "x": 4230,
+      "y": 9110
+    },
+    "RM11-Hint.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · hint",
+      "w": 390,
+      "x": 4700,
+      "y": 9110
+    },
+    "RM12-ClockLow.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · clocks",
+      "w": 390,
+      "x": 5170,
+      "y": 9110
+    },
+    "RM13-Result.dc.html": {
+      "h": 844,
+      "page": "interactions",
+      "title": "Reduced · result card",
+      "w": 390,
+      "x": 5640,
+      "y": 9110
+    },
+    "ReportCard.dc.html": {
+      "h": 1350,
+      "title": "Report card — export image 1080×1350",
+      "w": 1080,
+      "x": 1990,
+      "y": 0
+    },
+    "ResultCards.dc.html": {
+      "h": 800,
+      "is_interactive": true,
+      "page": "interactions",
+      "title": "Result card — all endings",
+      "w": 1640,
+      "x": 470,
+      "y": 7540
+    },
+    "Review.dc.html": {
+      "h": 1840,
+      "is_interactive": true,
+      "title": "4 · Game review",
+      "w": 390,
+      "x": 1880,
+      "y": 3360
+    },
+    "Settings.dc.html": {
+      "h": 960,
+      "is_interactive": true,
+      "title": "8 · Settings",
+      "w": 390,
+      "x": 3760,
+      "y": 3360
+    },
+    "ShareReport.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "7 · Report card (share)",
+      "w": 390,
+      "x": 3290,
+      "y": 3360
+    },
+    "Stats.dc.html": {
+      "h": 1420,
+      "is_interactive": true,
+      "title": "6 · Weakness stats",
+      "w": 390,
+      "x": 2820,
+      "y": 3360
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-28T09:09:52Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "ix-title-r1": {
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "interactions",
+      "text": "Moving pieces",
+      "w": 240,
+      "x": 0,
+      "y": 2560
+    },
+    "ix-title-r2": {
+      "kind": "title1",
+      "maxW": 3210,
+      "page": "interactions",
+      "text": "Captures & special rules",
+      "w": 240,
+      "x": 0,
+      "y": 4140
+    },
+    "ix-title-r3": {
+      "kind": "title1",
+      "maxW": 2740,
+      "page": "interactions",
+      "text": "Opponent turn & controls",
+      "w": 240,
+      "x": 0,
+      "y": 5710
+    },
+    "ix-title-r4": {
+      "kind": "title1",
+      "maxW": 2580,
+      "page": "interactions",
+      "text": "Game end",
+      "w": 240,
+      "x": 0,
+      "y": 7280
+    },
+    "ix-title-r5": {
+      "kind": "title1",
+      "maxW": 6030,
+      "page": "interactions",
+      "text": "Reduced motion — fades instead of slides",
+      "w": 240,
+      "x": 0,
+      "y": 8850
+    },
+    "ix-title-spec": {
+      "kind": "title1",
+      "maxW": 1600,
+      "page": "interactions",
+      "text": "Game screen — motion spec",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "n-gs": {
+      "fill": "gray",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "Every frame on this page is this one component. Open its Tweaks to switch state and full / reduced motion.",
+      "w": 390,
+      "x": 2190,
+      "y": 8424
+    },
+    "n-ix01": {
+      "fill": "blue",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "TAP A PIECE\nSquare fills focus blue. Dots on empty legal squares, rings on capturable pieces (Nf3 can take e5).\nPop-in 120ms, easeOutCubic (scale 0.3 → 1).\nTap again or elsewhere: fade out 90ms.\nHaptic: selectionClick.",
+      "w": 390,
+      "x": 0,
+      "y": 3704
+    },
+    "n-ix02": {
+      "fill": "blue",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "DRAG\nLift 100ms: scale 1 → 1.1, shadow 2 → 10px blur.\nThe piece rides 0.4 square above the finger so it's never hidden. The origin keeps a 28% ghost.\nThe square under the finger gets a 4px light ring (instant).",
+      "w": 390,
+      "x": 470,
+      "y": 3704
+    },
+    "n-ix03": {
+      "fill": "blue",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "MOVE — Bc1–g5\nSlide 200ms, Cubic(0.22, 0.9, 0.3, 1).\nA drop from drag slides from the release point instead of the origin.\nClock hands over as the piece lands.\nHaptic: lightImpact.",
+      "w": 390,
+      "x": 940,
+      "y": 3704
+    },
+    "n-ix04": {
+      "fill": "blue",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "ILLEGAL — Nf3 dropped on f5\nSnap back 150ms (easeOutCubic), then shake ±5 / ±5 / ±3 px over 200ms.\nOrigin square flashes coral: 70ms in, 400ms out.\nHaptic: mediumImpact.",
+      "w": 390,
+      "x": 1410,
+      "y": 3704
+    },
+    "n-ix05": {
+      "fill": "blue",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "LAST MOVE\nFrom- and to-squares keep a soft brass tint until the next move (fades in 120ms).\nSame tint in every board theme, so it never changes meaning.",
+      "w": 390,
+      "x": 1880,
+      "y": 3704
+    },
+    "n-ix06": {
+      "fill": "purple",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "CAPTURE — Bxf6\nAttacker slides 200ms. Captured knight fades + shrinks to 0.55 over 190ms, starting 100ms before the attacker lands.\nThe knight joins the tray under your name and +3 appears (150ms fade).",
+      "w": 390,
+      "x": 0,
+      "y": 5284
+    },
+    "n-ix07": {
+      "fill": "purple",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "CASTLING — targets\nSelecting the king shows a dot on g1 (two-square move) and a dashed brass ring on the h1 rook: dropping the king on its rook castles too.\nf1 is an ordinary king step.",
+      "w": 390,
+      "x": 470,
+      "y": 5284
+    },
+    "n-ix08": {
+      "fill": "purple",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "CASTLING — O-O\nKing e1 → g1 and rook h1 → f1 slide together as one 240ms animation, easeOutCubic.\nOne haptic (lightImpact), one move in the list.",
+      "w": 390,
+      "x": 940,
+      "y": 5284
+    },
+    "n-ix09": {
+      "fill": "purple",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "EN PASSANT — exd6\nPawn slides diagonally (200ms). The d5 pawn beside it fades + shrinks, same 190ms curve as any capture.\nMove list marks it “e.p.”",
+      "w": 390,
+      "x": 1410,
+      "y": 5284
+    },
+    "n-ix10": {
+      "fill": "purple",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "PROMOTION PICKER\nPawn reaches b8: board dims to 58%, picker grows from that square (160ms).\nQueen first and largest, pre-highlighted, then rook, bishop, knight, cancel.\nFor Black the picker grows upward from rank 1.",
+      "w": 390,
+      "x": 1880,
+      "y": 5284
+    },
+    "n-ix11": {
+      "fill": "purple",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "PROMOTION — b8=Q#\nPawn shrinks out (120ms), queen grows 0.6 → 1.08 → 1 (200ms, easeOutBack).\nThis promotion is also mate, so the g8 king pulses coral as the queen lands.",
+      "w": 390,
+      "x": 2350,
+      "y": 5284
+    },
+    "n-ix12": {
+      "fill": "purple",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "CHECK — …Bxf2+\nKing square pulses once as the bishop lands (0 → 1 → 0.45 → 1 over 360ms), then stays tinted until the check is resolved.\nYour name line reads “In check”.\nHaptic: heavyImpact.",
+      "w": 390,
+      "x": 2820,
+      "y": 5284
+    },
+    "n-ix13": {
+      "fill": "teal",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "STOCKFISH THINKING\nThree dots bob beside the name (1200ms loop, 150ms stagger).\nShown only after 300ms, so instant replies don't flicker.\nStockfish's clock is the running one.",
+      "w": 390,
+      "x": 0,
+      "y": 6854
+    },
+    "n-ix14": {
+      "fill": "teal",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "ENGINE MOVE — …d6\nExactly the player's move: 200ms slide, same curve, same last-move tint.\nMinimum 400ms think time before it plays.",
+      "w": 390,
+      "x": 470,
+      "y": 6854
+    },
+    "n-ix15": {
+      "fill": "teal",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "HINT\nBrass arrow draws from piece to target in 360ms (easeOutCubic); the head appears in the last 100ms.\nHint text fades in under the board. Arrow clears on your next move.",
+      "w": 390,
+      "x": 940,
+      "y": 6854
+    },
+    "n-ix16": {
+      "fill": "teal",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "CLOCKS\nUnder 30s: brass (fill when running, digits + outline when idle).\nUnder 10s: coral, breathing 1 → 0.7 opacity once a second.\nColour change is a 200ms tween. Haptic tick at 10s.",
+      "w": 390,
+      "x": 1410,
+      "y": 6854
+    },
+    "n-ix17": {
+      "fill": "teal",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "FLIP BOARD\nBoard rotates 180° over 300ms (easeInOutCubic) while each piece counter-rotates to stay upright. Coordinates swap at the midpoint; the name rows swap with the board.",
+      "w": 390,
+      "x": 1880,
+      "y": 6854
+    },
+    "n-ix18": {
+      "fill": "teal",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "OPTIONS\nMore → sheet slides up 320ms, scrim to 55% in 200ms.\nOffer draw and Resign live here.\nUndo works only in practice mode: in a normal game it shows locked, and the sheet offers to switch practice on.",
+      "w": 390,
+      "x": 2350,
+      "y": 6854
+    },
+    "n-ix19": {
+      "fill": "orange",
+      "maxH": 300,
+      "page": "interactions",
+      "text": "GAME OVER\nHold 600ms on the final position, then the result sheet slides up (320ms) over a 55% scrim.\nPrimary: Review with AI coach. Secondary: Rematch, Share report card.\nAll 7 endings → right.",
+      "w": 390,
+      "x": 0,
+      "y": 8424
+    },
+    "n-rm01": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "DRAG (reduced)\nNo scale-up. The lift shows through shadow and the origin ghost only.",
+      "w": 390,
+      "x": 0,
+      "y": 9994
+    },
+    "n-rm02": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "MOVE (reduced)\nNo travel: the piece fades out at c1 and in at g5, together, 150ms.",
+      "w": 390,
+      "x": 470,
+      "y": 9994
+    },
+    "n-rm03": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "ILLEGAL (reduced)\nNo shake. The piece fades back to f3 (150ms) and the square flashes coral. Haptic still fires.",
+      "w": 390,
+      "x": 940,
+      "y": 9994
+    },
+    "n-rm04": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "CAPTURE (reduced)\nKnight fades out as the bishop fades in, 150ms. No shrink.",
+      "w": 390,
+      "x": 1410,
+      "y": 9994
+    },
+    "n-rm05": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "CASTLING (reduced)\nKing and rook crossfade to their new squares together, 150ms.",
+      "w": 390,
+      "x": 1880,
+      "y": 9994
+    },
+    "n-rm06": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "EN PASSANT (reduced)\nPawn crossfades to d6; the captured pawn fades, 150ms.",
+      "w": 390,
+      "x": 2350,
+      "y": 9994
+    },
+    "n-rm07": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "PROMOTION PICKER (reduced)\nDim and picker fade in (150ms). No grow.",
+      "w": 390,
+      "x": 2820,
+      "y": 9994
+    },
+    "n-rm08": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "PROMOTION (reduced)\nPawn → queen crossfade, 150ms. No overshoot.",
+      "w": 390,
+      "x": 3290,
+      "y": 9994
+    },
+    "n-rm09": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "CHECK (reduced)\nThe coral tint fades in and stays. No pulse.",
+      "w": 390,
+      "x": 3760,
+      "y": 9994
+    },
+    "n-rm10": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "THINKING (reduced)\nStatic “Thinking…” chip instead of bouncing dots.",
+      "w": 390,
+      "x": 4230,
+      "y": 9994
+    },
+    "n-rm11": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "HINT (reduced)\nThe whole arrow and the hint text fade in (150ms). No drawing.",
+      "w": 390,
+      "x": 4700,
+      "y": 9994
+    },
+    "n-rm12": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "CLOCKS (reduced)\nSame colours at 30s and 10s. No breathing.",
+      "w": 390,
+      "x": 5170,
+      "y": 9994
+    },
+    "n-rm13": {
+      "fill": "gray",
+      "maxH": 260,
+      "page": "interactions",
+      "text": "GAME OVER (reduced)\nSame 600ms hold, then sheet and scrim fade in (200ms). No slide.",
+      "w": 390,
+      "x": 5640,
+      "y": 9994
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 3070,
+      "text": "MoveWise — design system",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 4150,
+      "text": "MoveWise — screens",
+      "w": 240,
+      "x": 0,
+      "y": 3100
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Board.dc.html",
+    "ReportCard.dc.html",
+    "Home.dc.html",
+    "HomeLight.dc.html",
+    "PlaySetup.dc.html",
+    "Game.dc.html",
+    "Review.dc.html",
+    "Coach.dc.html",
+    "Stats.dc.html",
+    "ShareReport.dc.html",
+    "Settings.dc.html",
+    "MotionSpec.dc.html",
+    "IX01-Tap.dc.html",
+    "IX02-Drag.dc.html",
+    "IX03-Move.dc.html",
+    "IX04-Illegal.dc.html",
+    "IX05-LastMove.dc.html",
+    "IX06-Capture.dc.html",
+    "IX07-CastleSelect.dc.html",
+    "IX08-Castle.dc.html",
+    "IX09-EnPassant.dc.html",
+    "IX10-Promotion.dc.html",
+    "IX11-PromotionMorph.dc.html",
+    "IX12-Check.dc.html",
+    "IX13-Thinking.dc.html",
+    "IX14-EngineMove.dc.html",
+    "IX15-Hint.dc.html",
+    "IX16-ClockLow.dc.html",
+    "IX17-Flip.dc.html",
+    "IX18-More.dc.html",
+    "IX19-Result.dc.html",
+    "ResultCards.dc.html",
+    "GameScreen.dc.html",
+    "RM01-Drag.dc.html",
+    "RM02-Move.dc.html",
+    "RM03-Illegal.dc.html",
+    "RM04-Capture.dc.html",
+    "RM05-Castle.dc.html",
+    "RM06-EnPassant.dc.html",
+    "RM07-Promotion.dc.html",
+    "RM08-PromotionMorph.dc.html",
+    "RM09-Check.dc.html",
+    "RM10-Thinking.dc.html",
+    "RM11-Hint.dc.html",
+    "RM12-ClockLow.dc.html",
+    "RM13-Result.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "screens",
+      "name": "Screens & system"
+    },
+    {
+      "id": "interactions",
+      "name": "Game interactions"
+    }
+  ],
+  "title": "MoveWise"
+}

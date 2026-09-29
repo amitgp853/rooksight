@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Symbols+2&display=swap">
+<style>
+body{margin:0;background:#0E1217;color:#E9EDF2;font-family:'Instrument Sans',system-ui,sans-serif}
+button{font-family:inherit;cursor:pointer}
+a{color:#86A8FF;text-decoration:none}a:hover{color:#A9C0FF}
+input::placeholder{color:#7C8898}
+input:focus-visible{outline:2px solid #86A8FF;outline-offset:1px}
+</style>
+</helmet>
+<div style="width: 390px; height: 960px; box-sizing: border-box; background: #0E1217; color: #E9EDF2; display: flex; flex-direction: column">
+
+<header style="height: 56px; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 4px">
+<a href="Home.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Settings</h1>
+</header>
+
+<div style="padding: 8px 16px 32px; display: flex; flex-direction: column; gap: 28px">
+
+<section aria-labelledby="cc-h" style="display: flex; flex-direction: column; gap: 10px">
+<h2 id="cc-h" style="margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">Chess.com</h2>
+<div style="background: #151B22; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<label for="cc-user" style="font-size: 14px; font-weight: 500">Username</label>
+<div style="display: flex; gap: 8px">
+<input id="cc-user" type="text" placeholder="Your Chess.com username" autocomplete="username" style="flex-grow: 1; min-width: 0; height: 48px; box-sizing: border-box; padding: 0 14px; border-radius: 12px; border: 1px solid #2A3441; background: #1C242E; color: #E9EDF2; font-family: inherit; font-size: 15px">
+<button type="button" style="height: 48px; padding: 0 16px; border-radius: 12px; border: none; background: #86A8FF; color: #0B1224; font-family: Sora, sans-serif; font-weight: 600; font-size: 14px">Import</button>
+</div>
+<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">Only public games are read. No login, no password.</span>
+</div>
+</section>
+
+<section aria-labelledby="ai-h" style="display: flex; flex-direction: column; gap: 10px">
+<h2 id="ai-h" style="margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">AI coach</h2>
+<div style="background: #151B22; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<label for="gem-key" style="font-size: 14px; font-weight: 500">Gemini API key</label>
+<span style="height: 24px; padding: 0 8px 0 4px; border-radius: 6px; background: rgba(134,168,255,0.14); color: #A9C0FF; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600"><span style="width: 16px; height: 16px; border-radius: 8px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Key works</span>
+</div>
+<div style="position: relative; display: flex">
+<input id="gem-key" type="{{keyType}}" value="AIzaSyD-example-key-3f9a" readonly style="flex-grow: 1; min-width: 0; height: 48px; box-sizing: border-box; padding: 0 52px 0 14px; border-radius: 12px; border: 1px solid #2A3441; background: #1C242E; color: #E9EDF2; font-family: 'JetBrains Mono', monospace; font-size: 14px">
+<button type="button" aria-label="{{keyLabel}}" onClick="{{toggleKey}}" style="position: absolute; right: 2px; top: 2px; width: 44px; height: 44px; border: none; border-radius: 10px; background: transparent; color: #A3AFBD; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+</div>
+<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">Stored only on this phone. Used to write explanations; every move it suggests is checked by Stockfish first.</span>
+<div style="display: flex; gap: 8px">
+<button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #2A3441; background: #1C242E; color: #E9EDF2; font-size: 14px; font-weight: 600">Test key</button>
+<button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: none; background: transparent; color: #F2677A; font-size: 14px; font-weight: 600">Remove</button>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="bt-h" style="display: flex; flex-direction: column; gap: 10px">
+<h2 id="bt-h" style="margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">Board theme</h2>
+<div role="radiogroup" aria-labelledby="bt-h" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="4">
+<button type="button" role="radio" aria-checked="{{t.on}}" onClick="{{t.pick}}" style="padding: 6px 6px 8px; border-radius: 14px; border: 2px solid {{t.border}}; background: #151B22; color: #E9EDF2; display: flex; flex-direction: column; align-items: center; gap: 6px">
+<dc-import name="Board" size="64" radius="8" coords="false" theme="{{t.id}}" fen="8/8/8/3k4/8/4K3/8/8" hint-size="64px,64px"></dc-import>
+<span style="font-size: 13px; font-weight: 500; color: {{t.fg}}">{{t.label}}</span>
+</button>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="ap-h" style="display: flex; flex-direction: column; gap: 10px">
+<h2 id="ap-h" style="margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">Appearance</h2>
+<div role="radiogroup" aria-labelledby="ap-h" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #151B22">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{m.on}}" onClick="{{m.pick}}" style="height: 44px; border-radius: 10px; border: none; background: {{m.bg}}; color: {{m.fg}}; font-size: 14px; font-weight: 600">{{m.label}}</button>
+</sc-for>
+</div>
+</section>
+
+<span style="text-align: center; font-size: 12px; color: #7C8898">MoveWise 0.1.0 · Stockfish runs on your device</span>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { theme: 'slate', mode: 'dark', showKey: false };
+  }
+  renderVals() {
+    var self = this;
+    var s = this.state;
+    var themes = [
+      { id: 'slate', label: 'Slate' },
+      { id: 'ink', label: 'Ink' },
+      { id: 'dusk', label: 'Dusk' },
+      { id: 'ember', label: 'Ember' }
+    ].map(function (t) {
+      var on = s.theme === t.id;
+      return { id: t.id, label: t.label, on: on ? 'true' : 'false', border: on ? '#86A8FF' : '#151B22', fg: on ? '#E9EDF2' : '#A3AFBD', pick: function () { self.setState({ theme: t.id }); } };
+    });
+    var modes = [
+      { id: 'dark', label: 'Dark' },
+      { id: 'light', label: 'Light' },
+      { id: 'system', label: 'System' }
+    ].map(function (m) {
+      var on = s.mode === m.id;
+      return { label: m.label, on: on ? 'true' : 'false', bg: on ? '#2A3A5E' : 'transparent', fg: on ? '#E9EDF2' : '#A3AFBD', pick: function () { self.setState({ mode: m.id }); } };
+    });
+    return {
+      themes: themes,
+      modes: modes,
+      keyType: s.showKey ? 'text' : 'password',
+      keyLabel: s.showKey ? 'Hide key' : 'Show key',
+      toggleKey: function () { self.setState({ showKey: !self.state.showKey }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# MoveWise native splash — run: dart run flutter_native_splash:create
+# Copy the PNGs in this folder to assets/splash/ first.
+flutter_native_splash:
+  color: "#F1F3F6"
+  image: assets/splash/splash_logo_light.png
+  branding: assets/splash/branding_light.png
+  branding_mode: bottom
+
+  color_dark: "#0E1217"
+  image_dark: assets/splash/splash_logo_dark.png
+  branding_dark: assets/splash/branding_dark.png
+
+  android_12:
+    image: assets/splash/android12_icon_light.png
+    icon_background_color: "#FFFFFF"
+    color: "#F1F3F6"
+    image_dark: assets/splash/android12_icon_dark.png
+    icon_background_color_dark: "#151B22"
+    color_dark: "#0E1217"
+    # Android 12+ only shows branding on some launchers; the icon is what matters.
+
+  fullscreen: false
+  android_gravity: center
+  ios_content_mode: center
+  web: false

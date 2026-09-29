@@ -1,0 +1,108 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../features/coach/coach_screen.dart';
+import '../../features/games/games_screen.dart';
+import '../../features/home/home_screen.dart';
+import '../../features/import/domain/importer.dart' show ImportPlatform;
+import '../../features/import/import_screen.dart';
+import '../../features/play/game_screen.dart';
+import '../../features/play/play_setup_screen.dart';
+import '../../features/report_card/report_card_screen.dart';
+import '../../features/review/review_screen.dart';
+import '../../features/settings/settings_screen.dart';
+import '../../features/stats/stats_screen.dart';
+
+/// Route paths. Use these instead of string literals.
+abstract final class Routes {
+  static const home = '/';
+  static const playSetup = '/play';
+  static const game = '/play/game';
+  static const import = '/import';
+
+  /// The import, opened on Lichess.
+  static const importLichess = '/import?from=lichess';
+  static const coach = '/coach';
+  static const stats = '/stats';
+  static const games = '/games';
+  static const settings = '/settings';
+
+  /// The review of a game, opened [ply] moves in (at the end by default).
+  static String review(String gameId, {int? ply}) =>
+      ply == null ? '/review/$gameId' : '/review/$gameId?ply=$ply';
+
+  /// Only the games in [shown], under [title]. Each opens its review at the
+  /// move given (or at the end).
+  static String gamesShowing(String title, Map<int, int?> shown) => Uri(
+    path: games,
+    queryParameters: {
+      'title': title,
+      'ids': [
+        for (final MapEntry(key: id, value: move) in shown.entries)
+          move == null ? '$id' : '$id-$move',
+      ].join(','),
+    },
+  ).toString();
+
+  /// The coach with [question] ready to send.
+  static String coachAsking(String question) =>
+      Uri(path: coach, queryParameters: {'q': question}).toString();
+
+  /// The coach with a game attached, and a question about move [index] of it
+  /// ready to send when given.
+  static String coachAbout(int gameId, [int? index]) =>
+      index == null ? '/coach?game=$gameId' : '/coach?game=$gameId&move=$index';
+  static String reportCard(String gameId) => '/report/$gameId';
+}
+
+final routerProvider = Provider<GoRouter>((ref) {
+  final router = GoRouter(
+    initialLocation: Routes.home,
+    routes: [
+      GoRoute(path: Routes.home, builder: (context, state) => const HomeScreen()),
+      GoRoute(path: Routes.playSetup, builder: (context, state) => const PlaySetupScreen()),
+      GoRoute(path: Routes.game, builder: (context, state) => const GameScreen()),
+      GoRoute(
+        path: Routes.import,
+        builder: (context, state) => ImportScreen(
+          platform: state.uri.queryParameters['from'] == 'lichess'
+              ? ImportPlatform.lichess
+              : ImportPlatform.chessCom,
+        ),
+      ),
+      GoRoute(
+        path: '/review/:gameId',
+        builder: (context, state) => ReviewScreen(
+          gameId: state.pathParameters['gameId']!,
+          initialPly: int.tryParse(state.uri.queryParameters['ply'] ?? ''),
+        ),
+      ),
+      GoRoute(
+        path: Routes.coach,
+        builder: (context, state) {
+          final query = state.uri.queryParameters;
+          return CoachScreen(
+            gameId: int.tryParse(query['game'] ?? ''),
+            moveIndex: int.tryParse(query['move'] ?? ''),
+            question: query['q'],
+          );
+        },
+      ),
+      GoRoute(path: Routes.stats, builder: (context, state) => const StatsScreen()),
+      GoRoute(
+        path: '/report/:gameId',
+        builder: (context, state) => ReportCardScreen(gameId: state.pathParameters['gameId']!),
+      ),
+      GoRoute(
+        path: Routes.games,
+        builder: (context, state) {
+          final query = state.uri.queryParameters;
+          return GamesScreen(title: query['title'], only: GamesScreen.parseIds(query['ids']));
+        },
+      ),
+      GoRoute(path: Routes.settings, builder: (context, state) => const SettingsScreen()),
+    ],
+  );
+  ref.onDispose(router.dispose);
+  return router;
+});

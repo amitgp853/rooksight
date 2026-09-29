@@ -1,0 +1,22 @@
+{
+  // Run / F5 passes the Gemini key from .env (git-ignored) to the app.
+  // See .env.example for the format.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "MoveWise",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "toolArgs": ["--dart-define-from-file=.env"]
+    },
+    {
+      "name": "MoveWise (profile)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile",
+      "program": "lib/main.dart",
+      "toolArgs": ["--dart-define-from-file=.env"]
+    }
+  ]
+}

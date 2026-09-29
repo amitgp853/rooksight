@@ -1,0 +1,13 @@
+# App icons from the logo handoff (design/logo): the analyst's rook on #151B22.
+# Regenerate with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: assets/icon/app_icon_1024.png
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#151B22"
+  adaptive_icon_foreground: assets/icon/adaptive_foreground_432.png
+  # The foreground PNGs already place the rook in the safe zone.
+  adaptive_icon_foreground_inset: 0
+  adaptive_icon_monochrome: assets/icon/adaptive_monochrome_432.png

@@ -1,0 +1,40 @@
+import 'package:flutter/foundation.dart';
+
+import 'uci.dart';
+
+/// How hard and how strongly the engine should search.
+@immutable
+class SearchLimits {
+  const SearchLimits({this.depth, this.moveTime, this.lines = 1, this.limitElo, this.skillLevel})
+    : assert(depth != null || moveTime != null, 'Give a depth or a move time');
+
+  /// Stop at this depth (plies).
+  final int? depth;
+
+  /// Stop after this long.
+  final Duration? moveTime;
+
+  /// Number of candidate lines to return (UCI `MultiPV`).
+  final int lines;
+
+  /// Play like this Elo (`UCI_LimitStrength` + `UCI_Elo`, 1320–3190).
+  final int? limitElo;
+
+  /// Stockfish `Skill Level`, 0–20. Ignored when [limitElo] is set.
+  final int? skillLevel;
+}
+
+/// A chess engine behind an interface, so tests (and later the coach) can use
+/// a fake. Searches run off the UI thread.
+abstract interface class ChessEngine {
+  /// Searches [fen] and returns the candidate lines, best first.
+  ///
+  /// Returns an empty list when the side to move has no legal moves.
+  /// Searches are queued: a call waits for the previous one to finish.
+  Future<List<EngineLine>> search(String fen, SearchLimits limits);
+
+  /// Starts the engine ahead of the first search, to hide start-up time.
+  Future<void> warmUp();
+
+  Future<void> dispose();
+}

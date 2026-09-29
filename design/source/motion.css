@@ -1,0 +1,115 @@
+/* MoveWise motion demo keyframes.
+   Every demo loops on a 2400ms cycle. The action starts at 25% (600ms)
+   so each frame opens on the "before" state; 1% of the cycle = 24ms. */
+
+/* Piece slide: 200ms (25% -> 33.3%), ease-out cubic */
+@keyframes mw-slide {
+  0%, 25% { transform: translate(var(--dx), var(--dy)); animation-timing-function: cubic-bezier(0.22, 0.9, 0.3, 1); }
+  33.3%, 100% { transform: translate(0, 0); }
+}
+
+/* Captured piece: fades + shrinks to 55% over 190ms, starting 100ms before the attacker lands */
+@keyframes mw-capture {
+  0%, 29% { opacity: 1; transform: scale(1); animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  37%, 100% { opacity: 0; transform: scale(0.55); }
+}
+
+/* Illegal move: 150ms snap back, then a 200ms shake of 5px / 5px / 3px */
+@keyframes mw-shake {
+  0%, 25% { transform: translate(var(--dx), var(--dy)); animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1); }
+  31.25% { transform: translate(0, 0); }
+  33.3% { transform: translateX(-5px); }
+  35.4% { transform: translateX(5px); }
+  37.5% { transform: translateX(-3px); }
+  39.6%, 100% { transform: translate(0, 0); }
+}
+
+/* Red flash on a square (illegal drop): 70ms in, 400ms out */
+@keyframes mw-flash {
+  0%, 30% { opacity: 0; }
+  33% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Check: one pulse as the checking piece lands, then stays tinted */
+@keyframes mw-pulse {
+  0%, 33% { opacity: 0; }
+  37% { opacity: 1; }
+  42% { opacity: 0.45; }
+  48%, 100% { opacity: 1; }
+}
+
+/* Promotion morph: pawn out (120ms), queen in with 8% overshoot (200ms) */
+@keyframes mw-morphout {
+  0%, 25% { opacity: 1; transform: scale(1); }
+  30%, 100% { opacity: 0; transform: scale(0.7); }
+}
+@keyframes mw-morphin {
+  0%, 27% { opacity: 0; transform: scale(0.6); animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1.2); }
+  35% { opacity: 1; transform: scale(1.08); }
+  39%, 100% { opacity: 1; transform: scale(1); }
+}
+
+/* Reduced-motion crossfade: 150ms */
+@keyframes mw-fadein {
+  0%, 25% { opacity: 0; }
+  31.25%, 100% { opacity: 1; }
+}
+@keyframes mw-fadeout {
+  0%, 25% { opacity: 1; }
+  31.25%, 100% { opacity: 0; }
+}
+@keyframes mw-tintin {
+  0%, 25% { opacity: 0; }
+  30%, 100% { opacity: 1; }
+}
+
+/* Hint arrow: shaft draws in 360ms, head appears in the last 100ms */
+@keyframes mw-draw {
+  0%, 25% { stroke-dashoffset: var(--len); animation-timing-function: cubic-bezier(0.3, 0.6, 0.3, 1); }
+  40%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes mw-headin {
+  0%, 36% { opacity: 0; }
+  40%, 100% { opacity: 1; }
+}
+
+/* Drag lift: scale 1 -> 1.1 in 100ms */
+@keyframes mw-lift {
+  0%, 25% { transform: scale(1); }
+  29.2%, 100% { transform: scale(1.1); }
+}
+
+/* Legal-move dots and rings pop in: 120ms */
+@keyframes mw-pop {
+  0%, 25% { opacity: 0; transform: scale(0.3); }
+  30%, 100% { opacity: 1; transform: scale(1); }
+}
+
+/* Promotion picker: 160ms scale-in from the promotion square */
+@keyframes mw-promo {
+  0%, 25% { opacity: 0; transform: scale(0.92); }
+  31.7%, 100% { opacity: 1; transform: scale(1); }
+}
+
+/* Bottom sheet (result / options): 320ms slide up, scrim 200ms */
+@keyframes mw-sheet {
+  0%, 25% { transform: translateY(105%); animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1); }
+  38.3%, 100% { transform: translateY(0); }
+}
+@keyframes mw-scrim {
+  0%, 25% { opacity: 0; }
+  33.3%, 100% { opacity: 1; }
+}
+
+/* Engine thinking dots: 1200ms loop, staggered 150ms */
+@keyframes mw-dot {
+  0%, 70%, 100% { opacity: 0.3; transform: translateY(0); }
+  35% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* Low clock (under 10s): soft 1s breathe */
+@keyframes mw-tick {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

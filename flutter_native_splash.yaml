@@ -1,0 +1,22 @@
+# Native splash from the splash handoff (assets/splash). Its background matches
+# the first frame of the animated intro (lib/features/splash/).
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#F1F3F6"
+  image: assets/splash/splash_logo_light.png
+
+  color_dark: "#0E1217"
+  image_dark: assets/splash/splash_logo_dark.png
+
+  android_12:
+    image: assets/splash/android12_icon_light.png
+    icon_background_color: "#FFFFFF"
+    color: "#F1F3F6"
+    image_dark: assets/splash/android12_icon_dark.png
+    icon_background_color_dark: "#151B22"
+    color_dark: "#0E1217"
+
+  fullscreen: false
+  android_gravity: center
+  ios_content_mode: center
+  web: false

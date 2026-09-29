@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weakness stats</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Symbols+2&display=swap">
+<style>
+body{margin:0;background:#0E1217;color:#E9EDF2;font-family:'Instrument Sans',system-ui,sans-serif}
+button{font-family:inherit;cursor:pointer}
+a{color:#86A8FF;text-decoration:none}a:hover{color:#A9C0FF}
+</style>
+</helmet>
+<div style="width: 390px; height: 1420px; box-sizing: border-box; background: #0E1217; color: #E9EDF2; display: flex; flex-direction: column">
+
+<header style="height: 56px; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 4px">
+<a href="Home.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Your stats</h1>
+</header>
+
+<div style="padding: 4px 16px 32px; display: flex; flex-direction: column; gap: 28px">
+
+<div role="group" aria-label="Period" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #151B22">
+<sc-for list="{{periods}}" as="p" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{p.on}}" onClick="{{p.pick}}" style="height: 40px; border-radius: 10px; border: none; background: {{p.bg}}; color: {{p.fg}}; font-size: 14px; font-weight: 600">{{p.label}}</button>
+</sc-for>
+</div>
+
+<section aria-labelledby="w-h" style="display: flex; flex-direction: column; gap: 12px">
+<h2 id="w-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 20px; letter-spacing: -0.01em">Top 3 weaknesses</h2>
+<sc-for list="{{weak}}" as="w" hint-placeholder-count="3">
+<article style="background: #151B22; border-radius: 16px; padding: 16px; display: flex; gap: 14px">
+<span style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; background: #1C242E; color: #F09A55; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: 15px">{{w.rank}}</span>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">
+<h3 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 16px; line-height: 22px">{{w.title}}</h3>
+<span style="font-size: 14px; line-height: 20px; color: #A3AFBD">{{w.detail}}</span>
+<div style="height: 6px; border-radius: 3px; background: #222B36; display: flex; overflow: hidden"><div style="width: {{w.pct}}%; background: #F09A55; border-radius: 3px"></div></div>
+<div style="display: flex; gap: 8px; padding-top: 4px">
+<a href="Coach.dc.html" style="height: 36px; padding: 0 14px; border-radius: 10px; background: #1C242E; color: #E9EDF2; display: flex; align-items: center; font-size: 14px; font-weight: 600">Ask coach</a>
+<a href="Review.dc.html" style="height: 36px; padding: 0 14px; border-radius: 10px; color: #86A8FF; display: flex; align-items: center; font-size: 14px; font-weight: 600">See {{w.games}} games</a>
+</div>
+</div>
+</article>
+</sc-for>
+</section>
+
+<section aria-labelledby="ph-h" style="background: #151B22; border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 id="ph-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Blunders by game phase</h2>
+<span style="font-size: 13px; color: #A3AFBD">23 total</span>
+</div>
+<sc-for list="{{phases}}" as="ph" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-size: 14px">
+<span>{{ph.name}} <span style="color: #7C8898">· {{ph.range}}</span></span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500">{{ph.n}}</span>
+</div>
+<div style="height: 12px; border-radius: 6px; background: #1C242E; display: flex; overflow: hidden"><div style="width: {{ph.pct}}%; background: #F2677A; border-radius: 6px"></div></div>
+</div>
+</sc-for>
+<p style="margin: 0; font-size: 13px; line-height: 19px; color: #A3AFBD">Most of your blunders come after the opening, once you leave known theory.</p>
+</section>
+
+<section aria-labelledby="op-h" style="background: #151B22; border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h2 id="op-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Results by opening</h2>
+<div style="display: flex; gap: 10px; font-size: 12px; color: #A3AFBD">
+<span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #86A8FF"></span>Win</span>
+<span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #7C8898"></span>Draw</span>
+<span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #F09A55"></span>Loss</span>
+</div>
+</div>
+<sc-for list="{{openings}}" as="o" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid #1C242E">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+<div style="display: flex; flex-direction: column">
+<span style="font-size: 15px; font-weight: 500">{{o.name}}</span>
+<span style="font-size: 12px; color: #7C8898">as {{o.side}} · {{o.games}} games</span>
+</div>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 14px; color: {{o.scoreFg}}">{{o.score}}%</span>
+</div>
+<div role="img" aria-label="{{o.aria}}" style="height: 10px; border-radius: 5px; display: flex; gap: 2px; overflow: hidden">
+<div style="width: {{o.w}}%; background: #86A8FF"></div>
+<div style="width: {{o.d}}%; background: #7C8898"></div>
+<div style="width: {{o.l}}%; background: #F09A55"></div>
+</div>
+</div>
+</sc-for>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1420}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { period: '20' };
+  }
+  renderVals() {
+    var self = this;
+    var periods = [{ id: '20', label: 'Last 20' }, { id: '50', label: 'Last 50' }, { id: 'all', label: 'All time' }].map(function (p) {
+      var on = self.state.period === p.id;
+      return { label: p.label, on: on ? 'true' : 'false', bg: on ? '#2A3A5E' : 'transparent', fg: on ? '#E9EDF2' : '#A3AFBD', pick: function () { self.setState({ period: p.id }); } };
+    });
+    var weak = [
+      { rank: 1, title: 'Releasing central tension early', detail: 'A capture on d5 or e5 decided 9 of your 20 losses.', pct: 45, games: 9 },
+      { rank: 2, title: 'Back rank left uncovered', detail: '4 blunders after move 30 came from a checking rook or queen.', pct: 20, games: 4 },
+      { rank: 3, title: 'Time trouble in rapid', detail: 'You average 1:10 on the clock by move 30.', pct: 30, games: 6 }
+    ];
+    var phases = [
+      { name: 'Opening', range: 'moves 1–12', n: 3 },
+      { name: 'Middlegame', range: 'moves 13–35', n: 14 },
+      { name: 'Endgame', range: '36+', n: 6 }
+    ].map(function (p) { return Object.assign({}, p, { pct: Math.round((p.n / 14) * 100) }); });
+    var openings = [
+      { name: 'Italian Game', side: 'White', w: 9, d: 2, l: 5 },
+      { name: 'Sicilian Defence', side: 'Black', w: 3, d: 1, l: 8 },
+      { name: 'Queen’s Gambit Declined', side: 'Black', w: 4, d: 2, l: 2 },
+      { name: 'London System', side: 'White', w: 4, d: 1, l: 1 },
+      { name: 'French Defence', side: 'Black', w: 1, d: 1, l: 4 }
+    ].map(function (o) {
+      var g = o.w + o.d + o.l;
+      var score = Math.round(((o.w + o.d / 2) / g) * 100);
+      return {
+        name: o.name, side: o.side, games: g, score: score,
+        scoreFg: score >= 50 ? '#A9C0FF' : '#F09A55',
+        w: (o.w / g) * 100, d: (o.d / g) * 100, l: (o.l / g) * 100,
+        aria: o.w + ' wins, ' + o.d + ' draws, ' + o.l + ' losses'
+      };
+    });
+    return { periods: periods, weak: weak, phases: phases, openings: openings };
+  }
+}
+</script>
+</body>
+</html>

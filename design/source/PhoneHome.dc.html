@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phone home screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 400px; height: 860px; box-sizing: border-box; padding: 10px; border-radius: 56px; background: #05070A; font-family: 'Instrument Sans', system-ui, sans-serif">
+<div style="position: relative; width: 380px; height: 840px; border-radius: 46px; overflow: hidden; background: {{w.bg}}">
+<div aria-hidden="true" style="position: absolute; left: -120px; top: 420px; width: 460px; height: 460px; border-radius: 50%; background: {{w.blob1}}"></div>
+<div aria-hidden="true" style="position: absolute; left: 180px; top: -80px; width: 340px; height: 340px; border-radius: 50%; background: {{w.blob2}}"></div>
+
+<div style="position: absolute; left: 22px; right: 22px; top: 96px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 26px">
+<sc-for list="{{apps}}" as="a" hint-placeholder-count="16">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 7px">
+<sc-if value="{{a.mw}}" hint-placeholder-val="{{false}}">
+<div style="width: 62px; height: 62px; border-radius: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.25)">
+<dc-import name="Logo" variant="1a" mode="{{a.mode}}" size="62" hint-size="62px,62px"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{a.plain}}" hint-placeholder-val="{{true}}">
+<div style="width: 62px; height: 62px; border-radius: 14px; background: {{a.bg}}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.18)">
+<svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" style="display: block"><path d="{{a.d}}" style="fill: none; stroke: {{a.g}}; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+</div>
+</sc-if>
+<span style="font-size: 12px; font-weight: 500; color: {{w.label}}">{{a.label}}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="position: absolute; left: 14px; right: 14px; bottom: 16px; height: 96px; border-radius: 34px; background: {{w.dock}}; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: center; justify-items: center; padding: 0 8px">
+<sc-for list="{{dock}}" as="a" hint-placeholder-count="4">
+<div style="width: 62px; height: 62px; border-radius: 14px; background: {{a.bg}}; display: flex; align-items: center; justify-content: center">
+<svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true" style="display: block"><path d="{{a.d}}" style="fill: none; stroke: {{a.g}}; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"dark"},"$preview":{"width":400,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var dark = this.props.theme !== 'light';
+    var W = '#FFFFFF';
+    var G = {
+      camera: 'M4 8h4l2-2h4l2 2h4v11H4zM12 16.5a3.5 3.5 0 1 0 0-7a3.5 3.5 0 1 0 0 7',
+      weather: 'M12 7a5 5 0 1 0 0 10a5 5 0 1 0 0-10M12 2v2M12 20v2M2 12h2M20 12h2',
+      notes: 'M7 8h10M7 12h10M7 16h6',
+      maps: 'M4 18L10 6l4 8 6-4',
+      music: 'M9 17a2 2 0 1 1-4 0a2 2 0 1 1 4 0M9 17V6l9-2v11M18 15a2 2 0 1 1-4 0a2 2 0 1 1 4 0',
+      clock: 'M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16M12 8v4l3 2',
+      mail: 'M4 7h16v10H4zM4 7l8 6 8-6',
+      calendar: 'M5 6h14v13H5zM5 10h14M9 4v4M15 4v4',
+      files: 'M4 7h6l2 2h8v9H4z',
+      podcasts: 'M12 11.5v.5M8 16a6 6 0 1 1 8 0M12 15v4',
+      fitness: 'M4 12h3l2-4 3 8 2-4h6',
+      books: 'M6 5h9a3 3 0 0 1 3 3v11H9a3 3 0 0 1-3-3z',
+      calc: 'M7 4h10v16H7zM9 8h6M9 12h.5M12 12h.5M15 12h.5M9 16h.5M12 16h.5M15 16h.5',
+      wallet: 'M4 7h16v11H4zM16 12h4',
+      settings: 'M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6M12 3v3M12 18v3M3 12h3M18 12h3',
+      phone: 'M7 4l3 1 1 4-2 1a11 11 0 0 0 5 5l1-2 4 1 1 3-2 2C11 19 5 13 5 6z',
+      messages: 'M4 6h16v10H9l-5 4z',
+      browser: 'M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16M4 12h16M12 4c3 3 3 13 0 16M12 4c-3 3-3 13 0 16',
+      gallery: 'M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4'
+    };
+    var app = function (label, key, bg, g) { return { label: label, d: G[key], bg: bg, g: g || W, mw: false, plain: true, mode: 'dark' }; };
+    var apps = [
+      app('Camera', 'camera', '#3A3F47'), app('Weather', 'weather', '#3F7FD9'), app('Notes', 'notes', '#E8C547', '#3A2F00'), app('Maps', 'maps', '#3FA66B'),
+      app('Music', 'music', '#E25A6E'), app('Clock', 'clock', '#1B1F24'),
+      { label: 'MoveWise', mw: true, plain: false, mode: 'dark', d: '', bg: '', g: '' },
+      app('Mail', 'mail', '#3B6FE0'),
+      app('Calendar', 'calendar', '#F4F4F4', '#D64545'), app('Files', 'files', '#3A96E0'), app('Podcasts', 'podcasts', '#8B5CC7'), app('Fitness', 'fitness', '#1B1F24', '#9BE15D'),
+      app('Books', 'books', '#E88A3A'), app('Calculator', 'calc', '#2A2D33'), app('Wallet', 'wallet', '#22262B'), app('Settings', 'settings', '#7D838C')
+    ];
+    var dock = [app('Phone', 'phone', '#3FAE63'), app('Messages', 'messages', '#4CC2A4'), app('Browser', 'browser', '#2F80ED'), app('Gallery', 'gallery', '#E9A23B')];
+    return {
+      apps: apps, dock: dock,
+      w: dark
+        ? { bg: '#0B0F16', blob1: '#141C2A', blob2: '#1A1F33', label: '#E9EDF2', dock: 'rgba(255,255,255,0.10)' }
+        : { bg: '#E4EAF2', blob1: '#D3DDEB', blob2: '#F1E6D3', label: '#1D232B', dock: 'rgba(255,255,255,0.55)' }
+    };
+  }
+}
+</script>
+</body>
+</html>

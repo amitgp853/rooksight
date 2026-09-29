@@ -1,0 +1,20 @@
+include: package:flutter_lints/flutter.yaml
+
+formatter:
+  page_width: 100
+
+linter:
+  rules:
+    - prefer_single_quotes
+    - prefer_const_constructors
+    - prefer_final_locals
+    - require_trailing_commas
+    - unawaited_futures
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - '**/*.g.dart'
+    # Design handoff references, not app code (the intro lives in lib/features/splash).
+    - docs/**

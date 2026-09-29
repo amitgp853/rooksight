@@ -1,0 +1,24 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'core/routing/app_router.dart';
+import 'core/settings/display_settings.dart';
+import 'core/theme/app_theme.dart';
+import 'features/splash/intro.dart';
+
+class MoveWiseApp extends ConsumerWidget {
+  const MoveWiseApp({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp.router(
+      title: 'MoveWise',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ref.watch(themeModeProvider),
+      routerConfig: ref.watch(routerProvider),
+      builder: (context, child) => IntroGate(child: child!),
+    );
+  }
+}

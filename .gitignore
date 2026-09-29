@@ -56,3 +56,6 @@ lib/**/secrets.dart
 # Claude Code files: local only
 .claude/
 CLAUDE.md
+
+# Design handoff and prompts: local only
+docs/

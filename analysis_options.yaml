@@ -17,4 +17,4 @@ analyzer:
     - ios/**
     - '**/*.g.dart'
     # Design handoff references, not app code (the intro lives in lib/features/splash).
-    - docs/**
+    - design/splash/**

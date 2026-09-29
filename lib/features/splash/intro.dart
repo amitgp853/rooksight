@@ -1,4 +1,7 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/motion/reduce_motion.dart';
@@ -40,13 +43,15 @@ class _IntroGateState extends State<IntroGate> {
   }
 }
 
-/// The animated intro (design: SplashIntro, docs/splash/movewise_intro.dart),
+/// The animated intro (design: SplashIntro, design/splash/movewise_intro.dart),
 /// about 1.2 s plus a short hold: the tower appears, the three battlements
 /// rise one by one, the AI spark pops in and the wordmark fades up.
 ///
-/// It follows the phone's light or dark mode, like the native splash before
-/// it, and the logo sits where the splash drew it, so the hand-off is
-/// seamless. With reduced motion it shows the final frame.
+/// It opens in the phone's light or dark mode, exactly like the native splash
+/// before it (which can't know the app's setting), with the logo where the
+/// splash drew it, so the hand-off is seamless. If the app's Appearance
+/// setting differs, the colours then blend into it, so Home appears in the
+/// right theme. With reduced motion it shows the final frame, with a fade.
 class MoveWiseIntro extends ConsumerStatefulWidget {
   const MoveWiseIntro({super.key, required this.onDone});
 
@@ -84,6 +89,11 @@ class _MoveWiseIntroState extends ConsumerState<MoveWiseIntro> with SingleTicker
     });
   }
 
+  /// How far the colours have gone from the phone's mode to the app's (0–1):
+  /// while the tower draws, or across the still frame with reduced motion.
+  double get _toAppTheme =>
+      Curves.easeInOut.transform(_reduced ? _controller.value : ((_t - 0.1) / 0.5).clamp(0.0, 1.0));
+
   /// Progress through the drawing (0–1), the hold excluded.
   double get _t => _reduced
       ? 1
@@ -100,76 +110,114 @@ class _MoveWiseIntroState extends ConsumerState<MoveWiseIntro> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    // The native splash follows the phone, not the app's theme setting.
-    final dark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    final colors = dark ? AppColors.dark : AppColors.light;
-    return Theme(
-      data: dark ? AppTheme.dark() : AppTheme.light(),
-      child: Builder(
-        builder: (context) {
-          final type = context.type;
-          return ColoredBox(
-            color: colors.bgBase,
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, _) {
-                final word = Curves.easeOutCubic.transform(((_t - 0.75) / 0.25).clamp(0.0, 1.0));
-                return Stack(
-                  children: [
-                    Center(
-                      child: SizedBox.square(
-                        dimension: MoveWiseIntro.logoSize,
-                        child: CustomPaint(
-                          painter: RookPainter(_t, dark: dark, background: colors.bgBase),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: MoveWiseIntro.logoSize + 110),
-                        child: Opacity(
-                          opacity: word,
-                          child: Transform.translate(
-                            offset: Offset(0, 12 * (1 - word)),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: 4,
-                              children: [
-                                Text(
-                                  'MoveWise',
-                                  style: type.title.copyWith(fontSize: 30, letterSpacing: -0.75),
-                                ),
-                                Text(
-                                  'Your AI chess coach',
-                                  style: type.body.copyWith(
-                                    fontSize: 14,
-                                    color: colors.textSecondary,
-                                  ),
-                                ),
-                              ],
+    // The native splash follows the phone; the app may be set otherwise.
+    final phoneDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final appDark = Theme.of(context).brightness == Brightness.dark;
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final darkness = lerpDouble(phoneDark ? 1 : 0, appDark ? 1 : 0, _toAppTheme)!;
+        Color blend(Color Function(AppColors) token) =>
+            Color.lerp(token(AppColors.light), token(AppColors.dark), darkness)!;
+        final background = blend((c) => c.bgBase);
+        // The wordmark appears after the blend, so it takes the app's colours
+        // (with reduced motion it's visible sooner: it switches halfway, as a
+        // fresh text, since changing a text's colour frame by frame can trip
+        // over fonts still loading).
+        final textDark = _reduced ? darkness >= 0.5 : appDark;
+        final text = textDark ? AppColors.dark : AppColors.light;
+        final word = Curves.easeOutCubic.transform(((_t - 0.75) / 0.25).clamp(0.0, 1.0));
+        // One theme throughout for the type; only the colours blend.
+        return Theme(
+          data: phoneDark ? AppTheme.dark() : AppTheme.light(),
+          child: Builder(
+            builder: (context) {
+              final type = context.type;
+              // Status-bar icons flip at the blend's midpoint, so they stay
+              // readable on the background throughout.
+              return AnnotatedRegion<SystemUiOverlayStyle>(
+                value: darkness >= 0.5 ? _StatusBar.overDark : _StatusBar.overLight,
+                child: ColoredBox(
+                  color: background,
+                  // The intro sits above the app's screens, outside any
+                  // Scaffold: this gives its text proper defaults (no yellow
+                  // "missing Material" underline).
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Stack(
+                      children: [
+                        Center(
+                          child: SizedBox.square(
+                            dimension: MoveWiseIntro.logoSize,
+                            child: CustomPaint(
+                              painter: RookPainter(_t, darkness: darkness, background: background),
                             ),
                           ),
                         ),
-                      ),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: MoveWiseIntro.logoSize + 110),
+                            child: Opacity(
+                              opacity: word,
+                              child: Transform.translate(
+                                offset: Offset(0, 12 * (1 - word)),
+                                child: Column(
+                                  key: ValueKey(textDark),
+                                  mainAxisSize: MainAxisSize.min,
+                                  spacing: 4,
+                                  children: [
+                                    Text(
+                                      'MoveWise',
+                                      style: type.title.copyWith(
+                                        fontSize: 30,
+                                        letterSpacing: -0.75,
+                                        color: text.textPrimary,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Your AI Chess Coach',
+                                      style: type.body.copyWith(
+                                        fontSize: 14,
+                                        color: text.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                );
-              },
-            ),
-          );
-        },
-      ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
+}
+
+/// Status-bar styles over the intro's background, with a transparent bar.
+abstract final class _StatusBar {
+  /// Light icons, for a dark background.
+  static final overDark = SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent);
+
+  /// Dark icons, for a light background.
+  static final overLight = SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent);
 }
 
 /// The rook, drawn [t] of the way through the intro (1 = the finished
 /// logo), on a 100 × 100 canvas scaled to the size given.
 class RookPainter extends CustomPainter {
-  RookPainter(this.t, {required this.dark, required this.background});
+  RookPainter(this.t, {required this.darkness, required this.background});
 
   final double t;
-  final bool dark;
+
+  /// 0 for the light logo, 1 for the dark one; in between while blending.
+  final double darkness;
 
   /// The spark is cut out by painting it in the background colour.
   final Color background;
@@ -180,9 +228,9 @@ class RookPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final tower = dark ? AppColors.dark.focus : AppColors.light.focus;
+    final tower = Color.lerp(AppColors.light.focus, AppColors.dark.focus, darkness)!;
     // The logo's own brass in light mode (design/logo/mark_light.svg).
-    final best = dark ? AppColors.dark.brass : const Color(0xFFC98A1B);
+    final best = Color.lerp(const Color(0xFFC98A1B), AppColors.dark.brass, darkness)!;
     canvas.scale(size.width / 100);
     RRect rect(double x, double y, double w, double h, double r) =>
         RRect.fromRectAndRadius(Rect.fromLTWH(x, y, w, h), Radius.circular(r));
@@ -244,5 +292,6 @@ class RookPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(RookPainter old) => old.t != t || old.dark != dark;
+  bool shouldRepaint(RookPainter old) =>
+      old.t != t || old.darkness != darkness || old.background != background;
 }

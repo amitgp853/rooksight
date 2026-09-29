@@ -19,14 +19,13 @@ import 'llm_client.dart';
 class GeminiClient implements LlmClient {
   GeminiClient({
     required String apiKey,
-    required String model,
+    required this.model,
     this.fallbackModels = const [],
     http.Client? client,
     Future<void> Function(Duration)? wait,
     Random? random,
   }) : _apiKey = apiKey,
        _primary = model,
-       model = model,
        _client = client ?? http.Client(),
        _wait = wait ?? Future<void>.delayed,
        _random = random ?? Random();

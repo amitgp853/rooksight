@@ -133,6 +133,25 @@ class CoachTools {
   /// Game moves the tools have described, by `(game id, move index)`.
   final gameMoves = <(int, int), CoachMove>{};
 
+  /// What the tools have verified so far, to save with a chat: reopened
+  /// later, its answers may still mention these ([restore]).
+  Map<String, Object?> get memory => {
+    'moves': moves.toList(),
+    'cards': [for (final move in gameMoves.values) move.toJson()],
+  };
+
+  /// Brings back what an earlier session verified (see [memory]).
+  void restore(Map<String, Object?> memory) {
+    final saved = memory['moves'];
+    if (saved is List) moves.addAll(saved.whereType<String>());
+    final cards = memory['cards'];
+    if (cards is List) {
+      for (final move in cards.map(CoachMove.fromJson).nonNulls) {
+        gameMoves[(move.gameId, move.index)] = move;
+      }
+    }
+  }
+
   /// Positions from games, by FEN without the move counters, so a later
   /// look at the same position can say which move it was.
   final _positions = <String, ({CoachMove move, String? best})>{};

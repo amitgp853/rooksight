@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/material.dart';
@@ -90,9 +91,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     builder: (_) => const ResultSheet(),
   );
 
-  /// Sound and haptic for each move, from either side: a soft glide while
-  /// the piece slides, then its landing sound and haptic as it arrives. A
-  /// piece dropped by drag, or with reduced motion, lands at once.
+  /// Sound and haptic for each move, from either side, as the piece lands:
+  /// after its slide, or at once when dropped by drag or with reduced motion.
   void _onSessionChange(GameSession? previous, GameSession next) {
     final before = previous?.game;
     final game = next.game;
@@ -115,7 +115,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
       _landNow();
       if (slides) {
-        sounds?.play(GameSound.glide);
         _landing = land;
         _landingTimer = Timer(moveSlide, _landNow);
       } else {
@@ -238,14 +237,7 @@ class _MessageArea extends ConsumerWidget {
 
     final Widget? message;
     if (session.engineError) {
-      message = _Toast(
-        tint: colors.coral,
-        text: 'Stockfish didn’t answer.',
-        action: TextButton(
-          onPressed: ref.read(gameControllerProvider.notifier).retryEngine,
-          child: const Text('Try again'),
-        ),
-      );
+      message = _EngineErrorCard(onRetry: ref.read(gameControllerProvider.notifier).retryEngine);
     } else if (session.game.isOver) {
       message = _Toast(
         text: ResultCopy.of(session).title,
@@ -259,17 +251,84 @@ class _MessageArea extends ConsumerWidget {
       message = null;
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.s3),
-      child: Center(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 150),
-          child: message == null
-              ? const SizedBox.shrink()
-              : DefaultTextStyle(
-                  style: type.body.copyWith(fontSize: 14, height: 20 / 14),
-                  child: message,
+    // Centred when it fits; scrolls on short screens (the error card is tall).
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: 10),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: math.max(0, constraints.maxHeight - 20)),
+          child: Center(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 150),
+              child: message == null
+                  ? const SizedBox.shrink()
+                  : DefaultTextStyle(
+                      style: type.body.copyWith(fontSize: 14, height: 20 / 14),
+                      child: message,
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Stockfish failed to reply (`IX21-EngineError.dc.html`).
+class _EngineErrorCard extends StatelessWidget {
+  const _EngineErrorCard({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final type = context.type;
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: colors.coral.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colors.coral.withValues(alpha: 0.45)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpacing.s3,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
+              children: [
+                Text(
+                  'Stockfish didn’t answer.',
+                  style: type.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Color.lerp(colors.coral, colors.textPrimary, 0.35),
+                  ),
                 ),
+                Text(
+                  'Your game is saved. Ask again, or come back to it later from Home.',
+                  style: type.label.copyWith(
+                    fontWeight: FontWeight.w400,
+                    height: 19 / 13,
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            FilledButton(
+              onPressed: onRetry,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(44),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                textStyle: type.heading.copyWith(fontSize: 14),
+              ),
+              child: const Text('Try again'),
+            ),
+          ],
         ),
       ),
     );

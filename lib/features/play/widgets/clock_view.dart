@@ -10,15 +10,36 @@ import '../../../core/theme/app_theme.dart';
 import '../domain/game_clock.dart';
 import '../domain/game_controller.dart';
 
-/// One player's clock. Normal: focus fill when running. Under 30s: brass.
-/// Under 10s: coral, breathing 1 → 0.7 opacity while running. Colour changes
-/// tween over 200ms.
+/// How a clock is drawn.
+enum ClockStyle {
+  /// A 40px box, beside a player row vs Stockfish.
+  box,
+
+  /// A 44px box with bigger digits, in pass & play rows.
+  largeBox,
+
+  /// Big digits and no box, in the face-to-face panels.
+  digits,
+}
+
+/// [side]'s clock. Normal: focus fill when running. Under 30s: brass. Under
+/// 10s: coral, breathing 1 → 0.7 opacity while running. Colour changes tween
+/// over 200ms. Without a box ([ClockStyle.digits]) the digits take the colour.
 class ClockView extends ConsumerStatefulWidget {
-  const ClockView({super.key, required this.clock, required this.side, required this.isPlayer});
+  const ClockView({
+    super.key,
+    required this.clock,
+    required this.side,
+    this.owner = 'Your',
+    this.style = ClockStyle.box,
+  });
 
   final GameClock clock;
   final Side side;
-  final bool isPlayer;
+
+  /// Whose clock, for screen readers: "Your" or e.g. "Opponent's".
+  final String owner;
+  final ClockStyle style;
 
   static const lowTime = Duration(seconds: 30);
   static const criticalTime = Duration(seconds: 10);
@@ -79,8 +100,7 @@ class _ClockViewState extends ConsumerState<ClockView> with SingleTickerProvider
     final running = _running;
     final lastLeft = _lastLeft;
     _lastLeft = left;
-    if (widget.isPlayer &&
-        running &&
+    if (running &&
         lastLeft != null &&
         lastLeft >= ClockView.criticalTime &&
         left < ClockView.criticalTime) {
@@ -92,8 +112,25 @@ class _ClockViewState extends ConsumerState<ClockView> with SingleTickerProvider
         : left < ClockView.lowTime
         ? (colors.brass, true)
         : (colors.focus, false);
-    final background = running ? accent : colors.bgRaised;
-    final foreground = running ? colors.onFocus : (warning ? accent : colors.textSecondary);
+    final boxed = widget.style != ClockStyle.digits;
+    final background = running && boxed ? accent : colors.bgRaised;
+    final foreground = warning && !(running && boxed)
+        ? accent
+        : running
+        ? (boxed ? colors.onFocus : colors.textPrimary)
+        : colors.textSecondary;
+    final digits = Text(
+      formatClock(left),
+      style: context.type.mono.copyWith(
+        fontSize: switch (widget.style) {
+          ClockStyle.box => 20,
+          ClockStyle.largeBox => 22,
+          ClockStyle.digits => 44,
+        },
+        height: 1,
+        color: foreground,
+      ),
+    );
 
     final breathe = running && left < ClockView.criticalTime && !shouldReduceMotion(context, ref);
     if (breathe && !_breath.isAnimating) {
@@ -105,30 +142,27 @@ class _ClockViewState extends ConsumerState<ClockView> with SingleTickerProvider
     }
 
     return Semantics(
-      label:
-          '${widget.isPlayer ? 'Your' : 'Stockfish'} clock, ${_spoken(left)}'
-          '${running ? ', running' : ''}',
+      label: '${widget.owner} clock, ${_spoken(left)}${running ? ', running' : ''}',
       excludeSemantics: true,
       child: FadeTransition(
         opacity: _breath,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 40,
-          constraints: const BoxConstraints(minWidth: 84),
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          alignment: Alignment.centerRight,
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: !running && warning ? accent.withValues(alpha: 0.5) : Colors.transparent,
-            ),
-          ),
-          child: Text(
-            formatClock(left),
-            style: context.type.mono.copyWith(fontSize: 20, height: 1, color: foreground),
-          ),
-        ),
+        child: boxed
+            ? AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: widget.style == ClockStyle.box ? 40 : 44,
+                constraints: BoxConstraints(minWidth: widget.style == ClockStyle.box ? 84 : 92),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                alignment: Alignment.centerRight,
+                decoration: BoxDecoration(
+                  color: background,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: !running && warning ? accent.withValues(alpha: 0.5) : Colors.transparent,
+                  ),
+                ),
+                child: digits,
+              )
+            : digits,
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../../../core/config/app_info.dart';
 import 'chess_com_models.dart';
 import 'import_failure.dart';
+import 'import_pause.dart';
 
 export 'import_failure.dart';
 
@@ -134,4 +135,7 @@ class HttpChessComApi implements ChessComApi {
   }
 }
 
-final chessComApiProvider = Provider<ChessComApi>((ref) => HttpChessComApi());
+/// Waits after a 429 go through [importPauseProvider], so the screen can show them.
+final chessComApiProvider = Provider<ChessComApi>(
+  (ref) => HttpChessComApi(wait: ref.read(importPauseProvider.notifier).wait),
+);

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MoveWise Android adaptive icon</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>body{margin:0;background:#0E1217}</style>
+</helmet>
+<div style="width: 1440px; height: 860px; box-sizing: border-box; padding: 64px; background: #0E1217; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 40px">
+
+<header style="display: flex; align-items: baseline; gap: 24px">
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 32px; letter-spacing: -0.02em">Android adaptive icon</h1>
+<span style="font-size: 16px; color: #A3AFBD">Foreground mark on its own layer over a solid background, 108 × 108 dp. The rook sits at 64% so its base corners and tallest battlement stay inside the 66 dp safe zone.</span>
+</header>
+
+<div style="display: flex; align-items: center; gap: 28px">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="position: relative; width: 260px; height: 260px; border-radius: 12px; overflow: hidden; background-color: #1C242E; background-image: repeating-conic-gradient(#222B36 0% 25%, transparent 0% 50%); background-size: 20px 20px">
+<div style="position: absolute; left: 0; top: 0"><dc-import name="Logo" variant="brand" mode="dark" tile="false" scale="0.64" size="260" hint-size="260px,260px"></dc-import></div>
+<div aria-hidden="true" style="position: absolute; left: 43px; top: 43px; width: 173px; height: 173px; box-sizing: border-box; border: 1.5px dashed rgba(233,237,242,0.55)"></div>
+<div aria-hidden="true" style="position: absolute; left: 51px; top: 51px; width: 158px; height: 158px; box-sizing: border-box; border-radius: 50%; border: 1.5px dashed #E3B25C"></div>
+</div>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">Foreground layer</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">transparent · vector drawable</span>
+</div>
+
+<span aria-hidden="true" style="font-family: Sora, sans-serif; font-size: 36px; color: #7C8898; padding-bottom: 50px">+</span>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="position: relative; width: 260px; height: 260px; border-radius: 12px; overflow: hidden; background: #151B22; box-shadow: inset 0 0 0 1px #2A3441">
+<div aria-hidden="true" style="position: absolute; left: 43px; top: 43px; width: 173px; height: 173px; box-sizing: border-box; border: 1.5px dashed rgba(233,237,242,0.35)"></div>
+</div>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">Background layer</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">solid #151B22</span>
+</div>
+
+<span aria-hidden="true" style="font-family: Sora, sans-serif; font-size: 36px; color: #7C8898; padding-bottom: 50px">=</span>
+
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="position: relative; width: 260px; height: 260px; border-radius: 12px; overflow: hidden; background: #151B22">
+<div style="position: absolute; left: 0; top: 0"><dc-import name="Logo" variant="brand" mode="dark" tile="false" scale="0.64" size="260" hint-size="260px,260px"></dc-import></div>
+<div aria-hidden="true" style="position: absolute; left: 43px; top: 43px; width: 173px; height: 173px; box-sizing: border-box; border: 1.5px dashed rgba(233,237,242,0.35)"></div>
+</div>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">Both layers</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">dashed square = 72 dp the launcher shows</span>
+</div>
+
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 14px; padding-left: 16px; font-size: 14px; line-height: 21px; color: #C4CCD6">
+<span style="display: flex; gap: 10px; align-items: center"><span style="width: 22px; border-top: 1.5px dashed rgba(233,237,242,0.55)"></span>72 dp visible area</span>
+<span style="display: flex; gap: 10px; align-items: center"><span style="width: 22px; border-top: 1.5px dashed #E3B25C"></span>66 dp safe zone, never cropped</span>
+<span style="color: #A3AFBD">Launchers move the foreground a few dp against the background for parallax, so the background stays a flat colour with nothing to misalign.</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">ic_launcher_foreground.xml<br>ic_launcher_background → #151B22<br>ic_launcher_monochrome.xml</span>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">The same layers under launcher masks</span>
+<div style="display: flex; gap: 48px; align-items: flex-end">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<div style="position: relative; width: 150px; height: 150px; overflow: hidden; border-radius: 50%; background: #151B22"><div style="position: absolute; left: -38px; top: -38px"><dc-import name="Logo" variant="brand" mode="dark" tile="false" scale="0.64" size="226" hint-size="226px,226px"></dc-import></div></div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">Circle</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<div style="position: relative; width: 150px; height: 150px; overflow: hidden; border-radius: 38%; background: #151B22"><div style="position: absolute; left: -38px; top: -38px"><dc-import name="Logo" variant="brand" mode="dark" tile="false" scale="0.64" size="226" hint-size="226px,226px"></dc-import></div></div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">Squircle</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<div style="position: relative; width: 150px; height: 150px; overflow: hidden; border-radius: 22%; background: #151B22"><div style="position: absolute; left: -38px; top: -38px"><dc-import name="Logo" variant="brand" mode="dark" tile="false" scale="0.64" size="226" hint-size="226px,226px"></dc-import></div></div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">Rounded square</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<div style="position: relative; width: 150px; height: 150px; overflow: hidden; border-radius: 50% 50% 14% 50%; background: #151B22"><div style="position: absolute; left: -38px; top: -38px"><dc-import name="Logo" variant="brand" mode="dark" tile="false" scale="0.64" size="226" hint-size="226px,226px"></dc-import></div></div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">Teardrop</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+<div style="position: relative; width: 48px; height: 48px; overflow: hidden; border-radius: 50%; background: #151B22"><div style="position: absolute; left: -12px; top: -12px"><dc-import name="Logo" variant="brand" mode="dark" tile="false" scale="0.64" size="72" hint-size="72px,72px"></dc-import></div></div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A3AFBD">48 px</span>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

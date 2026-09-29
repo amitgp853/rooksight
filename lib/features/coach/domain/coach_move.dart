@@ -42,4 +42,40 @@ class CoachMove {
   /// `Stockfish 1600`, or the Chess.com opponent.
   final String opponent;
   final DateTime playedAt;
+
+  /// Kept with a saved chat, so the card still shows (and the move check
+  /// still knows it) when the chat is reopened, even if the game is gone.
+  Map<String, Object?> toJson() => {
+    'gameId': gameId,
+    'index': index,
+    'label': label,
+    'quality': ?quality?.name,
+    'best': ?best,
+    'fen': fen,
+    'lastMove': lastMove.uci,
+    'orientation': orientation.name,
+    'opponent': opponent,
+    'playedAt': playedAt.toIso8601String(),
+  };
+
+  /// Null if [json] can't be read.
+  static CoachMove? fromJson(Object? json) {
+    if (json is! Map<String, Object?>) return null;
+    try {
+      return CoachMove(
+        gameId: json['gameId']! as int,
+        index: json['index']! as int,
+        label: json['label']! as String,
+        quality: MoveQuality.values.where((q) => q.name == json['quality']).firstOrNull,
+        best: json['best'] as String?,
+        fen: json['fen']! as String,
+        lastMove: Move.parse(json['lastMove']! as String)!,
+        orientation: Side.values.byName(json['orientation']! as String),
+        opponent: json['opponent']! as String,
+        playedAt: DateTime.parse(json['playedAt']! as String),
+      );
+    } on Object {
+      return null;
+    }
+  }
 }

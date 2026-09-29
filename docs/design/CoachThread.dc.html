@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI Coach · saved chat</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./motion.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;background:#0E1217;color:#E9EDF2;font-family:'Instrument Sans',system-ui,sans-serif}
+button{font-family:inherit;cursor:pointer}
+a{text-decoration:none}
+input::placeholder{color:#7C8898}
+@keyframes mw-spin{to{transform:rotate(360deg)}}
+@keyframes mw-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 960px; overflow: hidden; box-sizing: border-box; background: #0E1217; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+<header style="height: 60px; flex-shrink: 0; padding: 0 6px 0 8px; display: flex; align-items: center; gap: 4px; border-bottom: 1px solid #1C242E">
+<a href="CoachHistory.dc.html" aria-label="Back to chats" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+<h1 style="margin: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-family: Sora, sans-serif; font-weight: 600; font-size: 16px; line-height: 22px">Why do I keep losing in the middlegame?</h1>
+<span style="font-size: 12px; color: #A3AFBD">{{sub}}</span>
+</div>
+<button type="button" aria-label="Chat options" style="width: 44px; height: 44px; flex-shrink: 0; border: none; border-radius: 12px; background: transparent; color: #E9EDF2; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01"></path></svg></button>
+</header>
+
+<div style="flex-shrink: 0; padding: 8px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #1C242E">
+<span style="font-size: 12px; color: #7C8898">About</span>
+<a href="Review.dc.html" style="height: 30px; padding: 0 10px 0 4px; border-radius: 15px; background: #1C242E; border: 1px solid #34466F; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #E9EDF2">
+<dc-import name="Board" size="22" radius="4" coords="false" fen="r4rk1/pp2qppp/2n1bn2/3p4/3P4/2N1PNP1/PP2QP1P/R4RK1" hint-size="22px,22px"></dc-import>
+vs Stockfish 1000 · 28 Sep</a>
+</div>
+
+<div role="log" aria-live="polite" style="flex-grow: 1; min-height: 0; padding: 16px; display: flex; flex-direction: column; justify-content: flex-end; gap: 14px; overflow: hidden">
+
+<div style="display: flex; align-items: center; gap: 12px; color: #7C8898; font-size: 12px"><span style="flex-grow: 1; height: 1px; background: #1C242E"></span>Sat 26 Sep<span style="flex-grow: 1; height: 1px; background: #1C242E"></span></div>
+
+<div style="align-self: flex-end; max-width: 290px; padding: 12px 16px; border-radius: 18px 18px 6px 18px; background: #2A3A5E; font-size: 15px; line-height: 22px">Why do I keep losing in the middlegame?</div>
+
+<button type="button" aria-expanded="false" style="height: 40px; padding: 0 14px; border: none; border-radius: 12px; background: #151B22; color: #A3AFBD; display: flex; align-items: center; justify-content: space-between">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase"><span style="width: 16px; height: 16px; border-radius: 8px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Worked through 3 steps</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C8898" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></button>
+
+<section style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px">
+<dc-import name="Logo" variant="brand" mode="dark" size="26" hint-size="26px,26px"></dc-import>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">You weaken your king too early.</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: #D3D9E1">In 6 of your 11 losses a pawn move in front of your castled king opened a way in. 15. g3 is the clearest case.</p>
+<a href="Review.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 14px; background: #151B22; border: 1px solid #222B36; color: #E9EDF2">
+<dc-import name="Board" size="44" radius="6" coords="false" fen="r4rk1/pp2qppp/2n1bn2/3p4/3P4/2N1PNP1/PP2QP1P/R4RK1" last-from="g2" last-to="g3" mark-sq="g3" mark-kind="blunder" hint-size="44px,44px"></dc-import>
+<span style="flex-grow: 1; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 14px">15. g3?? → Qg5</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C8898" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+</a>
+</section>
+
+<div style="align-self: flex-end; max-width: 290px; padding: 12px 16px; border-radius: 18px 18px 6px 18px; background: #2A3A5E; font-size: 15px; line-height: 22px">How do I stop doing that?</div>
+
+<section style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 10px">
+<dc-import name="Logo" variant="brand" mode="dark" size="26" hint-size="26px,26px"></dc-import>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">Ask two questions before a king pawn move.</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: #D3D9E1">Which squares does this pawn stop guarding? Can a queen or knight reach them in two moves? If either answer worries you, move a piece instead.</p>
+</section>
+
+<sc-if value="{{isSaved}}" hint-placeholder-val="{{true}}">
+<p style="margin: 6px 0 0; align-self: center; max-width: 300px; font-size: 12px; line-height: 17px; color: #7C8898; text-align: center">Continue this chat below. The AI Coach remembers everything above.</p>
+</sc-if>
+
+<sc-if value="{{isCont}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; gap: 12px; color: #7C8898; font-size: 12px"><span style="flex-grow: 1; height: 1px; background: #1C242E"></span>Today<span style="flex-grow: 1; height: 1px; background: #1C242E"></span></div>
+<div style="align-self: flex-end; max-width: 290px; padding: 12px 16px; border-radius: 18px 18px 6px 18px; background: #2A3A5E; font-size: 15px; line-height: 22px; animation: mw-in 0.3s ease-out">Did I do better in today’s game?</div>
+<section aria-label="AI Coach steps" style="border-radius: 16px; background: #151B22; padding: 10px 14px; display: flex; flex-direction: column; gap: 2px">
+<span style="height: 28px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">{{stepsTitle}}<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0; color: #7C8898">{{stepsCount}}</span></span>
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="2">
+<div style="display: flex; gap: 12px; padding: 6px 2px; animation: mw-in 0.3s ease-out">
+<div style="width: 20px; flex-shrink: 0">
+<sc-if value="{{s.done}}" hint-placeholder-val="{{true}}">
+<span style="width: 20px; height: 20px; border-radius: 10px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>
+</sc-if>
+<sc-if value="{{s.running}}" hint-placeholder-val="{{false}}">
+<span style="display: block; width: 20px; height: 20px; box-sizing: border-box; border-radius: 10px; border: 2px solid #86A8FF; border-right-color: transparent; animation: mw-spin 0.8s linear infinite"></span>
+</sc-if>
+</div>
+<span style="font-size: 14px; line-height: 20px; color: {{s.fg}}">{{s.label}}</span>
+</div>
+</sc-for>
+</section>
+<sc-if value="{{showAnswer}}" hint-placeholder-val="{{true}}">
+<section aria-label="AI Coach answer" style="display: flex; flex-direction: column; gap: 10px; animation: mw-in 0.4s ease-out">
+<div style="display: flex; align-items: center; gap: 10px">
+<dc-import name="Logo" variant="brand" mode="dark" size="26" hint-size="26px,26px"></dc-import>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">Yes. Your king stayed safe.</span>
+</div>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: #D3D9E1">You kept your king pawns home until move 31. Your one slip was a counting mistake, not a king one:</p>
+<a href="Review.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 14px; background: #151B22; border: 1px solid #222B36; color: #E9EDF2">
+<dc-import name="Board" size="44" radius="6" coords="false" fen="r2q1rk1/pp3ppp/2n1b3/3N4/3P4/5N2/PP3PPP/R2Q1RK1" last-from="c3" last-to="d5" mark-sq="d5" mark-kind="blunder" hint-size="44px,44px"></dc-import>
+<span style="flex-grow: 1; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 14px">23. Nxd5?? → Rd1</span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C8898" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+</a>
+</section>
+</sc-if>
+</sc-if>
+</div>
+
+<div style="flex-shrink: 0; padding: 10px 12px 24px; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid #1C242E">
+<sc-if value="{{isOffline}}" hint-placeholder-val="{{false}}">
+<div role="status" style="padding: 10px 12px; border-radius: 12px; background: #151B22; border: 1px solid #2A3441; display: flex; gap: 10px; align-items: flex-start">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E3B25C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0M12 19h.01M3 3l18 18"></path></svg>
+<span style="font-size: 13px; line-height: 18px; color: #D3D9E1">You’re offline. You can read this chat; continuing it needs the internet.</span>
+</div>
+</sc-if>
+<form style="margin: 0; display: flex; gap: 8px; align-items: center; opacity: {{composerOp}}">
+<a href="CoachPicker.dc.html" aria-label="Attach a game" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; background: #1C242E; color: #E9EDF2; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></a>
+<div style="flex-grow: 1; position: relative; display: flex">
+<label for="cont" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Continue the chat</label>
+<input id="cont" type="text" placeholder="Continue the chat…" style="flex-grow: 1; min-width: 0; height: 44px; box-sizing: border-box; padding: 0 44px 0 16px; border-radius: 22px; border: 1px solid #2A3441; background: #151B22; color: #E9EDF2; font-family: inherit; font-size: 15px">
+<button type="button" aria-label="Voice input" style="position: absolute; right: 2px; top: 2px; width: 40px; height: 40px; border: none; border-radius: 20px; background: transparent; color: #A3AFBD; display: flex; align-items: center; justify-content: center">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg></button>
+</div>
+<button type="button" aria-label="Send" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 22px; border: none; background: {{sendBg}}; color: {{sendFg}}; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
+</form>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["saved","continuing","offline"],"default":"saved"},"$preview":{"width":390,"height":960}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 0 };
+  }
+  componentDidMount() {
+    var self = this;
+    this.timer = setInterval(function () {
+      if (self.state.step < 3) self.setState({ step: self.state.step + 1 });
+    }, 1200);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    var view = this.props.view || 'saved';
+    var step = this.state.step;
+    var all = ['Reading this chat and today’s game…', 'Checking 23. Nxd5 with Stockfish…'];
+    var n = all.length;
+    var steps = all.slice(0, Math.min(step + 1, n)).map(function (label, i) {
+      var done = i < step;
+      return { label: label, done: done, running: !done, fg: done ? '#E9EDF2' : '#C9D7FF' };
+    });
+    var finished = step >= n;
+    var off = view === 'offline';
+    return {
+      isSaved: view === 'saved',
+      isCont: view === 'continuing',
+      isOffline: off,
+      sub: view === 'continuing' ? 'Started 26 Sep · 6 messages' : 'Started 26 Sep · 4 messages',
+      steps: steps,
+      stepsTitle: finished ? 'Worked through ' + n + ' steps' : 'Working…',
+      stepsCount: Math.min(step, n) + ' / ' + n,
+      showAnswer: finished,
+      composerOp: off ? 0.45 : 1,
+      sendBg: off ? '#1C242E' : '#86A8FF',
+      sendFg: off ? '#7C8898' : '#0B1224'
+    };
+  }
+}
+</script>
+</body>
+</html>

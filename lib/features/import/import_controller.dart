@@ -7,6 +7,7 @@ import '../../core/storage/import_log.dart';
 import '../../core/storage/settings_store.dart';
 import '../play/domain/game_controller.dart' show nowProvider;
 import 'data/chess_com_api.dart';
+import 'data/import_pause.dart';
 import 'data/lichess_api.dart';
 import 'domain/importer.dart';
 
@@ -48,6 +49,9 @@ final importControllerProvider = NotifierProvider<ImportController, ImportProgre
 
 class ImportController extends Notifier<ImportProgress> {
   StreamSubscription<ImportProgress>? _run;
+
+  /// How far back the current (or last) import goes.
+  ImportRange range = ImportRange.last3Months;
   bool _cancelled = false;
 
   @override
@@ -60,6 +64,7 @@ class ImportController extends Notifier<ImportProgress> {
   /// Ignored while an import is running.
   void start(ImportPlatform platform, String username, ImportRange range) {
     if (state.isRunning || username.trim().isEmpty) return;
+    this.range = range;
     ref.read(importUsernameProvider(platform).notifier).set(username);
     _cancelled = false;
     final games = ref.read(gameRepositoryProvider);
@@ -81,8 +86,11 @@ class ImportController extends Notifier<ImportProgress> {
     _run = run.listen((progress) => state = progress);
   }
 
-  /// Stops after the month being fetched.
-  void cancel() => _cancelled = true;
+  /// Stops after the month being fetched (at once if waiting out a 429).
+  void cancel() {
+    _cancelled = true;
+    ref.read(importPauseProvider.notifier).skip();
+  }
 
   /// Back to the form after a finished, cancelled or failed import.
   void reset() {

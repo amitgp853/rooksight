@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Result card variants</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>body{margin:0;background:#0B0F13}a{color:#86A8FF}a:hover{color:#A9C0FF}</style>
+</helmet>
+<div style="width: 1640px; height: 800px; box-sizing: border-box; padding: 64px; background: #0B0F13; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px">
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 36px; letter-spacing: -0.02em">Result card — every way a game ends</h1>
+<p style="margin: 0; max-width: 560px; font-size: 15px; line-height: 22px; color: #A3AFBD">Same sheet, same three actions. Only the overline, title, reason and score change. Overline colour: blue = win, grey = draw, orange = loss.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="8">
+<section style="border-radius: 24px; background: #151B22; border: 1px solid #2A3441; padding: 10px 18px 20px; display: flex; flex-direction: column; gap: 16px">
+<span aria-hidden="true" style="align-self: center; width: 36px; height: 4px; border-radius: 2px; background: #2A3441"></span>
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: {{c.fg}}">{{c.over}}</span>
+<h2 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 24px; line-height: 30px; letter-spacing: -0.015em">{{c.title}}</h2>
+<span style="font-size: 14px; line-height: 20px; color: #A3AFBD; min-height: 40px">{{c.reason}}</span>
+</div>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 20px; padding-top: 16px; white-space: nowrap">{{c.score}}</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<a href="Review.dc.html" style="height: 48px; border-radius: 12px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 600; font-size: 15px; text-decoration: none">Review with AI Coach</a>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<a href="PlaySetup.dc.html" style="height: 44px; border-radius: 12px; border: 1px solid #2A3441; background: #1C242E; color: #E9EDF2; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 600; font-size: 14px; text-decoration: none">Rematch</a>
+<a href="ShareReport.dc.html" style="height: 44px; border-radius: 12px; border: 1px solid #2A3441; background: #1C242E; color: #E9EDF2; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 600; font-size: 14px; text-decoration: none">Share report card</a>
+</div>
+</div>
+</section>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var WIN = '#A9C0FF', DRAW = '#A3AFBD', LOSS = '#F09A55';
+    return {
+      cards: [
+        { over: 'Checkmate', fg: WIN, title: 'You won', reason: 'Your new queen mated on the back rank.', score: '1–0' },
+        { over: 'Checkmate', fg: LOSS, title: 'Stockfish won', reason: 'Back-rank mate after 31…Re1#.', score: '0–1' },
+        { over: 'Stalemate', fg: DRAW, title: 'Draw', reason: 'Stockfish has no legal move and isn’t in check.', score: '½–½' },
+        { over: 'Threefold repetition', fg: DRAW, title: 'Draw', reason: 'The same position appeared three times.', score: '½–½' },
+        { over: '50-move rule', fg: DRAW, title: 'Draw', reason: '50 moves each with no capture or pawn move.', score: '½–½' },
+        { over: 'Insufficient material', fg: DRAW, title: 'Draw', reason: 'Neither side has enough pieces left to mate.', score: '½–½' },
+        { over: 'Resignation', fg: LOSS, title: 'You resigned', reason: 'Game ended on move 34.', score: '0–1' },
+        { over: 'Timeout', fg: LOSS, title: 'Stockfish won on time', reason: 'Your clock ran out on move 41.', score: '0–1' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

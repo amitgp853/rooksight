@@ -21,6 +21,7 @@ class MoveWiseBoard extends ConsumerWidget {
     this.onTouchedSquare,
     this.shapes = const {},
     this.annotations = const {},
+    this.pieceOrientation = PieceOrientationBehavior.facingUser,
   });
 
   final ChessboardController controller;
@@ -35,13 +36,16 @@ class MoveWiseBoard extends ConsumerWidget {
   final Set<Shape> shapes;
   final Map<Square, Annotation> annotations;
 
+  /// Which way the pieces face; over-the-board play turns them.
+  final PieceOrientationBehavior pieceOrientation;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = moveWiseBoardSettings(
       theme: ref.watch(boardThemeProvider),
       colors: context.colors,
       reduceMotion: shouldReduceMotion(context, ref),
-    );
+    ).copyWith(pieceOrientationBehavior: pieceOrientation);
     Widget board(double size) => Chessboard(
       size: size,
       controller: controller,

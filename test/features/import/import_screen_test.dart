@@ -71,11 +71,11 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Import games'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Import complete'), findsOneWidget);
-    expect(find.text('2 new games'), findsOneWidget);
+    expect(find.text('2 games imported'), findsOneWidget);
+    expect(find.text('From Chess.com, last 3 months.'), findsOneWidget);
     expect(store.get('chesscom.username'), 'fan');
 
-    await tester.tap(find.text('See games'));
+    await tester.tap(find.text('See your games'));
     await tester.pumpAndSettle();
     expect(find.text('games list'), findsOneWidget);
   });
@@ -88,10 +88,25 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Import games'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('no Chess.com player called “nobodyy”'), findsOneWidget);
-    await tester.tap(find.text('Change username'));
-    await tester.pumpAndSettle();
+    // Shown on the form, under the field.
+    expect(find.textContaining('No Chess.com player called “nobodyy”'), findsOneWidget);
     expect(find.byType(TextField), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'nobody');
+    await tester.pump();
+    expect(find.textContaining('No Chess.com player'), findsNothing, reason: 'cleared by editing');
+  });
+
+  testWidgets('offline: says so, and the form stays ready to try again', (tester) async {
+    await pumpImport(tester, FakeChessCom({}, failure: const Offline()));
+
+    await tester.enterText(find.byType(TextField), 'fan');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Import games'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('You’re offline'), findsOneWidget);
+    expect(find.widgetWithText(FilledButton, 'Import games'), findsOneWidget);
   });
 
   testWidgets('remembers the last username', (tester) async {
@@ -136,8 +151,8 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Import games'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Import complete'), findsOneWidget);
-      expect(find.textContaining('1 new game'), findsOneWidget);
+      expect(find.text('1 game imported'), findsOneWidget);
+      expect(find.text('From Lichess, last 3 months.'), findsOneWidget);
       expect(store.get('lichess.username'), 'lichess_fan');
       expect(store.get('chesscom.username'), isNull);
     });

@@ -105,7 +105,9 @@ class GameController extends Notifier<GameSession> {
     config: config,
     game: GameState.start(config.startPosition),
     startedAt: _now(),
-    clock: config.timeControl.hasClock ? GameClock.start(config.timeControl) : null,
+    clock: config.timeControl.hasClock
+        ? GameClock.start(config.timeControl, owner: config.playerSide)
+        : null,
   );
 
   /// Plays the player's [move]. Returns whether it was played.

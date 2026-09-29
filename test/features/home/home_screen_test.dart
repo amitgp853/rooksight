@@ -9,6 +9,9 @@ import 'package:move_wise/core/storage/game_repository.dart';
 import 'package:move_wise/core/storage/settings_store.dart';
 import 'package:move_wise/core/theme/app_theme.dart';
 import 'package:move_wise/features/home/home_screen.dart';
+import 'package:move_wise/features/pass_play/domain/pass_config.dart';
+import 'package:move_wise/features/pass_play/domain/pass_session.dart';
+import 'package:move_wise/features/pass_play/domain/unfinished_pass_game.dart';
 import 'package:move_wise/features/play/domain/game_clock.dart';
 import 'package:move_wise/features/play/domain/game_config.dart';
 import 'package:move_wise/features/play/domain/game_session.dart';
@@ -44,6 +47,7 @@ void main() {
           white: const Duration(minutes: 8, seconds: 42),
           black: const Duration(minutes: 10),
           increment: Duration.zero,
+          owner: Side.white,
         ),
       ),
       DateTime(2026),
@@ -57,7 +61,16 @@ void main() {
     final router = GoRouter(
       routes: [
         GoRoute(path: '/', builder: (_, _) => const HomeScreen()),
-        for (final path in ['/play', '/play/game', '/import', '/coach', '/stats', '/games'])
+        for (final path in [
+          '/play',
+          '/play/game',
+          '/pass',
+          '/pass/game',
+          '/import',
+          '/coach',
+          '/stats',
+          '/games',
+        ])
           GoRoute(
             path: path,
             builder: (_, _) => Scaffold(appBar: AppBar(), body: Text('route $path')),
@@ -85,7 +98,7 @@ void main() {
     await pumpHome(tester);
     expect(find.text('CONTINUE GAME'), findsNothing);
     expect(find.text('Play vs Computer'), findsOneWidget);
-    expect(find.text('Import games'), findsOneWidget);
+    expect(find.text('Import Games'), findsOneWidget);
     expect(find.text('AI Coach'), findsOneWidget);
   });
 
@@ -102,6 +115,43 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('route /play/game'), findsOneWidget);
     expect(container.read(resumeGameProvider).take(), isTrue);
+  });
+
+  testWidgets('Pass & play opens its setup', (tester) async {
+    await pumpHome(tester);
+    expect(find.text('Two players, one phone'), findsOneWidget);
+    await tester.tap(find.text('Pass & Play'));
+    await tester.pumpAndSettle();
+    expect(find.text('route /pass'), findsOneWidget);
+  });
+
+  testWidgets('the most recently left game is the one to continue', (tester) async {
+    saveUnfinishedGame(); // Saved at 2026-01-01.
+    final game = GameState.start().play(Move.parse('e2e4')!)!;
+    UnfinishedPassGameStore.write(
+      store,
+      PassSession(
+        config: PassConfig.initial.copyWith(secondName: 'Ann'),
+        game: game,
+        clock: GameClock.stopped(
+          white: const Duration(minutes: 9),
+          black: const Duration(minutes: 10),
+          increment: Duration.zero,
+        ),
+      ),
+      DateTime(2026, 1, 2),
+    );
+    final container = await pumpHome(tester);
+
+    expect(find.text('You vs Ann'), findsOneWidget);
+    expect(find.text('Pass & Play · Rapid 10+5 · move 1'), findsOneWidget);
+    expect(find.text('10:00 · Ann to move'), findsOneWidget);
+    expect(find.text('vs Stockfish · 1600'), findsNothing);
+
+    await tester.tap(find.text('Resume'));
+    await tester.pumpAndSettle();
+    expect(find.text('route /pass/game'), findsOneWidget);
+    expect(container.read(resumePassGameProvider).take(), isTrue);
   });
 
   testWidgets('the top weakness from the last 20 games', (tester) async {
@@ -128,7 +178,7 @@ void main() {
     await pumpHome(tester);
     for (final (label, route) in [
       ('Play vs Computer', '/play'),
-      ('Import games', '/import'),
+      ('Import Games', '/import'),
       ('AI Coach', '/coach'),
     ]) {
       await tester.tap(find.text(label));
@@ -142,7 +192,7 @@ void main() {
   testWidgets('light mode outlines the cards', (tester) async {
     await pumpHome(tester, theme: AppTheme.light());
     final card = tester.widget<Material>(
-      find.ancestor(of: find.text('Import games'), matching: find.byType(Material)).first,
+      find.ancestor(of: find.text('Import Games'), matching: find.byType(Material)).first,
     );
     final side = (card.shape! as RoundedRectangleBorder).side;
     expect(side.style, BorderStyle.solid);

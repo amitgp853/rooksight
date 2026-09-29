@@ -29,7 +29,7 @@ class StatsScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Your stats')),
+      appBar: AppBar(title: const Text('Your Stats')),
       body: switch (view) {
         AsyncData(value: final view) when view.games.isEmpty => const _NoGames(),
         AsyncValue(value: final view?) => ListView(

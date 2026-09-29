@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MoveWise logo mark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div role="img" aria-label="MoveWise logo" style="width: {{size}}px; height: {{size}}px; flex-shrink: 0; border-radius: {{radius}}px; background: {{c.tile}}; box-shadow: {{c.edge}}; overflow: hidden; display: flex; align-items: center; justify-content: center">
+
+<sc-if value="{{is.v1a}}" hint-placeholder-val="{{true}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<path d="M35 74H59V38" style="fill: none; stroke: {{c.pri}}; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round"></path>
+<circle cx="35" cy="74" r="8" style="fill: {{c.pri}}"></circle>
+<path d="M59 15L74 36H44Z" style="fill: {{c.acc}}; stroke: {{c.acc}}; stroke-width: 3; stroke-linejoin: round"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v1b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<path d="M28 18h22v22H28zM50 40h22v22H50zM28 62h22v22H28z" style="fill: {{c.faint}}"></path>
+<path d="M50 18h22v22H50zM28 40h22v22H28zM50 62h22v22H50z" style="fill: {{c.faint2}}"></path>
+<path d="M39 73H61V40" style="fill: none; stroke: {{c.pri}}; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round"></path>
+<circle cx="39" cy="73" r="6.5" style="fill: {{c.pri}}"></circle>
+<path d="M61 14L73 32H49Z" style="fill: {{c.acc}}; stroke: {{c.acc}}; stroke-width: 3; stroke-linejoin: round"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v2a}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<g transform="translate(50 50) scale(0.88) translate(-57.5 -48)">
+<path d="M25 84V52L35 30L39 18L47 28L69 44L71 56L57 58L49 54L59 84Z" style="fill: {{c.pri}}; stroke: {{c.pri}}; stroke-width: 2; stroke-linejoin: round"></path>
+<circle cx="47" cy="38" r="3.5" style="fill: {{c.knock}}"></circle>
+<path d="M78 12L80.5 21.5L90 24L80.5 26.5L78 36L75.5 26.5L66 24L75.5 21.5Z" style="fill: {{c.acc}}"></path>
+</g>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v2b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<circle cx="50" cy="50" r="36" style="fill: {{c.pri}}"></circle>
+<g transform="translate(50 52) scale(0.62) translate(-48 -51)">
+<path d="M25 84V52L35 30L39 18L47 28L69 44L71 56L57 58L49 54L59 84Z" style="fill: {{c.knock}}; stroke: {{c.knock}}; stroke-width: 3; stroke-linejoin: round"></path>
+<circle cx="47" cy="38" r="12" style="fill: {{c.acc}}; opacity: 0.32"></circle>
+<circle cx="47" cy="38" r="6" style="fill: {{c.acc}}"></circle>
+</g>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v3a}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<rect x="26" y="26" width="48" height="48" rx="5" style="fill: {{c.pri}}"></rect>
+<path d="M20 80L70 30" style="fill: none; stroke: {{c.knock}}; stroke-width: 20; stroke-linecap: round"></path>
+<path d="M84 16L62.1 22.3L77.7 37.9Z" style="fill: {{c.acc}}; stroke: {{c.knock}}; stroke-width: 6; stroke-linejoin: round; paint-order: stroke"></path>
+<path d="M20 80L70 30" style="fill: none; stroke: {{c.acc}}; stroke-width: 9; stroke-linecap: round"></path>
+<path d="M84 16L62.1 22.3L77.7 37.9Z" style="fill: {{c.acc}}; stroke: {{c.acc}}; stroke-width: 2; stroke-linejoin: round"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v3b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<rect x="30" y="26" width="46" height="46" rx="6" style="fill: none; stroke: {{c.pri}}; stroke-width: 8"></rect>
+<path d="M14 72C38 72 54 62 70 38" style="fill: none; stroke: {{c.knock}}; stroke-width: 20; stroke-linecap: round"></path>
+<path d="M14 72C38 72 54 62 70 38" style="fill: none; stroke: {{c.acc}}; stroke-width: 9; stroke-linecap: round"></path>
+<path d="M81 22L78.5 44.5L60.5 30.5Z" style="fill: {{c.acc}}; stroke: {{c.acc}}; stroke-width: 2; stroke-linejoin: round"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v4a}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<path d="{{m.pri}}" style="fill: {{c.pri}}"></path>
+<path d="{{m.pri2}}" style="fill: {{c.pri2}}"></path>
+<path d="{{m.acc}}" style="fill: {{c.acc}}"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v4b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<path d="{{m.boardA}}" style="fill: {{c.faint}}"></path>
+<path d="{{m.boardB}}" style="fill: {{c.faint2}}"></path>
+<path d="{{m.all}}" style="fill: {{c.pri}}"></path>
+<path d="{{m.acc}}" style="fill: {{c.acc}}"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v5a}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<rect x="24" y="76" width="52" height="9" rx="2.5" style="fill: {{c.pri}}"></rect>
+<path d="M33 73H67L63.5 48H36.5Z" style="fill: {{c.pri}}"></path>
+<rect x="29" y="40" width="42" height="6" rx="2" style="fill: {{c.pri}}"></rect>
+<rect x="29" y="29" width="11" height="9" rx="1.5" style="fill: {{c.pri}}"></rect>
+<rect x="44.5" y="22" width="11" height="16" rx="1.5" style="fill: {{c.pri}}"></rect>
+<rect x="60" y="13" width="11" height="25" rx="1.5" style="fill: {{c.acc}}"></rect>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v5b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<rect x="24" y="76" width="52" height="9" rx="2.5" style="fill: {{c.pri}}"></rect>
+<path d="M33 73H67L63.5 48H36.5Z" style="fill: {{c.pri}}"></path>
+<rect x="29" y="40" width="42" height="6" rx="2" style="fill: {{c.pri}}"></rect>
+<path d="M30 33L43 27L55 30L70 16" style="fill: none; stroke: {{c.pri}}; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round"></path>
+<circle cx="30" cy="33" r="3.5" style="fill: {{c.pri}}"></circle>
+<circle cx="43" cy="27" r="3.5" style="fill: {{c.pri}}"></circle>
+<circle cx="55" cy="30" r="3.5" style="fill: {{c.pri}}"></circle>
+<circle cx="70" cy="16" r="6" style="fill: {{c.acc}}"></circle>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v6a}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<rect x="16" y="18" width="14" height="66" rx="4" style="fill: {{c.pale}}"></rect>
+<path d="M16 44h14v36a4 4 0 0 1-4 4h-6a4 4 0 0 1-4-4z" style="fill: {{c.pri}}"></path>
+<g transform="translate(59 51) scale(-2.15 2.15) translate(-23.65 -21.65)">
+<path d="{{KH}}" style="fill: {{c.pri}}; stroke: {{c.pri}}; stroke-width: 1.1; stroke-linejoin: round"></path>
+<circle cx="22.2" cy="15.6" r="2.2" style="fill: {{c.acc}}"></circle>
+</g>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v6b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<g transform="translate(52 50) scale(-2.35 2.35) translate(-23.65 -21.65)">
+<path d="{{KH}}" style="fill: {{c.pri}}; stroke: {{c.pri}}; stroke-width: 1; stroke-linejoin: round"></path>
+<circle cx="22.2" cy="15.6" r="2.2" style="fill: {{c.acc}}"></circle>
+</g>
+<path d="M14 82L34 70L50 74L84 40" style="fill: none; stroke: {{c.knock}}; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round"></path>
+<path d="M14 82L34 70L50 74L84 40" style="fill: none; stroke: {{c.acc}}; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v7a}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<path d="M22 22h28v28H22zM50 50h28v28H50z" style="fill: {{c.pri}}"></path>
+<path d="M50 22h28v28H50zM22 50h28v28H22z" style="fill: {{c.pri2}}"></path>
+<path d="M16 70L38 56L54 63L78 30" style="fill: none; stroke: {{c.knock}}; stroke-width: 15; stroke-linecap: round; stroke-linejoin: round"></path>
+<path d="M16 70L38 56L54 63L78 30" style="fill: none; stroke: {{c.acc}}; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round"></path>
+<circle cx="78" cy="30" r="7" style="fill: {{c.acc}}; stroke: {{c.knock}}; stroke-width: 3"></circle>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v7b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<path d="M16 16h26v26H16zM42 42h26v26H42z" style="fill: {{c.pri}}"></path>
+<path d="M42 16h26v26H42zM16 42h26v26H16z" style="fill: {{c.pri2}}"></path>
+<circle cx="62" cy="62" r="17" style="fill: {{c.knock}}"></circle>
+<circle cx="62" cy="62" r="14" style="fill: {{c.knock}}; stroke: {{c.pri}}; stroke-width: 6"></circle>
+<path d="M73 73L84 84" style="stroke: {{c.pri}}; stroke-width: 9; stroke-linecap: round"></path>
+<path d="M62 54L64 60L70 62L64 64L62 70L60 64L54 62L60 60Z" style="fill: {{c.acc}}"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v9a}}" hint-placeholder-val="{{true}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<rect x="22" y="80" width="56" height="8" rx="2" style="fill: {{c.pri}}"></rect>
+<rect x="27" y="73" width="46" height="5" rx="1.5" style="fill: {{c.pri}}"></rect>
+<path d="M33 71H67L63.5 41H36.5Z" style="fill: {{c.pri}}"></path>
+<rect x="28" y="33" width="44" height="6" rx="1.5" style="fill: {{c.pri}}"></rect>
+<rect x="28" y="24" width="11" height="7" rx="1.2" style="fill: {{c.pri}}"></rect>
+<rect x="44.5" y="18" width="11" height="13" rx="1.2" style="fill: {{c.pri}}"></rect>
+<rect x="61" y="11" width="11" height="20" rx="1.2" style="fill: {{c.bar}}"></rect>
+<path d="M50 46.5L52.28 53.72L59.5 56L52.28 58.28L50 65.5L47.72 58.28L40.5 56L47.72 53.72Z" style="fill: {{c.knock}}"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v9b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<rect x="22" y="80" width="56" height="8" rx="2" style="fill: {{c.pri}}"></rect>
+<rect x="27" y="73" width="46" height="5" rx="1.5" style="fill: {{c.pri}}"></rect>
+<path d="M33 71H67L63.5 41H36.5Z" style="fill: {{c.pri}}"></path>
+<rect x="28" y="33" width="44" height="6" rx="1.5" style="fill: {{c.pri}}"></rect>
+<rect x="28" y="22" width="11" height="9" rx="1.2" style="fill: {{c.pri}}"></rect>
+<rect x="44.5" y="22" width="11" height="9" rx="1.2" style="fill: {{c.pri}}"></rect>
+<rect x="61" y="22" width="11" height="9" rx="1.2" style="fill: {{c.pri}}"></rect>
+<path d="M50 46.5L52.28 53.72L59.5 56L52.28 58.28L50 65.5L47.72 58.28L40.5 56L47.72 53.72Z" style="fill: {{c.acc}}; stroke: {{c.knock}}; stroke-width: 3.5; stroke-linejoin: round; paint-order: stroke"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v8a}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<g transform="translate(37 46) scale(0.8) translate(-52 -48)">
+<path d="{{KN}}" style="fill: {{c.pri}}; stroke: {{c.pri}}; stroke-width: 0.6"></path>
+<path d="M76 53.5L78 54.5" style="stroke: {{c.knock}}; stroke-width: 2; stroke-linecap: round"></path>
+<path d="{{KE}}" style="fill: {{c.knock}}"></path>
+<rect x="20" y="81" width="60" height="9" rx="1.5" style="fill: {{c.pri}}"></rect>
+</g>
+<circle cx="71" cy="74" r="17.75" style="fill: {{c.knock}}"></circle>
+<path d="M79.3 82.3L85.3 88.3" style="stroke: {{c.knock}}; stroke-width: 13.5; stroke-linecap: round"></path>
+<circle cx="71" cy="74" r="11.5" style="fill: {{c.knock}}; stroke: {{c.pri}}; stroke-width: 5.5"></circle>
+<path d="M79.3 82.3L85.3 88.3" style="stroke: {{c.pri}}; stroke-width: 7; stroke-linecap: round"></path>
+<path d="M71 67.5L72.6 72.4L77.5 74L72.6 75.6L71 80.5L69.4 75.6L64.5 74L69.4 72.4Z" style="fill: {{c.acc}}; stroke: {{c.acc}}; stroke-width: 0.8; stroke-linejoin: round"></path>
+</g>
+</svg>
+</sc-if>
+
+<sc-if value="{{is.v8b}}" hint-placeholder-val="{{false}}">
+<svg viewBox="0 0 100 100" width="{{size}}" height="{{size}}" aria-hidden="true" style="display: block">
+<g transform="{{tf}}">
+<path d="M66 66L79 79" style="stroke: {{c.pri}}; stroke-width: 11; stroke-linecap: round"></path>
+<circle cx="45" cy="45" r="27" style="fill: none; stroke: {{c.pri}}; stroke-width: 8"></circle>
+<g transform="translate(46 44) scale(0.55) translate(-50 -42)">
+<path d="{{KN}}" style="fill: {{c.pri}}; stroke: {{c.pri}}; stroke-width: 0.6"></path>
+<path d="{{KE}}" style="fill: {{c.knock}}"></path>
+</g>
+<path d="M74 8L76 14L82 16L76 18L74 24L72 18L66 16L72 14Z" style="fill: {{c.acc}}; stroke: {{c.acc}}; stroke-width: 1; stroke-linejoin: round"></path>
+</g>
+</svg>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"variant":{"editor":"enum","options":["brand","1a","1b","2a","2b","3a","3b","4a","4b","5a","5b","6a","6b","7a","7b","8a","8b","9a","9b"],"default":"brand"},"mode":{"editor":"enum","options":["dark","light","monoDark","monoLight","onBlue"],"default":"dark"},"tile":{"editor":"boolean","default":true},"size":{"editor":"int","min":16,"max":1024,"default":200},"scale":{"editor":null},"radius":{"editor":null},"$preview":{"width":200,"height":200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var v = String(p.variant || 'brand');
+    if (v === 'brand') v = '9a';
+    var size = Number(p.size != null && p.size !== '' ? p.size : 200);
+    var tile = !(p.tile === false || p.tile === 'false');
+    var sc = Number(p.scale != null && p.scale !== '' ? p.scale : 1);
+    var modes = {
+      dark:      { tile: '#151B22', pri: '#86A8FF', pri2: '#5A78C9', acc: '#E3B25C', pale: '#E9EDF2', faint: '#222B36', faint2: '#2A3441', edge: 'inset 0 0 0 1px rgba(255,255,255,0.06)' },
+      light:     { tile: '#FFFFFF', pri: '#2F5BD3', pri2: '#6E8FE6', acc: '#C98A1B', pale: '#D5DBE3', faint: '#E6EAF0', faint2: '#D5DBE3', edge: 'inset 0 0 0 1px rgba(18,24,32,0.08)' },
+      onBlue:    { tile: '#86A8FF', pri: '#0B1224', pri2: '#2A3A5E', acc: '#FFFFFF', pale: '#E9EDF2', faint: '#9DB7FF', faint2: '#B2C6FF', edge: 'none' },
+      monoDark:  { tile: '#0E1217', pri: '#E9EDF2', pri2: 'rgba(233,237,242,0.55)', acc: '#E9EDF2', pale: 'rgba(233,237,242,0.3)', faint: 'rgba(233,237,242,0.14)', faint2: 'rgba(233,237,242,0.24)', edge: 'inset 0 0 0 1px rgba(255,255,255,0.08)' },
+      monoLight: { tile: '#FFFFFF', pri: '#121820', pri2: 'rgba(18,24,32,0.55)', acc: '#121820', pale: 'rgba(18,24,32,0.22)', faint: 'rgba(18,24,32,0.10)', faint2: 'rgba(18,24,32,0.18)', edge: 'inset 0 0 0 1px rgba(18,24,32,0.1)' }
+    };
+    var m0 = modes[p.mode] || modes.dark;
+    var c = Object.assign({}, m0, { knock: p.knock || m0.tile });
+    if (!tile) { c.tile = 'transparent'; c.edge = 'none'; }
+    if (p.tint) { c.pri = p.tint; c.acc = p.tint; }
+    c.bar = c.acc;
+    if (p.tileColor) { c.tile = p.tileColor; c.knock = p.tileColor; }
+
+    var M = [[0,0],[0,4],[1,0],[1,1],[1,3],[1,4],[2,0],[2,2],[2,4],[3,0],[3,4],[4,0],[4,4]];
+    var isM = {}; M.forEach(function (rc) { isM[rc[0] + ',' + rc[1]] = true; });
+    var cell = function (r, cc) { var x = 20 + cc * 12, y = 20 + r * 12; return 'M' + x + ' ' + y + 'h12v12h-12z'; };
+    var m = { pri: '', pri2: '', acc: '', all: '', boardA: '', boardB: '' };
+    for (var r = 0; r < 5; r++) for (var k = 0; k < 5; k++) {
+      var d = cell(r, k);
+      if (r === 2 && k === 2) { m.acc += d; continue; }
+      if (isM[r + ',' + k]) { m.all += d; if ((r + k) % 2 === 0) m.pri += d; else m.pri2 += d; }
+      else { if ((r + k) % 2 === 0) m.boardA += d; else m.boardB += d; }
+    }
+
+    return {
+      size: size,
+      radius: tile ? Math.round(size * (p.radius != null && p.radius !== '' ? Number(p.radius) : 0.225)) : 0,
+      c: c,
+      m: m,
+      tf: 'translate(50 50) scale(' + sc + ') translate(-50 -50)',
+      KN: 'M26 80L22 66L18 63L22 57L20 49L25 45L25 37L30 34L32 26L38 23L40 11L44 5L47 16L53 18L76 44L81 51L81 58L75 61L68 58.5L68.5 63.5L59 64L49 56L46 53L55 63L62 71L66 80Z',
+      KF: 'M49 56L56 35',
+      KE: 'M55 27L58.5 29.5L55 32L51.5 29.5Z',
+      KH: 'M16.5 35.5c0-6 2.5-9 5.5-11.5c-2 .6-4 1.6-6 3.4l-3-2.4c-1.2-1-1.3-2.4-.3-3.6L20 12l-1.2-4.2l4.2 2.6c7 .6 12 6 12 14v11.1z',
+      is: { v1a: v === '1a', v1b: v === '1b', v2a: v === '2a', v2b: v === '2b', v3a: v === '3a', v3b: v === '3b', v4a: v === '4a', v4b: v === '4b',
+            v5a: v === '5a', v5b: v === '5b', v6a: v === '6a', v6b: v === '6b', v7a: v === '7a', v7b: v === '7b', v8a: v === '8a', v8b: v === '8b', v9a: v === '9a', v9b: v === '9b' }
+    };
+  }
+}
+</script>
+</body>
+</html>

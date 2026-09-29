@@ -13,9 +13,18 @@ import '../domain/weaknesses.dart';
 
 /// A raised section card, as the design's stats sections.
 class StatsSection extends StatelessWidget {
-  const StatsSection({super.key, required this.title, this.trailing, required this.children});
+  const StatsSection({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    required this.children,
+  });
 
   final String title;
+
+  /// A line under the title, e.g. what the chart counts.
+  final String? subtitle;
   final Widget? trailing;
   final List<Widget> children;
 
@@ -35,7 +44,23 @@ class StatsSection extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(child: Text(title, style: context.type.heading.copyWith(fontSize: 17))),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
+                      Text(title, style: context.type.heading.copyWith(fontSize: 17)),
+                      if (subtitle case final subtitle?)
+                        Text(
+                          subtitle,
+                          style: context.type.label.copyWith(
+                            fontWeight: FontWeight.w400,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
                 ?trailing,
               ],
             ),

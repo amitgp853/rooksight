@@ -3,7 +3,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 part 'database.g.dart';
 
-/// Finished games, from play against Stockfish or (from Phase 3) imported.
+/// Finished games: played against Stockfish or in pass & play, or imported.
 ///
 /// Values are plain text and numbers; [GameRepository] maps them to app types,
 /// so the schema doesn't depend on any feature's code.
@@ -11,7 +11,7 @@ part 'database.g.dart';
 class Games extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  /// `stockfish` or `chesscom`.
+  /// A `GameSource` name: `stockfish`, `passAndPlay`, `chesscom` or `lichess`.
   TextColumn get source => text()();
 
   /// The source's own id (e.g. a Chess.com game URL), to avoid duplicates.
@@ -115,14 +115,62 @@ class GameReviews extends Table {
   Set<Column<Object>> get primaryKey => {gameId};
 }
 
-@DriftDatabase(tables: [Games, Settings, ImportMonths, GameAnalyses, GameReviews])
+/// AI Coach conversations, kept on the phone so they can be reopened and
+/// continued. Not tied to [Games]: deleting a game keeps its chats.
+@DataClassName('CoachChatRow')
+class CoachChats extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// The first question, until renamed.
+  TextColumn get title => text()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  /// Last activity: the list is sorted and grouped by it.
+  DateTimeColumn get updatedAt => dateTime()();
+  IntColumn get messageCount => integer().withDefault(const Constant(0))();
+
+  /// The game the chat is about, or null for questions across many games.
+  IntColumn get gameId => integer().nullable()();
+
+  /// What it's about, as shown: `vs Stockfish 1000 · 28 Sep`.
+  TextColumn get scopeLabel => text()();
+
+  /// The position for the list thumbnail, when there's a game.
+  TextColumn get thumbFen => text().nullable()();
+
+  /// JSON: what the move check may accept in later answers (moves the tools
+  /// reported, and the move cards they described).
+  TextColumn get verified => text().withDefault(const Constant('{}'))();
+}
+
+/// One message of an AI Coach chat.
+@DataClassName('CoachMessageRow')
+class CoachMessages extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get chatId => integer().references(CoachChats, #id, onDelete: KeyAction.cascade)();
+
+  /// `user` or `coach`.
+  TextColumn get role => text()();
+  DateTimeColumn get at => dateTime()();
+
+  /// The question, or the answer as plain text: searched and previewed.
+  TextColumn get body => text()();
+
+  /// JSON with the rest: the attached game or move for a question; the
+  /// headline, steps and move card for an answer.
+  TextColumn get payload => text().withDefault(const Constant('{}'))();
+}
+
+@DriftDatabase(
+  tables: [Games, Settings, ImportMonths, GameAnalyses, GameReviews, CoachChats, CoachMessages],
+)
 class AppDatabase extends _$AppDatabase {
   /// Opens the app's database file, or [executor] (e.g. in-memory for tests).
   AppDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'movewise'));
 
   /// Bump when the schema changes, and add a step to [migration].
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -144,6 +192,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         await migrator.createTable(gameAnalyses);
         await migrator.createTable(gameReviews);
+      }
+      // v4: AI Coach chat history.
+      if (from < 4) {
+        await migrator.createTable(coachChats);
+        await migrator.createTable(coachMessages);
       }
     },
     // Needed for the cascading deletes above.

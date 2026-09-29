@@ -87,7 +87,7 @@ void main() {
     setUp(() => store = SettingsStore.inMemory({'developerMode': 'true'}));
 
     /// Scrolls down to the AI Coach section, at the bottom.
-    Future<void> toKeyCard(WidgetTester tester) => reveal(tester, find.text('Gemini API key'));
+    Future<void> toKeyCard(WidgetTester tester) => reveal(tester, find.text('AI Coach key (Gemini)'));
 
     testWidgets('a saved key is masked, and can be shown', (tester) async {
       await pumpSettings(tester);
@@ -186,12 +186,12 @@ void main() {
     final container = await pumpSettings(tester);
     final developer = find.widgetWithText(SwitchListTile, 'Developer mode');
     await reveal(tester, developer);
-    expect(find.text('Gemini API key'), findsNothing, reason: 'hidden by default');
+    expect(find.text('AI Coach key (Gemini)'), findsNothing, reason: 'hidden by default');
 
     await tester.tap(developer);
     await tester.pumpAndSettle();
     expect(container.read(developerModeProvider), isTrue);
-    await reveal(tester, find.text('Gemini API key'));
+    await reveal(tester, find.text('AI Coach key (Gemini)'));
     expect(find.textContaining('dart-define'), findsNothing, reason: 'no build details');
   });
 

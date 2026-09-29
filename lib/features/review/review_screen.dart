@@ -21,7 +21,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../engine/chess_engine.dart';
 import '../../engine/engine_provider.dart';
-import '../games/games_screen.dart' show SourceTag, endReasonLabel, movesLabel;
+import '../games/games_screen.dart' show movesLabel, timeControlLabel;
 import '../games/widgets/delete_game_sheet.dart';
 import '../play/domain/game_state.dart';
 import '../play/widgets/move_strip.dart';
@@ -57,7 +57,7 @@ class ReviewScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Game review'),
+        title: const Text('Game Review'),
         actions: [
           if (id != null && state.saved != null)
             IconButton(
@@ -832,17 +832,27 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final type = context.type;
-    final (outcome, tint) = switch (record.outcome) {
-      PlayerOutcome.win => ('Win', colors.resultWin),
-      PlayerOutcome.draw => ('Draw', colors.resultDraw),
-      PlayerOutcome.loss => ('Loss', colors.resultLoss),
-      PlayerOutcome.unknown => ('Game', colors.textPrimary),
+    final outcome = switch (record.outcome) {
+      PlayerOutcome.win => 'Win',
+      PlayerOutcome.draw => 'Draw',
+      PlayerOutcome.loss => 'Loss',
+      PlayerOutcome.unknown => 'Game',
+    };
+    final score = switch (record.result) {
+      '1-0' => '1–0',
+      '0-1' => '0–1',
+      '1/2-1/2' => '½–½',
+      _ => null,
     };
     final opponent = record.source == GameSource.stockfish
         ? 'Stockfish'
         : (record.opponentName ?? 'Opponent');
     final rating = record.opponentRating ?? record.engineElo;
-    final small = type.label.copyWith(color: colors.textSecondary, fontWeight: FontWeight.w400);
+    final details = [
+      rating == null ? 'vs $opponent' : 'vs $opponent $rating',
+      ?timeControlLabel(record),
+      movesLabel(record),
+    ].join(' · ');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 4, AppSpacing.gutter, 14),
@@ -852,54 +862,32 @@ class _Header extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 4,
+              spacing: 2,
               children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: outcome,
-                        style: TextStyle(color: tint),
-                      ),
-                      if (record.endReason != null)
-                        TextSpan(
-                          text: ' · ${endReasonLabel(record.endReason!)}',
-                          style: TextStyle(color: colors.textSecondary),
-                        ),
-                    ],
-                  ),
+                Text(
+                  score == null ? outcome : '$outcome · $score',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: type.heading,
                 ),
-                Text.rich(
-                  TextSpan(
-                    text: 'vs $opponent',
-                    children: [
-                      if (rating != null)
-                        TextSpan(
-                          text: ' · $rating',
-                          style: TextStyle(color: colors.textTertiary),
-                        ),
-                    ],
-                  ),
+                Text(
+                  details,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: type.body.copyWith(fontSize: 14),
-                ),
-                Row(
-                  spacing: AppSpacing.s2,
-                  children: [
-                    SourceTag(source: record.source),
-                    Text(movesLabel(record), style: small),
-                  ],
+                  style: type.label.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: colors.textSecondary,
+                  ),
                 ),
               ],
             ),
           ),
           _Accuracy(label: 'You', value: analysis.accuracy(record.playerSide), highlight: true),
-          // The name is on the left already; a long one wouldn't fit here.
-          _Accuracy(label: 'Opponent', value: analysis.accuracy(record.playerSide.opposite)),
+          // A long name wouldn't fit here; it's on the left already.
+          _Accuracy(
+            label: record.source == GameSource.stockfish ? 'Stockfish' : 'Opponent',
+            value: analysis.accuracy(record.playerSide.opposite),
+          ),
         ],
       ),
     );
@@ -1057,6 +1045,57 @@ class _Progress extends ConsumerWidget {
     final failed = phase == ReviewPhase.failed;
     final positions = analysis.game.history.length;
     final done = analysis.evals.length;
+    if (failed) {
+      return Semantics(
+        liveRegion: true,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.s4),
+          decoration: BoxDecoration(
+            color: colors.coral.withValues(alpha: 0.08),
+            borderRadius: AppRadius.mdAll,
+            border: Border.all(color: colors.coral.withValues(alpha: 0.45)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: AppSpacing.s3,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
+                children: [
+                  Text(
+                    'Stockfish couldn’t finish the analysis.',
+                    style: type.body.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: Color.lerp(colors.coral, colors.textPrimary, 0.35),
+                    ),
+                  ),
+                  Text(
+                    'It stopped at move ${(done + 1) ~/ 2} of ${positions ~/ 2}. '
+                    'The game itself is saved.',
+                    style: type.label.copyWith(
+                      fontWeight: FontWeight.w400,
+                      height: 19 / 13,
+                      color: colors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              FilledButton(
+                onPressed: ref.read(reviewControllerProvider(gameId).notifier).retry,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 44),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  textStyle: type.heading.copyWith(fontSize: 14),
+                ),
+                child: const Text('Try again'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.all(AppSpacing.s4),
       decoration: BoxDecoration(color: colors.bgRaised, borderRadius: AppRadius.mdAll),
@@ -1064,22 +1103,8 @@ class _Progress extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppSpacing.s2,
         children: [
-          Text(
-            failed ? 'Stockfish couldn’t finish the analysis.' : 'Analysing with Stockfish',
-            style: type.body.copyWith(
-              fontWeight: FontWeight.w600,
-              color: failed ? colors.coral : null,
-            ),
-          ),
-          if (failed)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: ref.read(reviewControllerProvider(gameId).notifier).retry,
-                child: const Text('Try again'),
-              ),
-            )
-          else ...[
+          Text('Analysing with Stockfish', style: type.body.copyWith(fontWeight: FontWeight.w600)),
+          ...[
             Text(
               'Move ${(done + 1) ~/ 2} of ${positions ~/ 2} · you can look around meanwhile',
               style: type.label.copyWith(color: colors.textSecondary, fontWeight: FontWeight.w400),

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Import games</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;background:#0E1217}
+button{font-family:inherit;cursor:pointer}
+a{text-decoration:none}
+input::placeholder{color:#7C8898}
+input:focus-visible{outline:2px solid #86A8FF;outline-offset:1px}
+@keyframes mw-im-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0E1217; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+<header style="height: 56px; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 4px">
+<a href="Home.dc.html" aria-label="Back" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Import games</h1>
+</header>
+
+<div style="flex-grow: 1; padding: 6px 16px 0; display: flex; flex-direction: column; gap: 22px">
+
+<sc-if value="{{banner.on}}" hint-placeholder-val="{{false}}">
+<div role="status" style="border-radius: 14px; background: {{banner.bg}}; border: 1px solid {{banner.line}}; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{banner.icon}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="{{banner.path}}"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; font-weight: 600; color: {{banner.fg}}">{{banner.title}}</span>
+<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">{{banner.text}}</span>
+</div>
+</div>
+</sc-if>
+
+<div role="tablist" aria-label="Site" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #151B22; opacity: {{lockOp}}">
+<sc-for list="{{sites}}" as="t" hint-placeholder-count="2">
+<button type="button" role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="height: 42px; border-radius: 10px; border: none; background: {{t.bg}}; color: {{t.fg}}; font-size: 15px; font-weight: 600">{{t.label}}</button>
+</sc-for>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px; opacity: {{lockOp}}">
+<label for="imp-user" style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">{{siteUpper}} username</label>
+<input id="imp-user" type="text" value="{{user}}" placeholder="Your {{siteName}} username" autocomplete="off" aria-invalid="{{err.on}}" aria-describedby="imp-note" style="height: 52px; box-sizing: border-box; padding: 0 16px; border-radius: 14px; border: 1.5px solid {{err.line}}; background: #151B22; color: #E9EDF2; font-family: inherit; font-size: 16px; font-weight: 500">
+<sc-if value="{{err.show}}" hint-placeholder-val="{{false}}">
+<span role="alert" style="display: flex; gap: 8px; font-size: 13px; line-height: 19px; color: #F6A3AF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F2677A" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.01"></path></svg>No {{siteName}} player called “{{user}}”. Check the spelling and try again.</span>
+</sc-if>
+<span id="imp-note" style="font-size: 13px; color: #7C8898">Only public games are read. No login or password.</span>
+</div>
+
+<sc-if value="{{showRange}}" hint-placeholder-val="{{true}}">
+<fieldset style="margin: 0; padding: 0; border: none; display: flex; flex-direction: column; gap: 10px; opacity: {{lockOp}}">
+<legend style="padding: 0 0 10px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">How far back</legend>
+<div role="radiogroup" aria-label="How far back" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{ranges}}" as="r" hint-placeholder-count="4">
+<button type="button" role="radio" aria-checked="{{r.on}}" onClick="{{r.pick}}" style="height: 76px; padding: 12px 14px; box-sizing: border-box; border-radius: 14px; border: 1.5px solid {{r.line}}; background: {{r.bg}}; color: #E9EDF2; display: flex; align-items: flex-start; gap: 10px; text-align: left">
+<span aria-hidden="true" style="width: 18px; height: 18px; flex-shrink: 0; box-sizing: border-box; border-radius: 9px; border: 2px solid {{r.dotLine}}; display: flex; align-items: center; justify-content: center; margin-top: 1px"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{r.dot}}"></span></span>
+<span style="display: flex; flex-direction: column; gap: 3px"><span style="font-size: 15px; font-weight: 600">{{r.label}}</span><span style="font-size: 12px; color: #A3AFBD">{{r.sub}}</span></span>
+</button>
+</sc-for>
+</div>
+<span style="font-size: 13px; color: #7C8898">Games you already have are skipped.</span>
+</fieldset>
+</sc-if>
+
+<sc-if value="{{prog.on}}" hint-placeholder-val="{{false}}">
+<section aria-live="polite" style="border-radius: 16px; background: #151B22; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<sc-if value="{{prog.spin}}" hint-placeholder-val="{{true}}"><span aria-hidden="true" style="width: 20px; height: 20px; box-sizing: border-box; border-radius: 10px; border: 2.5px solid #86A8FF; border-right-color: transparent; animation: mw-im-spin 0.8s linear infinite"></span></sc-if>
+<sc-if value="{{prog.paused}}" hint-placeholder-val="{{false}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="#E3B25C" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg></sc-if>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">{{prog.title}}</span>
+</div>
+<div role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{prog.pct}}" aria-label="Import progress" style="height: 6px; border-radius: 3px; background: #222B36; overflow: hidden"><div style="width: {{prog.pct}}%; height: 6px; border-radius: 3px; background: {{prog.col}}"></div></div>
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #A3AFBD"><span>{{prog.left}}</span><span style="font-family: 'JetBrains Mono', monospace">{{prog.right}}</span></div>
+<span style="font-size: 12px; color: #7C8898">{{prog.note}}</span>
+</section>
+</sc-if>
+
+<sc-if value="{{done}}" hint-placeholder-val="{{false}}">
+<section aria-live="polite" style="border-radius: 16px; background: #151B22; padding: 22px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+<span aria-hidden="true" style="width: 52px; height: 52px; border-radius: 26px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 22px">57 games imported</span>
+<span style="font-size: 14px; line-height: 20px; color: #A3AFBD">From Chess.com, last 3 months. 12 you already had were skipped.</span>
+</section>
+</sc-if>
+
+</div>
+
+<footer style="flex-shrink: 0; padding: 16px 16px 28px; display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{buttons}}" as="b" hint-placeholder-count="1">
+<a href="{{b.href}}" aria-disabled="{{b.disabled}}" style="height: {{b.h}}px; border-radius: 14px; border: 1px solid {{b.line}}; background: {{b.bg}}; color: {{b.fg}}; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">{{b.label}}</a>
+</sc-for>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["form","lichess","progress","notFound","offline","rateLimit","done"],"default":"form"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { site: props.state === 'lichess' ? 'li' : 'cc', range: '3' };
+  }
+  renderVals() {
+    var self = this, s = this.state;
+    var st = this.props.state || 'form';
+    var cc = s.site === 'cc';
+    var siteName = cc ? 'Chess.com' : 'Lichess';
+    var busy = st === 'progress' || st === 'rateLimit' || st === 'done';
+    var sites = [{ id: 'cc', label: 'Chess.com' }, { id: 'li', label: 'Lichess' }].map(function (t) {
+      var on = s.site === t.id;
+      return { label: t.label, on: on ? 'true' : 'false', bg: on ? '#2A3A5E' : 'transparent', fg: on ? '#E9EDF2' : '#A3AFBD', pick: function () { self.setState({ site: t.id }); } };
+    });
+    var ranges = [
+      { id: '1', label: '1 month', sub: 'Since Sep 2026' },
+      { id: '3', label: '3 months', sub: 'Since Jul 2026' },
+      { id: '12', label: '12 months', sub: 'Since Oct 2025' },
+      { id: 'all', label: 'Everything', sub: 'Your whole history' }
+    ].map(function (r) {
+      var on = s.range === r.id;
+      return { label: r.label, sub: r.sub, on: on ? 'true' : 'false', line: on ? '#86A8FF' : '#222B36', bg: on ? 'rgba(134,168,255,0.08)' : '#151B22', dotLine: on ? '#86A8FF' : '#5C6878', dot: on ? '#86A8FF' : 'transparent', pick: function () { self.setState({ range: r.id }); } };
+    });
+    var btn = function (label, href, kind, disabled) {
+      var primary = kind === 'primary';
+      return { label: label, href: href, disabled: disabled ? 'true' : 'false', h: primary ? 56 : 50,
+        bg: disabled ? '#1C242E' : (primary ? '#86A8FF' : '#151B22'), fg: disabled ? '#5C6878' : (primary ? '#0B1224' : '#E9EDF2'),
+        line: primary && !disabled ? '#86A8FF' : '#2A3441' };
+    };
+    var buttons = {
+      form: [btn('Import games', 'ImportProgress.dc.html', 'primary')],
+      lichess: [btn('Import games', 'ImportProgress.dc.html', 'primary')],
+      notFound: [btn('Import games', 'ImportProgress.dc.html', 'primary')],
+      offline: [btn('Import games', '#', 'primary', true)],
+      progress: [btn('Cancel import', 'ImportForm.dc.html', 'secondary')],
+      rateLimit: [btn('Try now', 'ImportProgress.dc.html', 'primary'), btn('Cancel import', 'ImportForm.dc.html', 'secondary')],
+      done: [btn('See your games', 'Games.dc.html', 'primary'), btn('Import more', 'ImportForm.dc.html', 'secondary')]
+    }[st];
+    var banners = {
+      offline: { on: true, bg: '#151B22', line: '#2A3441', icon: '#A3AFBD', fg: '#E9EDF2', title: 'You’re offline', text: 'Importing needs the internet. Your saved games, Stockfish and pass & play still work.', path: 'M3 3l18 18M8.5 8.6A5 5 0 0 0 6 13H5.5a3.5 3.5 0 0 0 0 7H17M12 7a5 5 0 0 1 5 5 3.5 3.5 0 0 1 3.4 5.2' },
+      rateLimit: { on: true, bg: 'rgba(227,178,92,0.08)', line: 'rgba(227,178,92,0.45)', icon: '#E3B25C', fg: '#EBD7B0', title: 'Chess.com asked us to slow down', text: 'Their servers limit how fast games can be fetched. We’ll carry on automatically in 0:42.', path: 'M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z' }
+    };
+    var prog = {
+      progress: { on: true, spin: true, paused: false, title: 'Importing from Chess.com', pct: 40, col: '#86A8FF', left: 'Month 2 of 3 · 48 games so far', right: '40%', note: 'You can leave this screen. The import keeps going.' },
+      rateLimit: { on: true, spin: false, paused: true, title: 'Import paused', pct: 33, col: '#E3B25C', left: 'Month 4 of 12 · 61 games so far', right: '33%', note: 'Nothing is lost. Games fetched so far are already saved.' }
+    }[st] || { on: false, spin: false, paused: false, title: '', pct: 0, col: '', left: '', right: '', note: '' };
+    var errOn = st === 'notFound';
+    return {
+      sites: sites, ranges: ranges, buttons: buttons,
+      siteName: siteName, siteUpper: siteName.toUpperCase(),
+      user: st === 'notFound' ? 'knightowl_29' : (cc ? 'knightowl_92' : ''),
+      err: { show: errOn, on: errOn ? "true" : "false", line: errOn ? '#F2677A' : '#2A3441' },
+      banner: banners[st] || { on: false, bg: '', line: '', icon: '', fg: '', title: '', text: '', path: '' },
+      showRange: !busy, prog: prog, done: st === 'done',
+      lockOp: busy ? 0.5 : (st === 'offline' ? 0.6 : 1)
+    };
+  }
+}
+</script>
+</body>
+</html>

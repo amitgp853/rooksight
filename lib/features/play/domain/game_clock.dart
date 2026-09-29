@@ -3,10 +3,13 @@ import 'package:flutter/foundation.dart';
 
 import 'game_config.dart';
 
-/// Chess clocks for both sides. Immutable: every change takes the current
-/// time, so the logic is testable without real time passing.
+/// Chess clocks. Immutable: every change takes the current time, so the logic
+/// is testable without real time passing.
 ///
-/// Only one side's clock runs at a time. Remaining time is stored as of the
+/// In pass & play both sides are timed, and one clock runs at a time. Against
+/// Stockfish only the [owner] (the player) is timed: their clock runs on their
+/// turn and stops when they move, while Stockfish thinks as long as it needs,
+/// is never charged and can't lose on time. Remaining time is stored as of the
 /// moment the running clock last started ([runningSince]).
 @immutable
 class GameClock {
@@ -14,30 +17,44 @@ class GameClock {
     required this.white,
     required this.black,
     required this.increment,
+    required this.owner,
     this.running,
     this.runningSince,
   });
 
-  /// Both clocks full, neither running. They start after White's first move.
-  factory GameClock.start(TimeControl control) =>
-      GameClock._(white: control.initial, black: control.initial, increment: control.increment);
+  /// Full clocks, not running. They first start once White has moved (and,
+  /// with an [owner], only on the owner's turn).
+  factory GameClock.start(TimeControl control, {Side? owner}) => GameClock._(
+    white: control.initial,
+    black: control.initial,
+    increment: control.increment,
+    owner: owner,
+  );
 
   /// Stopped clocks with [white] and [black] left (a resumed game).
   factory GameClock.stopped({
     required Duration white,
     required Duration black,
     required Duration increment,
-  }) => GameClock._(white: white, black: black, increment: increment);
+    Side? owner,
+  }) => GameClock._(white: white, black: black, increment: increment, owner: owner);
 
   final Duration white;
   final Duration black;
   final Duration increment;
+
+  /// The only timed side (the player, against Stockfish), or null when both
+  /// sides are timed. An untimed side's time never changes.
+  final Side? owner;
 
   /// The side whose clock is running, or null when stopped.
   final Side? running;
   final DateTime? runningSince;
 
   bool get isRunning => running != null;
+
+  /// Whether [side]'s time counts.
+  bool isTimed(Side side) => owner == null || owner == side;
 
   /// Time left for [side] at [now], never below zero.
   Duration remaining(Side side, DateTime now) {
@@ -47,12 +64,16 @@ class GameClock {
     return left.isNegative ? Duration.zero : left;
   }
 
-  /// [mover] has just moved: charge them the time used, add the increment,
-  /// and start the opponent's clock. A move made while [mover]'s clock wasn't
-  /// running (White's first move) costs nothing and earns no increment.
+  /// [mover] has just moved: if they're timed, charge the time used and add
+  /// the increment; then start the other side's clock if they're timed. A
+  /// move made while the mover's clock wasn't running (White's first move)
+  /// costs nothing and earns no increment.
   GameClock afterMove(Side mover, DateTime now) {
-    final left = running == mover ? remaining(mover, now) + increment : _stored(mover);
-    return _with(mover, left)._run(mover.opposite, now);
+    final charged = isTimed(mover)
+        ? _with(mover, running == mover ? remaining(mover, now) + increment : _stored(mover))
+        : stop(now);
+    final next = mover.opposite;
+    return isTimed(next) ? charged._run(next, now) : charged._run(null, null);
   }
 
   /// Stops both clocks, keeping the time left.
@@ -62,9 +83,13 @@ class GameClock {
     return _with(side, remaining(side, now))._run(null, null);
   }
 
-  /// Starts [side]'s clock from its stored time (after a take-back or when
-  /// the app comes back to the foreground).
-  GameClock resume(Side side, DateTime now) => stop(now)._run(side, now);
+  /// Restarts [side]'s clock from its stored time (after a take-back, a
+  /// pause, or when the app comes back to the foreground). It stays stopped
+  /// when [side] isn't timed.
+  GameClock resume(Side side, DateTime now) {
+    final stopped = stop(now);
+    return isTimed(side) ? stopped._run(side, now) : stopped;
+  }
 
   Duration _stored(Side side) => side == Side.white ? white : black;
 
@@ -72,6 +97,7 @@ class GameClock {
     white: side == Side.white ? time : white,
     black: side == Side.black ? time : black,
     increment: increment,
+    owner: owner,
     running: running,
     runningSince: runningSince,
   );
@@ -80,6 +106,7 @@ class GameClock {
     white: white,
     black: black,
     increment: increment,
+    owner: owner,
     running: side,
     runningSince: since,
   );

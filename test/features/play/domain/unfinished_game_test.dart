@@ -7,8 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:move_wise/core/storage/game_repository.dart';
 import 'package:move_wise/core/storage/settings_store.dart';
 import 'package:move_wise/engine/engine_provider.dart';
+import 'package:move_wise/features/play/domain/game_clock.dart';
 import 'package:move_wise/features/play/domain/game_config.dart';
 import 'package:move_wise/features/play/domain/game_controller.dart';
+import 'package:move_wise/features/play/domain/game_session.dart';
+import 'package:move_wise/features/play/domain/game_state.dart';
 import 'package:move_wise/features/play/domain/unfinished_game.dart';
 
 import '../../../support/fake_engine.dart';
@@ -90,6 +93,27 @@ void main() {
       );
       expect(session.clock!.running, Side.white, reason: 'the player’s clock runs again');
     });
+  });
+
+  test("resumed on Stockfish's turn, the player's clock waits for its reply", () {
+    // 1. e4 played; the app closed while Stockfish was thinking.
+    UnfinishedGameStore.write(
+      store,
+      GameSession(
+        config: GameConfig.initial,
+        game: GameState.start().play(Move.parse('e2e4')!)!,
+        clock: GameClock.stopped(
+          white: const Duration(minutes: 8),
+          black: const Duration(minutes: 10),
+          increment: Duration.zero,
+          owner: Side.white,
+        ),
+      ),
+      DateTime(2026),
+    );
+    final session = UnfinishedGameStore.load(store)!.resume(DateTime(2026, 1, 2));
+    expect(session.clock!.isRunning, isFalse);
+    expect(session.clock!.remaining(Side.white, DateTime(2026, 1, 3)), const Duration(minutes: 8));
   });
 
   test('without Resume, the game screen starts a new board', () {

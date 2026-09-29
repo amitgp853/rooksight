@@ -91,7 +91,7 @@ void main() {
     expect(find.text('GAME REPORT'), findsOneWidget);
     expect(find.text('2. g4??'), findsOneWidget);
     expect(find.text('Game summary'), findsOneWidget);
-    expect(find.textContaining('but 1 blunder decided it'), findsOneWidget);
+    expect(find.textContaining('One blunder on move 2 turned the game'), findsOneWidget);
     expect(find.text('1080 × 1350 · 4:5 portrait image'), findsOneWidget);
     expect(engine.searches, isEmpty, reason: 'already reviewed');
   });

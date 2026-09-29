@@ -56,13 +56,13 @@ void main() {
     final router = container.read(routerProvider);
 
     final expectedTitles = {
-      Routes.playSetup: 'New game',
+      Routes.playSetup: 'New Game',
       Routes.game: 'vs Stockfish · 1600',
-      Routes.import: 'Import games',
-      Routes.review('g1'): 'Game review',
+      Routes.import: 'Import Games',
+      Routes.review('g1'): 'Game Review',
       Routes.coach: 'AI Coach',
-      Routes.stats: 'Your stats',
-      Routes.reportCard('g1'): 'Report card',
+      Routes.stats: 'Your Stats',
+      Routes.reportCard('g1'): 'Report Card',
       Routes.settings: 'Settings',
       Routes.games: 'Games',
     };
@@ -82,10 +82,10 @@ void main() {
   testWidgets('Home cards push a screen and back returns Home', (tester) async {
     await pumpApp(tester);
 
-    await tester.tap(find.text('Import games'));
+    await tester.tap(find.text('Import Games'));
     await tester.pumpAndSettle();
     expect(
-      find.descendant(of: find.byType(AppBar), matching: find.text('Import games')),
+      find.descendant(of: find.byType(AppBar), matching: find.text('Import Games')),
       findsOneWidget,
     );
 

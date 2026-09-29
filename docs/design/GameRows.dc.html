@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Saved game rows</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<ul aria-label="Saved games" style="width: 358px; height: {{h}}px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; font-family: 'Instrument Sans', system-ui, sans-serif; color: #E9EDF2">
+<sc-for list="{{rows}}" as="g" hint-placeholder-count="6">
+<li style="height: 72px; flex-shrink: 0; border-top: {{g.border}}">
+<a href="Review.dc.html" style="height: 72px; display: flex; align-items: center; gap: 12px; color: #E9EDF2; text-decoration: none">
+<span aria-label="{{g.resultLabel}}" style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; background: {{g.badgeBg}}; color: {{g.badgeFg}}; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: 15px">{{g.r}}</span>
+<span style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+<span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{g.opp}} <span style="font-weight: 400; color: #7C8898">{{g.rating}}</span></span>
+<span style="font-size: 13px; color: #A3AFBD; white-space: nowrap">{{g.how}}</span>
+</span>
+<span style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 5px">
+<span style="height: 20px; padding: 0 7px; border-radius: 5px; background: {{g.srcBg}}; color: {{g.srcFg}}; display: flex; align-items: center; font-size: 11px; font-weight: 600">{{g.src}}</span>
+<span style="font-size: 12px; color: #7C8898">{{g.date}}</span>
+</span>
+</a>
+</li>
+</sc-for>
+</ul>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"filter":{"editor":"enum","options":["all","won","lost"],"default":"all"},"limit":{"editor":"int","min":1,"max":8,"default":8},"$preview":{"width":358,"height":576}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var f = this.props.filter || 'all';
+    var limit = Number(this.props.limit || 8);
+    var G = [
+      { r: 'L', opp: 'Stockfish', rating: '1000', how: 'Checkmate · 41 moves · 5+0', src: 'MoveWise', date: '28 Sep' },
+      { r: 'W', opp: 'Opponent', rating: 'pass & play', how: 'Checkmate · 39 moves · 10+5', src: 'MoveWise', date: '27 Sep' },
+      { r: 'W', opp: 'knightowl_92', rating: '1512', how: 'Resignation · 33 moves · 10+0', src: 'Chess.com', date: '26 Sep' },
+      { r: 'L', opp: 'pawnstorm_', rating: '1588', how: 'Timeout · 52 moves · 3+2', src: 'Lichess', date: '25 Sep' },
+      { r: 'D', opp: 'rookie_rook', rating: '1475', how: 'Repetition · 28 moves · 5+0', src: 'Chess.com', date: '24 Sep' },
+      { r: 'W', opp: 'Stockfish', rating: '800', how: 'Checkmate · 20 moves · 5+0', src: 'MoveWise', date: '22 Sep' },
+      { r: 'L', opp: 'e4_enjoyer', rating: '1603', how: 'Checkmate · 24 moves · 3+0', src: 'Lichess', date: '21 Sep' },
+      { r: 'L', opp: 'zugzwang_zed', rating: '1550', how: 'Resignation · 36 moves · 10+0', src: 'Chess.com', date: '19 Sep' },
+      { r: 'W', opp: 'Stockfish', rating: '600', how: 'Checkmate · 31 moves · 10+0', src: 'MoveWise', date: '18 Sep' },
+      { r: 'W', opp: 'castle_queen', rating: '1498', how: 'Timeout · 47 moves · 5+0', src: 'Lichess', date: '16 Sep' }
+    ];
+    var rows = G.filter(function (g) { return f === 'all' || (f === 'won' && g.r === 'W') || (f === 'lost' && g.r === 'L'); }).slice(0, limit);
+    var badge = { W: ['#86A8FF', '#0B1224', 'Won'], L: ['#F09A55', '#0B1224', 'Lost'], D: ['#2A3441', '#E9EDF2', 'Draw'] };
+    var src = { 'MoveWise': ['rgba(134,168,255,0.14)', '#A9C0FF'], 'Chess.com': ['#1C242E', '#C4CCD6'], 'Lichess': ['#1C242E', '#C4CCD6'] };
+    return {
+      h: rows.length * 72,
+      rows: rows.map(function (g, i) {
+        return Object.assign({}, g, {
+          badgeBg: badge[g.r][0], badgeFg: badge[g.r][1], resultLabel: badge[g.r][2],
+          srcBg: src[g.src][0], srcFg: src[g.src][1], border: i === 0 ? 'none' : '1px solid #1C242E'
+        });
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

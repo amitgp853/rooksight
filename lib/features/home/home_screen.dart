@@ -10,6 +10,9 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/logo_mark.dart';
 import '../games/games_screen.dart' show savedGamesProvider;
+import '../pass_play/domain/unfinished_pass_game.dart';
+import '../play/domain/game_config.dart';
+import '../play/domain/game_state.dart';
 import '../play/domain/unfinished_game.dart';
 import '../play/widgets/clock_view.dart' show formatClock;
 import '../stats/domain/player_stats.dart';
@@ -22,8 +25,8 @@ final homeWeaknessProvider = FutureProvider.autoDispose<Weakness?>((ref) async {
   return findWeaknesses(games).firstOrNull;
 });
 
-/// Home (`design/source/Home.dc.html`, `HomeLight.dc.html`): the game to
-/// continue, Play vs Computer, Import and Coach, and Stats with the top
+/// Home (`Home.dc.html`, `HomeLight.dc.html`): the game to continue, Play vs
+/// Computer, Pass & play, Import and AI Coach, and Stats with the top
 /// weakness. Light mode outlines the cards.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -33,6 +36,11 @@ class HomeScreen extends ConsumerWidget {
     final colors = context.colors;
     final type = context.type;
     final unfinished = ref.watch(unfinishedGameProvider);
+    final unfinishedPass = ref.watch(unfinishedPassGameProvider);
+    // One Continue card: the game left most recently.
+    final continuePass =
+        unfinishedPass != null &&
+        (unfinished == null || unfinishedPass.savedAt.isAfter(unfinished.savedAt));
 
     // Back on Home, the top weakness may have changed (new reviews).
     Future<void> open(String route) async {
@@ -69,9 +77,18 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.s4),
-            if (unfinished != null) ...[
-              _ContinueCard(
-                game: unfinished,
+            if (continuePass) ...[
+              _ContinueCard.pass(
+                unfinishedPass,
+                onResume: () {
+                  ref.read(resumePassGameProvider).request();
+                  open(Routes.passGame);
+                },
+              ),
+              const SizedBox(height: AppSpacing.s4),
+            ] else if (unfinished != null) ...[
+              _ContinueCard.stockfish(
+                unfinished,
                 onResume: () {
                   ref.read(resumeGameProvider).request();
                   open(Routes.game);
@@ -80,6 +97,17 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.s4),
             ],
             _PlayCard(onTap: () => open(Routes.playSetup)),
+            const SizedBox(height: 12),
+            _Card(
+              onTap: () => open(Routes.passSetup),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              child: const _RowHeader(
+                icon: Icons.people_outline_rounded,
+                title: 'Pass & Play',
+                subtitle: 'Two players, one phone',
+                iconSize: 44,
+              ),
+            ),
             const SizedBox(height: AppSpacing.s4),
             Row(
               spacing: 12,
@@ -88,7 +116,7 @@ class HomeScreen extends ConsumerWidget {
                   child: _Tile(
                     icon: Icons.download_rounded,
                     iconColor: colors.focus,
-                    title: 'Import games',
+                    title: 'Import Games',
                     subtitle: 'Chess.com · Lichess',
                     onTap: () => open(Routes.import),
                   ),
@@ -105,9 +133,10 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.s4),
-            _StatsCard(onTap: () => open(Routes.stats)),
-            const SizedBox(height: AppSpacing.s4),
+            // Games before Stats: your games matter more than the summary.
             _GamesCard(onTap: () => open(Routes.games)),
+            const SizedBox(height: AppSpacing.s4),
+            _StatsCard(onTap: () => open(Routes.stats)),
           ],
         ),
       ),
@@ -142,18 +171,19 @@ class _Card extends StatelessWidget {
   }
 }
 
-/// A 40px rounded square with an icon, as in the design's tiles.
+/// A rounded square (40px by default) with an icon, as in the design's tiles.
 class _IconTile extends StatelessWidget {
-  const _IconTile({required this.icon, required this.color});
+  const _IconTile({required this.icon, required this.color, this.size = 40});
 
   final IconData icon;
   final Color color;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 40,
-      height: 40,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         color: context.colors.bgElevated,
         borderRadius: BorderRadius.circular(12),
@@ -165,25 +195,73 @@ class _IconTile extends StatelessWidget {
 
 /// The unfinished game: its position, and Resume.
 class _ContinueCard extends StatelessWidget {
-  const _ContinueCard({required this.game, required this.onResume});
+  const _ContinueCard({
+    required this.game,
+    required this.orientation,
+    required this.title,
+    required this.details,
+    required this.status,
+    required this.onResume,
+  });
 
-  final UnfinishedGame game;
+  /// A game against Stockfish: "vs Stockfish · 1600", the player's clock.
+  factory _ContinueCard.stockfish(UnfinishedGame saved, {required VoidCallback onResume}) {
+    final state = saved.game;
+    final config = saved.config;
+    final clock = config.playerSide == Side.white ? saved.white : saved.black;
+    return _ContinueCard(
+      game: state,
+      orientation: config.playerSide,
+      title: 'vs Stockfish · ${config.level.elo}',
+      details: [
+        _clockLabel(config.timeControl),
+        'move ${state.position.fullmoves}',
+        if (config.practice) 'practice',
+      ].join(' · '),
+      status: [
+        ?clock == null ? null : formatClock(clock),
+        state.turn == config.playerSide ? 'your turn' : 'Stockfish to move',
+      ].join(' · '),
+      onResume: onResume,
+    );
+  }
+
+  /// A pass & play game: both names, and the clock of whoever is to move.
+  factory _ContinueCard.pass(UnfinishedPassGame saved, {required VoidCallback onResume}) {
+    final state = saved.game;
+    final config = saved.config;
+    final clock = state.turn == Side.white ? saved.white : saved.black;
+    return _ContinueCard(
+      game: state,
+      orientation: config.firstSide,
+      title: '${config.nameOf(Side.white)} vs ${config.nameOf(Side.black)}',
+      details: [
+        'Pass & Play',
+        _clockLabel(config.timeControl),
+        'move ${state.position.fullmoves}',
+      ].join(' · '),
+      status: [
+        ?clock == null ? null : formatClock(clock),
+        '${config.nameOf(state.turn)} to move',
+      ].join(' · '),
+      onResume: onResume,
+    );
+  }
+
+  final GameState game;
+  final Side orientation;
+  final String title;
+  final String details;
+  final String status;
   final VoidCallback onResume;
+
+  static String _clockLabel(TimeControl timeControl) =>
+      timeControl.hasClock ? '${timeControl.kind} ${timeControl.label}' : 'No clock';
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final type = context.type;
-    final state = game.game;
-    final config = game.config;
-    final playerToMove = state.turn == config.playerSide;
-    final clock = config.playerSide == Side.white ? game.white : game.black;
-    final timeControl = config.timeControl;
-    final details = [
-      if (timeControl.hasClock) '${timeControl.kind} ${timeControl.label}' else 'No clock',
-      'move ${state.position.fullmoves}',
-      if (config.practice) 'practice',
-    ].join(' · ');
 
     return Semantics(
       container: true,
@@ -195,10 +273,10 @@ class _ContinueCard extends StatelessWidget {
             spacing: AppSpacing.s4,
             children: [
               MoveWiseStaticBoard(
-                fen: state.position.fen,
+                fen: game.position.fen,
                 size: 124,
-                lastMove: state.lastMove,
-                orientation: config.playerSide,
+                lastMove: game.lastMove,
+                orientation: orientation,
                 coordinates: false,
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -212,7 +290,9 @@ class _ContinueCard extends StatelessWidget {
                       style: type.overline.copyWith(color: colors.textSecondary),
                     ),
                     Text(
-                      'vs Stockfish · ${config.level.elo}',
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: type.heading.copyWith(height: 24 / 17),
                     ),
                     Text(
@@ -223,10 +303,7 @@ class _ContinueCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      [
-                        ?clock == null ? null : formatClock(clock),
-                        playerToMove ? 'your turn' : 'Stockfish to move',
-                      ].join(' · '),
+                      status,
                       style: type.mono.copyWith(fontSize: 13, color: colors.textTertiary),
                     ),
                     const Spacer(),
@@ -280,9 +357,9 @@ class _PlayCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: SizedBox(
-          height: 120,
+          height: 96,
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               spacing: AppSpacing.s4,
               children: [
@@ -375,11 +452,17 @@ class _Tile extends StatelessWidget {
 
 /// An icon, a title and a line, with a chevron: the stats and games rows.
 class _RowHeader extends StatelessWidget {
-  const _RowHeader({required this.icon, required this.title, required this.subtitle});
+  const _RowHeader({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.iconSize = 40,
+  });
 
   final IconData icon;
   final String title;
   final String subtitle;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +471,7 @@ class _RowHeader extends StatelessWidget {
     return Row(
       spacing: 12,
       children: [
-        _IconTile(icon: icon, color: colors.focus),
+        _IconTile(icon: icon, color: colors.focus, size: iconSize),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

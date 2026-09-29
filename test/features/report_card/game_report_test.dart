@@ -63,7 +63,7 @@ void main() {
   test('the AI verdict when there is one, else one from the numbers', () {
     final plain = foolsMateReport();
     expect(plain.aiVerdict, isFalse);
-    expect(plain.verdict, endsWith('but 1 blunder decided it.'));
+    expect(plain.verdict, 'One blunder on move 2 turned the game; 1 blunder in all.');
 
     final ai = foolsMateReport(aiVerdict: 'A short, sharp lesson.');
     expect(ai.aiVerdict, isTrue);

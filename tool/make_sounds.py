@@ -3,9 +3,10 @@
 A wooden piece set down on a wooden board, by modal synthesis: a short,
 felt-softened contact burst rings two sets of resonators, the piece's own
 (bright, short) and the board's (low, a little longer: the "thud" that makes
-it sound physical). A separate glide is the felt base sliding over the board
-while the piece travels. Each sound comes in a few slightly different takes,
-picked at random in the app, so repeated moves don't sound mechanical.
+it sound physical). Each sound is short, a crisp tap rather than a ringing
+knock, and comes in a few slightly different takes, picked at random in the
+app, so repeated moves don't sound mechanical. Nothing plays while a piece
+slides: only its landing.
 
 Made here rather than taken from a sound pack, so the project owns them
 outright. Standard library only:
@@ -26,7 +27,8 @@ TAKES = 3
 # Resonances as (frequency Hz, decay s, gain). Boxwood pieces ring high and
 # briefly, with inharmonic overtones; the board answers low.
 PIECE = [(1150, 0.014, 1.0), (1790, 0.010, 0.6), (2640, 0.007, 0.35), (3900, 0.004, 0.2)]
-BOARD = [(150, 0.035, 0.7), (320, 0.024, 0.5), (540, 0.016, 0.3)]
+# Damped quickly, so the thud is felt rather than heard ringing on.
+BOARD = [(150, 0.018, 0.7), (320, 0.013, 0.5), (540, 0.009, 0.3)]
 # Two pieces clacking together, for captures: brighter and shorter.
 CLACK = [(2300, 0.006, 1.0), (3400, 0.004, 0.6), (5100, 0.003, 0.3)]
 
@@ -65,7 +67,7 @@ def ring(excitation, modes, length, rng, detune=0.04):
     return out
 
 
-def knock(rng, *, force=1.0, contact=0.0008, piece=PIECE, board=BOARD, board_gain=0.6, length=0.14):
+def knock(rng, *, force=1.0, contact=0.0012, piece=PIECE, board=BOARD, board_gain=0.6, length=0.07):
     """One piece set down: [force] scales how hard, [contact] how long the
     felt base takes to meet the board (shorter is harder and brighter)."""
     pulse = [force * s for s in burst(rng, contact)]
@@ -74,37 +76,14 @@ def knock(rng, *, force=1.0, contact=0.0008, piece=PIECE, board=BOARD, board_gai
     return [b + board_gain * t for b, t in zip(body, thud)]
 
 
-def glide(rng, length=0.18):
-    """Felt sliding over wood: soft band-limited noise that swells and fades."""
-    out = silence(length)
-    # A band-pass around 1.6kHz (two one-pole sections), plus a little rumble.
-    a_hi = math.exp(-2 * math.pi * 900 / RATE)
-    a_lo = math.exp(-2 * math.pi * 2600 / RATE)
-    a_rumble = math.exp(-2 * math.pi * 250 / RATE)
-    high = low = previous = rumble = 0.0
-    wobble = rng.uniform(0, math.tau)
-    for i in range(len(out)):
-        t = i / RATE
-        x = rng.uniform(-1, 1)
-        low = (1 - a_lo) * x + a_lo * low
-        high = a_hi * (high + low - previous)
-        previous = low
-        rumble = (1 - a_rumble) * x + a_rumble * rumble
-        # Rise over 40ms, fall away by the end; a slow wobble for texture.
-        env = min(1, t / 0.04) * max(0, 1 - t / length) ** 1.5
-        env *= 1 + 0.25 * math.sin(2 * math.pi * 22 * t + wobble)
-        out[i] = env * (high + 1.5 * rumble)
-    return out
-
-
-def ping(rng, length=0.26):
+def ping(rng, length=0.2):
     """A soft, bell-like tone for check: noticeable without alarm."""
     out = silence(length)
     f = 1320 * (1 + rng.uniform(-0.01, 0.01))
     for i in range(len(out)):
         t = i / RATE
         out[i] = (math.sin(2 * math.pi * f * t) + 0.3 * math.sin(2 * math.pi * 2 * f * t)) * (
-            math.exp(-t / 0.07) * min(1, t / 0.002)
+            math.exp(-t / 0.05) * min(1, t / 0.002)
         )
     return out
 
@@ -141,35 +120,36 @@ def write(name, samples, peak):
     print(f"{name}.wav  {len(out) / RATE * 1000:.0f}ms")
 
 
-# Levels sit well below full scale: these play on every move, under whatever
-# else the phone is doing. The glide is quieter still, a hint of travel.
+# Levels sit well below full scale (about 30% lower than a hard tap would
+# be): these play on every move, under whatever else the phone is doing.
 for take in range(1, TAKES + 1):
     rng = random.Random(take)
 
-    write(f"glide_{take}", glide(rng), peak=0.07)
-
     # A piece set down.
-    write(f"move_{take}", knock(rng), peak=0.32)
+    write(f"move_{take}", knock(rng), peak=0.22)
 
     # Set down harder, with the clack of the pieces touching just before.
     write(
         f"capture_{take}",
         mix(
-            scaled(knock(rng, contact=0.0004, piece=CLACK, board_gain=0.2, length=0.06), 0.7),
-            at(knock(rng, force=1.3, contact=0.0006, board_gain=0.8), 0.012),
+            scaled(knock(rng, contact=0.0006, piece=CLACK, board_gain=0.2, length=0.04), 0.6),
+            at(knock(rng, force=1.3, contact=0.0009, board_gain=0.8), 0.012),
         ),
-        peak=0.4,
+        peak=0.28,
     )
 
     # King, then rook a moment later: two lighter knocks, the second softer.
     write(
         f"castle_{take}",
-        mix(knock(rng, force=0.9), at(scaled(knock(rng, force=0.8), 0.8), 0.075)),
-        peak=0.3,
+        mix(knock(rng, force=0.9), at(scaled(knock(rng, force=0.8), 0.8), 0.06)),
+        peak=0.21,
     )
 
     # A move with the soft ping on top.
-    write(f"check_{take}", mix(knock(rng), scaled(ping(rng), 0.35)), peak=0.38)
+    write(f"check_{take}", mix(knock(rng), scaled(ping(rng), 0.3)), peak=0.27)
 
+# Sounds no longer made: the old single takes, and the slide ("glide").
 for old in ("move", "capture", "castle", "check"):
     (OUT / f"{old}.wav").unlink(missing_ok=True)
+for take in range(1, TAKES + 1):
+    (OUT / f"glide_{take}.wav").unlink(missing_ok=True)

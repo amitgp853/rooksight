@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logo direction</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 1440px; height: 640px; box-sizing: border-box; padding: 56px; background: #151B22; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 32px">
+
+<header style="display: flex; align-items: baseline; gap: 24px">
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 14px; color: #86A8FF">Direction {{d.n}}</span>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 32px; letter-spacing: -0.02em">{{d.title}}</h1>
+<span style="font-size: 16px; color: #A3AFBD">{{d.desc}}</span>
+</header>
+
+<sc-for list="{{d.vars}}" as="v" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 24px">
+<div style="width: 110px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px">
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 22px">{{v.id}}</span>
+<span style="font-size: 14px; line-height: 20px; color: #A3AFBD">{{v.name}}</span>
+</div>
+<div style="width: 196px; height: 196px; flex-shrink: 0; border-radius: 20px; background: #0E1217; display: flex; align-items: center; justify-content: center">
+<dc-import name="Logo" variant="{{v.id}}" mode="dark" size="160" hint-size="160px,160px"></dc-import>
+</div>
+<div style="width: 196px; height: 196px; flex-shrink: 0; border-radius: 20px; background: #E6EAF0; display: flex; align-items: center; justify-content: center">
+<dc-import name="Logo" variant="{{v.id}}" mode="light" size="160" hint-size="160px,160px"></dc-import>
+</div>
+<div style="width: 190px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 94px; border-radius: 16px; background: #0E1217; display: flex; align-items: center; justify-content: center; gap: 16px">
+<dc-import name="Logo" variant="{{v.id}}" mode="dark" size="48" hint-size="48px,48px"></dc-import>
+<dc-import name="Logo" variant="{{v.id}}" mode="dark" size="32" hint-size="32px,32px"></dc-import>
+<dc-import name="Logo" variant="{{v.id}}" mode="dark" size="20" hint-size="20px,20px"></dc-import>
+</div>
+<div style="height: 94px; border-radius: 16px; background: #E6EAF0; display: flex; align-items: center; justify-content: center; gap: 16px">
+<dc-import name="Logo" variant="{{v.id}}" mode="light" size="48" hint-size="48px,48px"></dc-import>
+<dc-import name="Logo" variant="{{v.id}}" mode="light" size="32" hint-size="32px,32px"></dc-import>
+<dc-import name="Logo" variant="{{v.id}}" mode="light" size="20" hint-size="20px,20px"></dc-import>
+</div>
+</div>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 94px; border-radius: 16px; background: #0E1217; padding: 0 28px; display: flex; align-items: center; gap: 16px">
+<dc-import name="Logo" variant="{{v.id}}" mode="dark" size="52" hint-size="52px,52px"></dc-import>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 34px; letter-spacing: -0.02em; color: #E9EDF2">MoveWise</span>
+</div>
+<div style="height: 94px; border-radius: 16px; background: #E6EAF0; padding: 0 28px; display: flex; align-items: center; gap: 16px">
+<dc-import name="Logo" variant="{{v.id}}" mode="light" size="52" hint-size="52px,52px"></dc-import>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 34px; letter-spacing: -0.02em; color: #121820">MoveWise</span>
+</div>
+</div>
+</div>
+</sc-for>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"dir":{"editor":"enum","options":["1","2","3","4","5","6","7","8","9"],"default":"1"},"$preview":{"width":1440,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var D = {
+      '1': { n: 1, title: 'The wise move', desc: 'The knight’s L-shaped move drawn as a path that ends in an upward arrow.',
+             vars: [{ id: '1a', name: 'Path only' }, { id: '1b', name: 'Path on its three squares' }] },
+      '2': { n: 2, title: 'The coach’s knight', desc: 'A minimal, faceted knight head with a touch of AI.',
+             vars: [{ id: '2a', name: 'Knight + spark' }, { id: '2b', name: 'Knight coin, glowing eye' }] },
+      '3': { n: 3, title: 'One square, one move', desc: 'A single board square crossed by a move arrow.',
+             vars: [{ id: '3a', name: 'Filled square, straight move' }, { id: '3b', name: 'Outlined square, curved move' }] },
+      '4': { n: 4, title: 'Board monogram', desc: 'An M built from board squares; the brass centre is the move that matters.',
+             vars: [{ id: '4a', name: 'Two-tone M' }, { id: '4b', name: 'M on a 5×5 board' }] },
+      '5': { n: 5, title: 'Rook chart', desc: 'A rook whose battlements are a rising chart. The tallest bar, in brass, is the best move.',
+             vars: [{ id: '5a', name: 'Bar-chart battlements' }, { id: '5b', name: 'Line chart with an AI node' }] },
+      '6': { n: 6, title: 'Engine knight', desc: 'A knight beside the evaluation bar every chess player knows; the brass eye is the AI.',
+             vars: [{ id: '6a', name: 'Knight + eval bar' }, { id: '6b', name: 'Knight + rising eval line' }] },
+      '7': { n: 7, title: 'Board analysis', desc: 'Four board squares under analysis: a rising line or a magnifier with an AI spark.',
+             vars: [{ id: '7a', name: 'Eval line across the board' }, { id: '7b', name: 'Magnifier with AI spark' }] },
+      '8': { n: 8, title: 'Knight lens', desc: 'A clear chess knight under analysis: the magnifier is the coach, the brass spark is the AI.',
+             vars: [{ id: '8a', name: 'Knight + AI lens' }, { id: '8b', name: 'Knight inside the lens' }] },
+      '9': { n: 9, title: 'The analyst’s rook', desc: 'A rook whose battlements rise like a bar chart, with an AI spark cut into the tower.',
+             vars: [{ id: '9a', name: 'Rising battlements, brass best bar' }, { id: '9b', name: 'Classic battlements, brass spark' }] }
+    };
+    return { d: D[String(this.props.dir || '1')] || D['1'] };
+  }
+}
+</script>
+</body>
+</html>

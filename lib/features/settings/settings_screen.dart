@@ -51,10 +51,18 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const _Section(title: 'Sound and motion', child: _SoundAndMotion()),
           const _Section(title: 'Game review', child: _ReviewDepth()),
-          const _Section(title: 'Developer', child: _DeveloperCard()),
-          // The Gemini key is a developer setting.
-          if (ref.watch(developerModeProvider))
-            const _Section(title: 'AI Coach', child: _AiCoachCard()),
+          _Section(
+            title: 'Developer',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 10,
+              children: [
+                const _DeveloperCard(),
+                // The Gemini key is a developer setting.
+                if (ref.watch(developerModeProvider)) const _AiCoachCard(),
+              ],
+            ),
+          ),
           Text(
             '${AppInfo.name} ${AppInfo.version} · Stockfish runs on your device',
             textAlign: TextAlign.center,
@@ -343,7 +351,7 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
       children: [
         Row(
           children: [
-            Expanded(child: Text('Gemini API key', style: _fieldLabel(context))),
+            Expanded(child: Text('AI Coach key (Gemini)', style: _fieldLabel(context))),
             if (saved != null && _test == _KeyTest.works) const _KeyWorks(),
           ],
         ),
@@ -382,8 +390,8 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
             ),
           ),
           Text(
-            'Stored only on this phone. Used to write explanations; every move it '
-            'suggests is checked by Stockfish first.',
+            'Stored only on this phone. The AI Coach runs only when you tap a button '
+            'that asks for it.',
             style: _help(context),
           ),
           Align(
@@ -422,8 +430,8 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
             ),
           ),
           Text(
-            'Stored only on this phone. Used to write explanations; every move it '
-            'suggests is checked by Stockfish first.',
+            'Stored only on this phone. The AI Coach runs only when you tap a button '
+            'that asks for it.',
             style: _help(context),
           ),
           Row(
@@ -593,7 +601,7 @@ class _SoundAndMotion extends ConsumerWidget {
           ),
           toggle(
             'Reduce motion',
-            'Simple fades instead of sliding and scaling pieces.',
+            'Fades instead of slides. Follows your phone unless you turn it on here.',
             ref.watch(reduceMotionSettingProvider),
             ref.read(reduceMotionSettingProvider.notifier).set,
           ),
@@ -608,20 +616,20 @@ class _ReviewDepth extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final depth = ref.watch(analysisDepthProvider);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: AppSpacing.s2,
+    return _Card(
       children: [
+        Text('Stockfish analysis depth', style: _fieldLabel(context)),
         SegmentedSwitch(
           values: AnalysisDepth.values,
-          selected: depth,
+          selected: ref.watch(analysisDepthProvider),
           label: (option) => option.label,
+          detail: (option) => 'depth ${option.plies}',
+          trackColor: context.colors.bgBase,
           onSelect: ref.read(analysisDepthProvider.notifier).set,
         ),
         Text(
-          'How deeply Stockfish checks each move (depth ${depth.plies}). Deeper is more '
-          'accurate but slower. Applies to games not yet analysed.',
+          'Deeper analysis is more accurate but takes longer. It all runs on this phone, '
+          'offline.',
           style: _help(context),
         ),
       ],
@@ -732,22 +740,27 @@ class _KeySteps extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Open Google AI Studio:', style: _help(context)),
+                    Text(
+                      'Open aistudio.google.com and sign in with a Google account.',
+                      style: _help(context),
+                    ),
                     const _Link('aistudio.google.com/apikey', studio),
                   ],
                 ),
               ),
+              step(2, Text('Tap “Get API key”, then “Create API key”.', style: _help(context))),
+              step(3, Text('Copy the key, come back here and tap Paste.', style: _help(context))),
               step(
-                2,
+                4,
                 Text(
-                  'Sign in with a Google account and tap “Create API key”.',
+                  'Tap Save key, then Test key. You should see “Key works”.',
                   style: _help(context),
                 ),
               ),
-              step(3, Text('Copy the key, then paste it above.', style: _help(context))),
               Text(
-                'It’s free, with no card needed. The free tier has daily limits; a game '
-                'review uses one request and an AI Coach question a few.',
+                'The free tier has per-minute and daily request limits. MoveWise sends one '
+                'request per explanation, so everyday use normally fits. Google can change '
+                'these limits; check AI Studio for today’s numbers.',
                 style: _help(context),
               ),
               const Align(
@@ -774,7 +787,10 @@ class _DeveloperCard extends ConsumerWidget {
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text('Developer mode', style: _fieldLabel(context)),
-          subtitle: Text('Shows the AI Coach key setup.', style: _help(context)),
+          subtitle: Text(
+            'Shows advanced settings, including your own AI Coach key.',
+            style: _help(context),
+          ),
           value: ref.watch(developerModeProvider),
           onChanged: ref.read(developerModeProvider.notifier).set,
         ),

@@ -274,7 +274,7 @@ class _GameTile extends StatelessWidget {
                 children: [
                   SourceTag(source: record.source),
                   Text(
-                    _date(record.endedAt),
+                    shortDate(record.endedAt),
                     style: type.label.copyWith(color: colors.textTertiary),
                   ),
                 ],
@@ -285,28 +285,29 @@ class _GameTile extends StatelessWidget {
       ),
     );
   }
-
-  static String _date(DateTime date) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${date.day} ${months[date.month - 1]}';
-  }
 }
 
-/// Where a game came from: played here, or imported from Chess.com. Both are
-/// labelled, so neither looks like the default.
+/// `29 Sep`.
+String shortDate(DateTime date) {
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  return '${date.day} ${months[date.month - 1]}';
+}
+
+/// Where a game came from: played here, or imported. Each is labelled, so
+/// none looks like the default.
 class SourceTag extends StatelessWidget {
   const SourceTag({super.key, required this.source});
 
@@ -316,7 +317,7 @@ class SourceTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final (label, icon, tint) = switch (source) {
-      GameSource.stockfish => ('MoveWise', null, colors.focus),
+      GameSource.stockfish || GameSource.passAndPlay => ('MoveWise', null, colors.focus),
       GameSource.chesscom => ('Chess.com', Icons.download_rounded, colors.textSecondary),
       GameSource.lichess => ('Lichess', Icons.download_rounded, colors.textSecondary),
     };
@@ -385,23 +386,46 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final type = context.type;
+    final buttonShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(14));
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s8),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.s8, 0, AppSpacing.s8, 80),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          spacing: AppSpacing.s3,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 14,
           children: [
-            Text('No games yet', style: type.title),
+            const Center(child: Opacity(opacity: 0.5, child: LogoMark(size: 96))),
             Text(
-              'Finished games are saved here, ready for review.',
+              'No games yet',
+              textAlign: TextAlign.center,
+              style: type.title.copyWith(fontSize: 22),
+            ),
+            Text(
+              'Every game you finish is kept here, ready for review. Play Stockfish or a '
+              'friend, or bring in your online games.',
               textAlign: TextAlign.center,
               style: type.body.copyWith(color: colors.textSecondary),
             ),
-            const SizedBox(height: AppSpacing.s2),
+            const SizedBox(height: 0),
             FilledButton(
               onPressed: () => context.push(Routes.playSetup),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+                shape: buttonShape,
+                textStyle: type.heading.copyWith(fontSize: 15),
+              ),
               child: const Text('Play vs Computer'),
+            ),
+            OutlinedButton(
+              onPressed: () => context.push(Routes.import),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+                backgroundColor: colors.bgRaised,
+                shape: buttonShape,
+                textStyle: type.heading.copyWith(fontSize: 15),
+              ),
+              child: const Text('Import from Chess.com or Lichess'),
             ),
           ],
         ),
@@ -421,6 +445,7 @@ String opponentName(GameRecord record) {
   final name =
       record.opponentName ??
       (record.engineElo != null ? 'Stockfish ${record.engineElo}' : 'Opponent');
+  if (record.source == GameSource.passAndPlay) return '$name · pass & play';
   final rating = record.opponentRating;
   return rating == null ? name : '$name ($rating)';
 }

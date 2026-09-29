@@ -114,14 +114,22 @@ void main() {
   });
 
   test('the current schema creates every table', () async {
-    expect(db.schemaVersion, 3);
+    expect(db.schemaVersion, 4);
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
         .map((row) => row.read<String>('name'))
         .get();
     expect(
       tables,
-      containsAll(['games', 'settings', 'import_months', 'game_analyses', 'game_reviews']),
+      containsAll([
+        'games',
+        'settings',
+        'import_months',
+        'game_analyses',
+        'game_reviews',
+        'coach_chats',
+        'coach_messages',
+      ]),
     );
   });
 

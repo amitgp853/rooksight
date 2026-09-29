@@ -1,11 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/coach/chats_screen.dart';
 import '../../features/coach/coach_screen.dart';
 import '../../features/games/games_screen.dart';
 import '../../features/home/home_screen.dart';
 import '../../features/import/domain/importer.dart' show ImportPlatform;
 import '../../features/import/import_screen.dart';
+import '../../features/pass_play/pass_game_screen.dart';
+import '../../features/pass_play/pass_setup_screen.dart';
 import '../../features/play/game_screen.dart';
 import '../../features/play/play_setup_screen.dart';
 import '../../features/report_card/report_card_screen.dart';
@@ -18,11 +21,19 @@ abstract final class Routes {
   static const home = '/';
   static const playSetup = '/play';
   static const game = '/play/game';
+  static const passSetup = '/pass';
+  static const passGame = '/pass/game';
   static const import = '/import';
 
   /// The import, opened on Lichess.
   static const importLichess = '/import?from=lichess';
   static const coach = '/coach';
+
+  /// The saved AI Coach chats.
+  static const coachChats = '/coach/chats';
+
+  /// A saved AI Coach chat, to read and continue.
+  static String coachChat(int id) => '/coach/chats/$id';
   static const stats = '/stats';
   static const games = '/games';
   static const settings = '/settings';
@@ -62,6 +73,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.home, builder: (context, state) => const HomeScreen()),
       GoRoute(path: Routes.playSetup, builder: (context, state) => const PlaySetupScreen()),
       GoRoute(path: Routes.game, builder: (context, state) => const GameScreen()),
+      GoRoute(path: Routes.passSetup, builder: (context, state) => const PassSetupScreen()),
+      GoRoute(path: Routes.passGame, builder: (context, state) => const PassGameScreen()),
       GoRoute(
         path: Routes.import,
         builder: (context, state) => ImportScreen(
@@ -87,6 +100,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             question: query['q'],
           );
         },
+      ),
+      GoRoute(path: Routes.coachChats, builder: (context, state) => const ChatsScreen()),
+      GoRoute(
+        path: '/coach/chats/:id',
+        builder: (context, state) =>
+            CoachScreen(chatId: int.tryParse(state.pathParameters['id'] ?? '')),
       ),
       GoRoute(path: Routes.stats, builder: (context, state) => const StatsScreen()),
       GoRoute(

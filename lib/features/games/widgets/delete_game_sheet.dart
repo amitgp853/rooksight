@@ -5,7 +5,8 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/move_wise_sheet.dart';
-import '../games_screen.dart' show OutcomeBadge, endReasonLabel, movesLabel, opponentName;
+import '../games_screen.dart'
+    show OutcomeBadge, endReasonLabel, movesLabel, opponentName, shortDate, timeControlLabel;
 
 /// Asks before deleting [game], in a MoveWise sheet that shows which game it
 /// is and what goes with it. True if the player chose Delete.
@@ -36,11 +37,8 @@ class _DeleteGameSheet extends StatelessWidget {
     final details = [
       if (game.endReason != null) endReasonLabel(game.endReason!),
       movesLabel(game),
-      switch (game.source) {
-        GameSource.stockfish => 'Played in MoveWise',
-        GameSource.chesscom => 'From Chess.com',
-        GameSource.lichess => 'From Lichess',
-      },
+      ?timeControlLabel(game),
+      shortDate(game.endedAt),
     ].join(' · ');
 
     return Semantics(
@@ -98,8 +96,8 @@ class _DeleteGameSheet extends StatelessWidget {
             ),
           ),
           Text(
-            'Its Stockfish review and AI explanations go with it. '
-            '${game.source != GameSource.stockfish ? 'Importing again may bring it back. ' : ''}'
+            'Its review and AI notes are deleted too. It will no longer count in your stats. '
+            '${game.source == GameSource.chesscom || game.source == GameSource.lichess ? 'Importing again may bring it back. ' : ''}'
             'This can’t be undone.',
             style: type.body.copyWith(color: colors.textSecondary),
           ),

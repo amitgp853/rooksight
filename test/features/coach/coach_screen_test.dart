@@ -9,13 +9,16 @@ import 'package:move_wise/core/llm/gemini_client.dart';
 import 'package:move_wise/core/llm/llm_client.dart';
 import 'package:move_wise/core/speech/speech_input.dart';
 import 'package:move_wise/core/storage/analysis_repository.dart';
+import 'package:move_wise/core/storage/chat_repository.dart';
 import 'package:move_wise/core/storage/game_repository.dart';
 import 'package:move_wise/core/theme/app_theme.dart';
 import 'package:move_wise/engine/engine_provider.dart';
+import 'package:move_wise/features/coach/chats_screen.dart';
 import 'package:move_wise/features/coach/coach_screen.dart';
 import 'package:move_wise/features/coach/domain/coach_tools.dart';
 
 import '../../support/fake_analysis_repository.dart';
+import '../../support/fake_chat_repository.dart';
 import '../../support/fake_engine.dart';
 import '../../support/fake_game_repository.dart';
 import '../../support/fake_llm.dart';
@@ -30,6 +33,7 @@ void main() {
   late FakeLlm llm;
   late FakeEngine engine;
   late FakeSpeechInput speech;
+  late FakeChatRepository chats;
   late bool hasKey;
   late int id;
 
@@ -53,6 +57,7 @@ void main() {
     );
     engine = FakeEngine();
     speech = FakeSpeechInput();
+    chats = FakeChatRepository();
     hasKey = true;
   });
 
@@ -72,6 +77,11 @@ void main() {
             question: state.uri.queryParameters['q'],
           ),
         ),
+        GoRoute(path: '/coach/chats', builder: (context, state) => const ChatsScreen()),
+        GoRoute(
+          path: '/coach/chats/:id',
+          builder: (context, state) => CoachScreen(chatId: int.parse(state.pathParameters['id']!)),
+        ),
         GoRoute(
           path: '/review/:gameId',
           builder: (context, state) => Text(
@@ -90,6 +100,7 @@ void main() {
           llmClientProvider.overrideWithValue(llm),
           llmConfiguredProvider.overrideWithValue(hasKey),
           speechInputProvider.overrideWithValue(speech),
+          chatRepositoryProvider.overrideWithValue(chats),
         ],
         child: MaterialApp.router(theme: AppTheme.dark(), routerConfig: router),
       ),
@@ -363,6 +374,150 @@ void main() {
       await tester.pump();
       expect(find.text('Voice input isn’t available on this phone.'), findsOneWidget);
       expect(find.byTooltip('Ask by voice'), findsNothing);
+    });
+  });
+
+  group('saved chats', () {
+    /// A chat saved earlier: one question and its answer.
+    Future<int> savedChat({
+      String body = 'Keep your king pawns at home.',
+      String? verifiedMove,
+    }) async {
+      final at = DateTime(2026, 9, 26, 10);
+      final chat = await chats.create(
+        const NewChat(title: 'Why do I lose?', scopeLabel: 'Your recent games'),
+        at,
+      );
+      await chats.addMessage(
+        chat,
+        StoredMessage(role: ChatRole.user, at: at, body: 'Why do I lose?'),
+      );
+      await chats.addMessage(
+        chat,
+        StoredMessage(
+          role: ChatRole.coach,
+          at: at,
+          body: 'You weaken your king.\n$body',
+          payload: {
+            'headline': 'You weaken your king.',
+            'body': body,
+            'steps': [
+              {'label': 'Checked your last 20 games'},
+            ],
+          },
+        ),
+      );
+      if (verifiedMove != null) {
+        await chats.updateContext(
+          chat,
+          verified: {
+            'moves': [verifiedMove],
+          },
+        );
+      }
+      return chat;
+    }
+
+    testWidgets('a new chat is saved when its first question is sent', (tester) async {
+      await pumpCoach(tester);
+      expect(await chats.watchChats().first, isEmpty, reason: 'nothing saved before sending');
+
+      await tester.tap(find.text('Why do I keep losing?'));
+      await tester.pumpAndSettle();
+
+      final saved = (await chats.watchChats().first).single;
+      expect(saved.title, 'Why do I keep losing?');
+      expect(saved.messageCount, 2);
+      expect([for (final m in chats.added) m.role], [ChatRole.user, ChatRole.coach]);
+      expect(saved.thumbFen, isNotNull, reason: 'the move card gives it a picture');
+    });
+
+    testWidgets('reopening a saved chat reads it back and never calls the AI', (tester) async {
+      final chat = await savedChat();
+      await pumpCoach(tester, location: '/coach/chats/$chat');
+
+      expect(find.text('Why do I lose?'), findsWidgets); // Header and bubble.
+      expect(find.text('You weaken your king.'), findsOneWidget);
+      expect(find.text('WORKED THROUGH 1 STEP'), findsOneWidget);
+      expect(find.text('Checked your last 20 games'), findsNothing, reason: 'steps start folded');
+      expect(find.textContaining('Continue this chat below'), findsOneWidget);
+      expect(find.text('Sat 26 Sep'), findsOneWidget);
+      expect(llm.requests, isEmpty);
+    });
+
+    testWidgets('continuing sends the conversation, and may name moves from before', (
+      tester,
+    ) async {
+      final chat = await savedChat(verifiedMove: 'Qh4');
+      llm = FakeLlm(reply: jsonEncode({'headline': 'Yes.', 'body': 'Qh4 was the threat.'}));
+      await pumpCoach(tester, location: '/coach/chats/$chat');
+
+      await tester.enterText(find.byType(TextField), 'Was that the threat?');
+      await tester.pump(); // The send button enables on the next frame.
+      await tester.tap(find.byTooltip('Send'));
+      await tester.pumpAndSettle();
+
+      final sent = llm.requests.first.messages;
+      expect(sent.first.text, 'Why do I lose?');
+      expect(sent[1].text, contains('You weaken your king.'));
+      expect(find.text('Qh4 was the threat.'), findsOneWidget, reason: 'Qh4 was verified before');
+      expect((await chats.chat(chat))!.messageCount, 4);
+    });
+
+    testWidgets('a full chat asks for a new one and stops sending', (tester) async {
+      final chat = await savedChat(body: 'A long answer. ' * 600);
+      await pumpCoach(tester, location: '/coach/chats/$chat');
+
+      expect(find.text('Context memory is full. Please start a new chat.'), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'One more?');
+      await tester.pump();
+      expect(
+        tester.widget<IconButton>(find.widgetWithIcon(IconButton, Icons.arrow_upward)).onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('the new chat offers the latest chat to pick up', (tester) async {
+      final chat = await savedChat();
+      await pumpCoach(tester);
+      expect(find.text('PICK UP WHERE YOU LEFT OFF'), findsOneWidget);
+      await tester.tap(find.text('Why do I lose?'));
+      await tester.pumpAndSettle();
+      expect(find.byType(CoachScreen), findsOneWidget);
+      expect(find.text('You weaken your king.'), findsOneWidget);
+      expect(chat, 1);
+      expect(llm.requests, isEmpty);
+    });
+
+    testWidgets('the list: search, and delete from the options', (tester) async {
+      await savedChat();
+      await chats.create(
+        const NewChat(title: 'Openings', scopeLabel: 'Your recent games'),
+        DateTime(2026, 9, 1),
+      );
+      await pumpCoach(tester, location: '/coach/chats');
+
+      expect(find.text('2 chats · saved on this phone'), findsOneWidget);
+      expect(find.text('Why do I lose?'), findsOneWidget);
+      expect(find.text('Openings'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField), 'king');
+      await tester.pumpAndSettle();
+      expect(find.text('Openings'), findsNothing, reason: 'matches the answer text only');
+      expect(find.text('Why do I lose?'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Options for Why do I lose?'));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete this chat?'), findsOneWidget);
+      await tester.tap(find.text('Delete chat'));
+      await tester.pumpAndSettle();
+      expect(await chats.watchChats().first, hasLength(1));
+    });
+
+    testWidgets('no chats yet', (tester) async {
+      await pumpCoach(tester, location: '/coach/chats');
+      expect(find.text('No chats yet'), findsOneWidget);
+      expect(find.text('Ask the AI Coach'), findsOneWidget);
     });
   });
 }

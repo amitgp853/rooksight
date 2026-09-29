@@ -5,8 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'database.dart';
 
-/// Where a game came from.
-enum GameSource { stockfish, chesscom, lichess }
+/// Where a game came from: played against Stockfish or between two people
+/// on this phone, or imported.
+enum GameSource { stockfish, passAndPlay, chesscom, lichess }
 
 /// A game as stored: the PGN plus the facts screens need without parsing it.
 @immutable
@@ -43,7 +44,8 @@ class GameRecord {
   final String? endReason;
   final int? engineElo;
 
-  /// Who the user played, e.g. `Stockfish 1600` or a Chess.com username.
+  /// Who the user played, e.g. `Stockfish 1600`, a Chess.com username, or
+  /// the other player's name in pass & play.
   final String? opponentName;
   final int? opponentRating;
   final int? playerRating;

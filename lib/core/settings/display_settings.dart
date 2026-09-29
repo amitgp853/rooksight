@@ -92,9 +92,9 @@ class BoolSetting extends StoredSetting<bool> {
 
 /// How deeply Stockfish analyses each position in a game review.
 enum AnalysisDepth {
-  fast(12, 'Fast'),
-  normal(16, 'Normal'),
-  deep(20, 'Deep');
+  fast(14, 'Fast'),
+  normal(18, 'Balanced'),
+  deep(22, 'Deep');
 
   const AnalysisDepth(this.plies, this.label);
 

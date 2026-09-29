@@ -23,6 +23,22 @@ class TimeControl {
     none,
   ];
 
+  /// Pass & play: each player's clock.
+  static const passOptions = [
+    TimeControl._(3, 2, 'Blitz'),
+    TimeControl._(5, 0, 'Blitz'),
+    TimeControl._(10, 0, 'Rapid'),
+    passDefault,
+    TimeControl._(15, 10, 'Rapid'),
+    none,
+  ];
+
+  static const passDefault = TimeControl._(10, 5, 'Rapid');
+
+  /// The option labelled [label] (e.g. `10+5`), from either list.
+  static TimeControl? byLabel(String? label) =>
+      [...options, ...passOptions].where((t) => t.label == label).firstOrNull;
+
   final int minutes;
   final int incrementSeconds;
 

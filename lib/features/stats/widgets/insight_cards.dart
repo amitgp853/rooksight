@@ -137,11 +137,11 @@ class SummaryStrip extends StatelessWidget {
         ),
         _Tile(
           label: 'Accuracy',
-          value: number(stats.averageAccuracy, suffix: '%'),
+          value: number(stats.averageAccuracy, decimals: 1),
           footer: trend(
             Trend(stats.averageAccuracy, previous?.averageAccuracy),
             higherIsBetter: true,
-            decimals: 0,
+            decimals: 1,
           ),
         ),
         _Tile(
@@ -198,6 +198,7 @@ class MoveTimingCard extends StatelessWidget {
 
     return StatsSection(
       title: 'When your games go wrong',
+      subtitle: 'Mistakes and blunders by move number',
       trailing: total == 0
           ? null
           : Row(

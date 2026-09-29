@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../core/config/app_info.dart';
 import 'import_failure.dart';
+import 'import_pause.dart';
 import 'lichess_models.dart';
 
 /// The public Lichess API (no login, no key). Behind an interface so tests
@@ -101,4 +102,7 @@ class HttpLichessApi implements LichessApi {
   }
 }
 
-final lichessApiProvider = Provider<LichessApi>((ref) => HttpLichessApi());
+/// Waits after a 429 go through [importPauseProvider], so the screen can show them.
+final lichessApiProvider = Provider<LichessApi>(
+  (ref) => HttpLichessApi(wait: ref.read(importPauseProvider.notifier).wait),
+);

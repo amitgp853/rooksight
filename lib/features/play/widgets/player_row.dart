@@ -8,8 +8,9 @@ import 'captured_tray.dart';
 import 'clock_view.dart';
 import 'thinking_dots.dart';
 
-/// A player's line above or below the board: avatar, name (or status),
-/// captured pieces and clock.
+/// A player's line above or below the board: avatar, name (with whose move
+/// it is on the player's line), captured pieces and, on the player's line,
+/// their clock.
 class PlayerRow extends StatelessWidget {
   const PlayerRow({super.key, required this.session, required this.side});
 
@@ -25,19 +26,20 @@ class PlayerRow extends StatelessWidget {
     final game = session.game;
     final config = session.config;
     final isPlayer = side == config.playerSide;
-    final colourName = side == Side.white ? 'White' : 'Black';
     final captured = game.capturedBy(side);
     final advantage = game.materialAdvantage(side);
     final clock = session.clock;
 
-    final inCheck = isPlayer && !game.isOver && game.turn == side && game.checkedKing != null;
-    final title = !isPlayer
-        ? 'Stockfish'
+    // Your row says whose move it is; Stockfish's shows when it's thinking.
+    final yourTurn = isPlayer && !game.isOver && game.turn == side;
+    final inCheck = yourTurn && game.checkedKing != null;
+    final status = !isPlayer || game.isOver
+        ? null
         : inCheck
         ? 'In check'
-        : !game.isOver && game.turn == side
+        : yourTurn
         ? 'Your move'
-        : 'You';
+        : 'Stockfish to move';
 
     return SizedBox(
       height: height,
@@ -55,20 +57,32 @@ class PlayerRow extends StatelessWidget {
                 children: [
                   Row(
                     spacing: AppSpacing.s2,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        title,
-                        style: type.body.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: inCheck ? colors.coral : colors.textPrimary,
-                        ),
+                        isPlayer ? 'You' : 'Stockfish',
+                        style: type.body.copyWith(fontWeight: FontWeight.w600),
                       ),
+                      if (status != null)
+                        Text(
+                          status,
+                          style: type.label.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: inCheck
+                                ? colors.coral
+                                : yourTurn
+                                ? colors.focus
+                                : colors.textTertiary,
+                          ),
+                        ),
                       if (!isPlayer && session.engineThinking) const ThinkingDots(),
                     ],
                   ),
                   if (captured.isEmpty && advantage <= 0)
                     Text(
-                      isPlayer ? colourName : '${config.level.elo} · $colourName',
+                      'No captures yet',
                       style: type.label.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
@@ -87,7 +101,8 @@ class PlayerRow extends StatelessWidget {
                 ],
               ),
             ),
-            if (clock != null) ClockView(clock: clock, side: side, isPlayer: isPlayer),
+            // Only the player is timed; Stockfish takes the time it needs.
+            if (clock != null && isPlayer) ClockView(clock: clock, side: side),
           ],
         ),
       ),

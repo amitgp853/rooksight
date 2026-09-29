@@ -21,9 +21,10 @@ class UnfinishedGame {
     required this.moves,
     required this.hintsUsed,
     required this.startedAt,
+    DateTime? savedAt,
     this.white,
     this.black,
-  });
+  }) : savedAt = savedAt ?? startedAt;
 
   /// [session] as it stands at [now], or null when there's nothing to resume
   /// (no move yet, or the game is over).
@@ -36,6 +37,7 @@ class UnfinishedGame {
       moves: [for (final m in game.moves) m.move.uci],
       hintsUsed: session.hintsUsed,
       startedAt: session.startedAt ?? now,
+      savedAt: now,
       white: clock?.white,
       black: clock?.black,
     );
@@ -47,6 +49,9 @@ class UnfinishedGame {
   final List<String> moves;
   final int hintsUsed;
   final DateTime startedAt;
+
+  /// When it was last saved, to pick the most recent game on Home.
+  final DateTime savedAt;
 
   /// Time left on each clock; null without a clock.
   final Duration? white;
@@ -64,8 +69,8 @@ class UnfinishedGame {
     return state;
   }
 
-  /// The session to continue, with the clock of the side to move running
-  /// from [now].
+  /// The session to continue, with the player's clock running from [now]
+  /// if it's their move.
   GameSession resume(DateTime now) {
     final game = this.game;
     final timeControl = config.timeControl;
@@ -74,6 +79,7 @@ class UnfinishedGame {
             white: white!,
             black: black!,
             increment: timeControl.increment,
+            owner: config.playerSide,
           ).resume(game.turn, now)
         : null;
     return GameSession(
@@ -94,6 +100,7 @@ class UnfinishedGame {
     'moves': moves,
     'hints': hintsUsed,
     'startedAt': startedAt.toIso8601String(),
+    'savedAt': savedAt.toIso8601String(),
     'white': ?white?.inMilliseconds,
     'black': ?black?.inMilliseconds,
   };
@@ -106,7 +113,7 @@ class UnfinishedGame {
         config: GameConfig(
           level: EloLevel.of(json['elo']! as int),
           playerSide: Side.values.byName(json['side']! as String),
-          timeControl: TimeControl.options.firstWhere((t) => t.label == json['clock']),
+          timeControl: TimeControl.byLabel(json['clock'] as String?)!,
           practice: json['practice']! as bool,
           startPosition: start == Chess.initial.fen
               ? Chess.initial
@@ -115,6 +122,8 @@ class UnfinishedGame {
         moves: (json['moves']! as List<Object?>).cast<String>(),
         hintsUsed: json['hints']! as int,
         startedAt: DateTime.parse(json['startedAt']! as String),
+        // Older saves have no savedAt; it then defaults to startedAt.
+        savedAt: DateTime.tryParse(json['savedAt'] as String? ?? ''),
         white: _millis(json['white']),
         black: _millis(json['black']),
       );

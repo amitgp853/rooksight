@@ -12,6 +12,7 @@ import '../../core/theme/app_theme.dart';
 import '../../engine/elo_levels.dart';
 import 'domain/game_config.dart';
 import 'domain/unfinished_game.dart';
+import 'widgets/setup_controls.dart';
 
 /// New game: Stockfish strength, colour and time control
 /// (`design/source/PlaySetup.dc.html`).
@@ -75,7 +76,7 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
       ColourChoice.white => 'you play White',
       ColourChoice.black => 'you play Black',
     };
-    final clock = _timeControl.hasClock ? '${_timeControl.kind} ${_timeControl.label}' : 'no clock';
+    final clock = _timeControl.hasClock ? 'your clock ${_timeControl.label}' : 'no clock';
     return 'Stockfish ${_level.elo} · $colour · $clock';
   }
 
@@ -85,7 +86,7 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
     final type = context.type;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('New game')),
+      appBar: AppBar(title: const Text('New Game')),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -101,13 +102,22 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
                 children: [
                   _StrengthCard(level: _level, onChanged: (l) => setState(() => _level = l)),
                   const SizedBox(height: 28),
-                  const _Overline('Play as'),
+                  const SectionOverline('Play as'),
                   const SizedBox(height: AppSpacing.s3),
                   _ColourPicker(value: _colour, onChanged: (c) => setState(() => _colour = c)),
                   const SizedBox(height: 28),
-                  const _Overline('Time control'),
+                  const SectionOverline('Your clock'),
+                  const SizedBox(height: AppSpacing.s2),
+                  Text(
+                    'Only you are timed. Stockfish plays without a clock.',
+                    style: type.label.copyWith(
+                      fontWeight: FontWeight.w400,
+                      color: colors.textTertiary,
+                    ),
+                  ),
                   const SizedBox(height: AppSpacing.s3),
-                  _TimeControlGrid(
+                  TimeControlGrid(
+                    options: TimeControl.options,
                     value: _timeControl,
                     onChanged: (t) => setState(() => _timeControl = t),
                   ),
@@ -157,18 +167,6 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
   }
 }
 
-class _Overline extends StatelessWidget {
-  const _Overline(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Text(
-    text.toUpperCase(),
-    style: context.type.overline.copyWith(color: context.colors.textSecondary),
-  );
-}
-
 class _StrengthCard extends StatelessWidget {
   const _StrengthCard({required this.level, required this.onChanged});
 
@@ -192,7 +190,7 @@ class _StrengthCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const _Overline('Stockfish strength'),
+              const SectionOverline('Stockfish strength'),
               Text(
                 level.label,
                 style: type.label.copyWith(
@@ -386,7 +384,7 @@ class _ColourPicker extends StatelessWidget {
         children: [
           for (final choice in ColourChoice.values)
             Expanded(
-              child: _ChoiceButton(
+              child: ChoiceButton(
                 selected: value == choice,
                 onTap: () => onChanged(choice),
                 height: 56,
@@ -423,110 +421,6 @@ class _ColourPicker extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _TimeControlGrid extends StatelessWidget {
-  const _TimeControlGrid({required this.value, required this.onChanged});
-
-  final TimeControl value;
-  final ValueChanged<TimeControl> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final type = context.type;
-    // Selected text: a lighter focus blue in dark mode, as designed.
-    final selectedText = Color.lerp(colors.focus, colors.textPrimary, 0.6)!;
-    return GridView.count(
-      crossAxisCount: 3,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: AppSpacing.s2,
-      crossAxisSpacing: AppSpacing.s2,
-      childAspectRatio: 1.6,
-      children: [
-        for (final option in TimeControl.options)
-          _ChoiceButton(
-            selected: option == value,
-            onTap: () => onChanged(option),
-            height: 68,
-            radius: 14,
-            background: colors.bgRaised,
-            selectedColor: colors.focus.withValues(alpha: 0.14),
-            selectedBorder: colors.focus,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 2,
-              children: [
-                Text(
-                  option.label,
-                  style: type.mono.copyWith(
-                    fontSize: 17,
-                    color: option == value ? selectedText : colors.textPrimary,
-                  ),
-                ),
-                Text(
-                  option.kind,
-                  style: type.label.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _ChoiceButton extends StatelessWidget {
-  const _ChoiceButton({
-    required this.selected,
-    required this.onTap,
-    required this.height,
-    required this.selectedColor,
-    required this.child,
-    this.radius = 12,
-    this.background = Colors.transparent,
-    this.selectedBorder,
-  });
-
-  final bool selected;
-  final VoidCallback onTap;
-  final double height;
-  final double radius;
-  final Color background;
-  final Color selectedColor;
-  final Color? selectedBorder;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(radius);
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: Material(
-        color: selected ? selectedColor : background,
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
-          side: selected && selectedBorder != null
-              ? BorderSide(color: selectedBorder!)
-              : BorderSide(color: background),
-        ),
-        child: InkWell(
-          borderRadius: borderRadius,
-          onTap: onTap,
-          child: SizedBox(
-            height: height,
-            child: Center(child: child),
-          ),
-        ),
       ),
     );
   }

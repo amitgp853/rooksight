@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your stats</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;background:#0E1217;color:#E9EDF2;font-family:'Instrument Sans',system-ui,sans-serif}
+button{font-family:inherit;cursor:pointer}
+a{text-decoration:none}
+</style>
+</helmet>
+<div style="width: 390px; height: 2200px; box-sizing: border-box; background: #0E1217; color: #E9EDF2; display: flex; flex-direction: column">
+
+<header style="height: 56px; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 4px">
+<a href="Home.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Your stats</h1>
+</header>
+
+<div style="padding: 4px 16px 32px; display: flex; flex-direction: column; gap: 26px">
+
+<div role="group" aria-label="Period" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 14px; background: #151B22">
+<sc-for list="{{periods}}" as="p" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{p.on}}" onClick="{{p.pick}}" style="height: 40px; border-radius: 10px; border: none; background: {{p.bg}}; color: {{p.fg}}; font-size: 14px; font-weight: 600">{{p.label}}</button>
+</sc-for>
+</div>
+
+<section aria-label="Overview" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="4">
+<div style="height: 128px; box-sizing: border-box; border-radius: 16px; background: #151B22; padding: 14px; display: flex; flex-direction: column; justify-content: space-between">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">{{t.label}}</span>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 28px; letter-spacing: -0.02em; line-height: 32px">{{t.value}}</span>
+<sc-if value="{{t.trend}}" hint-placeholder-val="{{true}}">
+<svg width="100%" height="24" viewBox="0 0 140 24" preserveAspectRatio="none" aria-label="{{t.trendLabel}}" role="img" style="display: block"><polyline points="{{t.pts}}" style="fill: none; stroke: {{t.col}}; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke"></polyline></svg>
+</sc-if>
+<sc-if value="{{t.noTrend}}" hint-placeholder-val="{{false}}">
+<span style="height: 24px; display: flex; align-items: center; font-size: 12px; color: #7C8898">{{t.note}}</span>
+</sc-if>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="w-h" style="display: flex; flex-direction: column; gap: 12px">
+<h2 id="w-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 20px; letter-spacing: -0.01em">Top 3 weaknesses</h2>
+<sc-for list="{{weak}}" as="w" hint-placeholder-count="3">
+<article style="background: #151B22; border-radius: 16px; padding: 16px; display: flex; gap: 14px">
+<span style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; background: rgba(240,154,85,0.14); color: #F09A55; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: 15px">{{w.rank}}</span>
+<div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">
+<h3 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 16px; line-height: 22px">{{w.title}}</h3>
+<span style="font-size: 14px; line-height: 20px; color: #A3AFBD">{{w.detail}}</span>
+<div role="img" aria-label="{{w.meterLabel}}" style="height: 6px; border-radius: 3px; background: #222B36; display: flex; overflow: hidden"><div style="width: {{w.pct}}%; background: #F09A55; border-radius: 3px"></div></div>
+<div style="display: flex; align-items: center; gap: 10px; padding-top: 4px">
+<a href="CoachEmptyGame.dc.html" style="height: 36px; padding: 0 12px 0 10px; border-radius: 10px; background: #1C242E; color: #E9EDF2; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E3B25C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg>Ask AI Coach</a>
+<a href="Games.dc.html" style="height: 36px; padding: 0 4px; color: #86A8FF; display: flex; align-items: center; font-size: 14px; font-weight: 600">See {{w.games}} games</a>
+</div>
+</div>
+</article>
+</sc-for>
+</section>
+
+<section aria-labelledby="wr-h" style="background: #151B22; border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h2 id="wr-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">When your games go wrong</h2>
+<span style="font-size: 13px; color: #A3AFBD">Mistakes and blunders by move number</span>
+</div>
+<div role="img" aria-label="{{rangesLabel}}" style="height: 180px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; align-items: end; padding-top: 6px">
+<sc-for list="{{ranges}}" as="r" hint-placeholder-count="5">
+<div style="height: 180px; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; gap: 4px">
+<span style="text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; color: {{r.totFg}}">{{r.total}}</span>
+<div style="height: {{r.h}}px; display: flex; flex-direction: column; border-radius: 6px; overflow: hidden; gap: 2px">
+<div style="flex-grow: {{r.b}}; background: #F2677A"></div>
+<div style="flex-grow: {{r.m}}; background: #F09A55"></div>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: -6px">
+<sc-for list="{{ranges}}" as="r" hint-placeholder-count="5">
+<span style="text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #7C8898">{{r.label}}</span>
+</sc-for>
+</div>
+<div style="display: flex; gap: 16px; font-size: 12px; color: #A3AFBD">
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #F09A55"></span>Mistake</span>
+<span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border-radius: 2px; background: #F2677A"></span>Blunder</span>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 20px; color: #D3D9E1">37% of your mistakes and blunders come between moves 11 and 20.</p>
+</section>
+
+<section aria-labelledby="ph-h" style="background: #151B22; border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 id="ph-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Blunders by game phase</h2>
+<span style="font-size: 13px; color: #A3AFBD">23 total</span>
+</div>
+<sc-for list="{{phases}}" as="ph" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; font-size: 14px">
+<span>{{ph.name}} <span style="color: #7C8898">· {{ph.range}}</span></span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500">{{ph.n}}</span>
+</div>
+<div style="height: 12px; border-radius: 6px; background: #1C242E; display: flex; overflow: hidden"><div style="width: {{ph.pct}}%; background: #F2677A; border-radius: 6px"></div></div>
+</div>
+</sc-for>
+</section>
+
+<section aria-labelledby="op-h" style="background: #151B22; border-radius: 16px; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<h2 id="op-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Results by opening</h2>
+<div style="display: flex; gap: 10px; font-size: 12px; color: #A3AFBD">
+<span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #86A8FF"></span>Win</span>
+<span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #7C8898"></span>Draw</span>
+<span style="display: flex; align-items: center; gap: 4px"><span style="width: 8px; height: 8px; border-radius: 2px; background: #F09A55"></span>Loss</span>
+</div>
+</div>
+<sc-for list="{{openings}}" as="o" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid #1C242E">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px">
+<div style="display: flex; flex-direction: column">
+<span style="font-size: 15px; font-weight: 500">{{o.name}}</span>
+<span style="font-size: 12px; color: #7C8898">as {{o.side}} · {{o.games}} games</span>
+</div>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 14px; color: {{o.scoreFg}}">{{o.score}}%</span>
+</div>
+<div role="img" aria-label="{{o.aria}}" style="height: 10px; border-radius: 5px; display: flex; gap: 2px; overflow: hidden">
+<div style="width: {{o.w}}%; background: #86A8FF"></div>
+<div style="width: {{o.d}}%; background: #7C8898"></div>
+<div style="width: {{o.l}}%; background: #F09A55"></div>
+</div>
+</div>
+</sc-for>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { period: '20' };
+  }
+  renderVals() {
+    var self = this;
+    var periods = [{ id: '20', label: 'Last 20' }, { id: '50', label: 'Last 50' }, { id: 'all', label: 'All time' }].map(function (p) {
+      var on = self.state.period === p.id;
+      return { label: p.label, on: on ? 'true' : 'false', bg: on ? '#2A3A5E' : 'transparent', fg: on ? '#E9EDF2' : '#A3AFBD', pick: function () { self.setState({ period: p.id }); } };
+    });
+    var line = function (vals) {
+      var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals), span = (max - min) || 1;
+      return vals.map(function (v, i) { return Math.round(i * 140 / (vals.length - 1)) + ',' + (21 - Math.round((v - min) / span * 18)); }).join(' ');
+    };
+    var tiles = [
+      { label: 'Win rate', value: '45%', vals: [30, 35, 33, 40, 38, 45], col: '#86A8FF', trendLabel: 'Win rate trending up over the last 6 weeks' },
+      { label: 'Accuracy', value: '76.2', vals: [71, 73, 72, 75, 74, 76], col: '#86A8FF', trendLabel: 'Accuracy trending up' },
+      { label: 'Blunders / game', value: '1.2', note: 'no trend yet' },
+      { label: 'Record', value: '9–1–10', note: 'wins – draws – losses' }
+    ].map(function (t) {
+      return { label: t.label, value: t.value, trend: !!t.vals, noTrend: !t.vals, note: t.note || '', pts: t.vals ? line(t.vals) : '', col: t.col || '', trendLabel: t.trendLabel || '' };
+    });
+    var weak = [
+      { rank: 1, title: 'Releasing central tension early', detail: 'A capture on d5 or e5 decided 11 of your last 20 games.', pct: 55, games: 11 },
+      { rank: 2, title: 'King weakened before move 20', detail: 'A pawn push in front of your castled king let the attack in, 7 times.', pct: 35, games: 7 },
+      { rank: 3, title: 'Back rank left uncovered', detail: '4 blunders after move 30 came from a checking rook or queen.', pct: 20, games: 4 }
+    ].map(function (w) { return Object.assign({}, w, { meterLabel: 'Seen in ' + w.games + ' of 20 games' }); });
+    var R = [['1–10', 4, 1], ['11–20', 12, 5], ['21–30', 9, 4], ['31–40', 5, 3], ['41+', 2, 1]];
+    var maxT = 17;
+    var ranges = R.map(function (r) {
+      var t = r[1] + r[2];
+      return { label: r[0], m: r[1], b: r[2], total: t, h: Math.round(t / maxT * 150), totFg: t === maxT ? '#E9EDF2' : '#A3AFBD' };
+    });
+    var phases = [
+      { name: 'Opening', range: 'first moves', n: 3 },
+      { name: 'Middlegame', range: 'most pieces on', n: 14 },
+      { name: 'Endgame', range: 'few pieces left', n: 6 }
+    ].map(function (p) { return Object.assign({}, p, { pct: Math.round((p.n / 14) * 100) }); });
+    var openings = [
+      { name: 'Italian Game', side: 'White', w: 4, d: 0, l: 2 },
+      { name: 'Sicilian Defence', side: 'Black', w: 1, d: 1, l: 4 },
+      { name: 'Queen’s Gambit Declined', side: 'Black', w: 2, d: 0, l: 1 },
+      { name: 'London System', side: 'White', w: 2, d: 0, l: 1 },
+      { name: 'French Defence', side: 'Black', w: 0, d: 0, l: 2 }
+    ].map(function (o) {
+      var g = o.w + o.d + o.l;
+      var score = Math.round(((o.w + o.d / 2) / g) * 100);
+      return {
+        name: o.name, side: o.side, games: g, score: score,
+        scoreFg: score > 50 ? '#A9C0FF' : (score === 50 ? '#A3AFBD' : '#F09A55'),
+        w: (o.w / g) * 100, d: (o.d / g) * 100, l: (o.l / g) * 100,
+        aria: o.w + ' wins, ' + o.d + ' draws, ' + o.l + ' losses'
+      };
+    });
+    return {
+      periods: periods, tiles: tiles, weak: weak, ranges: ranges, phases: phases, openings: openings,
+      rangesLabel: 'Moves 1–10: 5, 11–20: 17, 21–30: 13, 31–40: 8, 41 and later: 3 mistakes and blunders'
+    };
+  }
+}
+</script>
+</body>
+</html>

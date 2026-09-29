@@ -103,7 +103,7 @@ void main() {
 
   testWidgets('flip swaps the player lines', (tester) async {
     await pumpGame(tester);
-    double top(String name) => tester.getTopLeft(find.text(name)).dy;
+    double top(String name) => tester.getTopLeft(find.text(name).last).dy;
     expect(top('Stockfish'), lessThan(top('You')));
 
     await tester.tap(find.text('Flip'));
@@ -123,12 +123,12 @@ void main() {
     expect(board.shapes.whereType<Arrow>().single.dest, Square.f3);
   });
 
-  testWidgets('clocks show the time control and count down', (tester) async {
+  testWidgets("only the player's clock is shown, with the time control", (tester) async {
     await pumpGame(
       tester,
       config: GameConfig.initial.copyWith(timeControl: TimeControl.options.first),
     );
-    expect(find.text('03:00'), findsNWidgets(2));
+    expect(find.text('03:00'), findsOneWidget, reason: 'Stockfish has no clock');
     expect(find.text('Blitz 3+2'), findsOneWidget);
   });
 
@@ -187,15 +187,8 @@ void main() {
     await tapMove(tester, Square.e2, Square.e4); // Stockfish answers ...d5.
     await tapMove(tester, Square.e4, Square.d5); // exd5
 
-    // Each slides (a glide), then lands with its own sound.
-    expect(sounds.played, [
-      GameSound.glide,
-      GameSound.move,
-      GameSound.glide,
-      GameSound.move,
-      GameSound.glide,
-      GameSound.capture,
-    ]);
+    // Each lands with its own sound, and nothing plays while it slides.
+    expect(sounds.played, [GameSound.move, GameSound.move, GameSound.capture]);
   });
 
   testWidgets('the landing sound waits for the sliding piece to arrive', (tester) async {
@@ -206,10 +199,10 @@ void main() {
     await tester.pump();
     await tester.tapAt(squareCentre(tester, Square.e4));
     await tester.pump();
-    expect(sounds.played, [GameSound.glide], reason: 'the piece is still travelling');
+    expect(sounds.played, isEmpty, reason: 'the piece is still travelling');
 
     await tester.pump(moveSlide);
-    expect(sounds.played, [GameSound.glide, GameSound.move]);
+    expect(sounds.played, [GameSound.move]);
     await tester.pump(const Duration(seconds: 1)); // Stockfish replies and lands.
     await tester.pumpAndSettle();
   });

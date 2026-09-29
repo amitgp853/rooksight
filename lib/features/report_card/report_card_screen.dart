@@ -49,7 +49,7 @@ class ReportCardScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Report card')),
+      appBar: AppBar(title: const Text('Report Card')),
       body: SafeArea(
         child: switch ((state.phase, state.saved, state.analysis)) {
           (ReviewPhase.notFound, _, _) => message('This game couldn’t be found.'),
@@ -303,10 +303,30 @@ class _AiVerdict extends ConsumerWidget {
       ),
       // Explained, but the verdict didn't pass the checks: keep the summary.
       ExplainPhase.done => const SizedBox.shrink(),
-      ExplainPhase.none => TextButton.icon(
-        onPressed: ref.read(reviewControllerProvider(gameId).notifier).explain,
-        icon: const Icon(Icons.auto_awesome, size: 18),
-        label: const Text('Get AI verdict'),
+      ExplainPhase.none => Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 6,
+        children: [
+          OutlinedButton.icon(
+            onPressed: ref.read(reviewControllerProvider(gameId).notifier).explain,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 40),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              shape: const StadiumBorder(),
+              foregroundColor: colors.brass,
+              backgroundColor: colors.brass.withValues(alpha: 0.08),
+              side: BorderSide(color: colors.brass.withValues(alpha: 0.5)),
+              textStyle: context.type.body.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            icon: const Icon(Icons.auto_awesome, size: 18),
+            label: const Text('Get AI verdict'),
+          ),
+          Text(
+            'Replaces the game summary with a one-line AI verdict',
+            textAlign: TextAlign.center,
+            style: caption.copyWith(fontSize: 12, color: colors.textTertiary),
+          ),
+        ],
       ),
     };
   }

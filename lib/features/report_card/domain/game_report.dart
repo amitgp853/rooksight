@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../../../core/board/landing_square.dart';
 import '../../../core/storage/game_repository.dart';
 import '../../games/games_screen.dart' show opponentName, timeControlLabel;
-import '../../play/widgets/result_copy.dart' show moveLabel;
+import '../../play/widgets/result_copy.dart' show moveLabel, moveNumber;
 import '../../review/domain/game_analysis.dart';
 import '../../review/domain/move_review.dart';
 import '../../review/domain/position_eval.dart';
@@ -52,6 +52,7 @@ class GameReport {
     final own = analysis.moves.where((m) => m.side == side).toList();
     final accuracy = analysis.accuracy(side);
     final blunders = own.where((m) => m.quality == MoveQuality.blunder).length;
+    final worst = worstMove(own);
     return GameReport(
       context: [
         'vs ${opponentName(record)}',
@@ -59,12 +60,16 @@ class GameReport {
         openingName(record, analysis.game),
       ].join(' · '),
       accuracy: accuracy,
-      verdict: aiVerdict ?? plainVerdict(record.outcome, accuracy, blunders),
+      verdict:
+          aiVerdict ??
+          (worst == null
+              ? plainVerdict(record.outcome, accuracy, blunders)
+              : summaryOf(analysis, own, worst)),
       aiVerdict: aiVerdict != null,
       playedAt: record.endedAt,
       orientation: side,
       best: _reportMove(analysis, bestMove(analysis, own)),
-      worst: _reportMove(analysis, worstMove(own)),
+      worst: _reportMove(analysis, worst),
     );
   }
 
@@ -139,8 +144,35 @@ class GameReport {
   }
 }
 
+/// The game summary when the player erred (`ReportCard.dc.html`, summary
+/// variant): how it stood before their costliest move, what that cost, and
+/// the totals. "Level for 22 moves. One blunder on move 23 cost 3.3 pawns;
+/// 1 blunder and 2 mistakes in all."
+String summaryOf(GameAnalysis analysis, List<MoveReview> own, MoveReview worst) {
+  final number = moveNumber(analysis.game, worst.index);
+  final before = number - 1;
+  final standing = worst.before.abs() < 1
+      ? 'Level'
+      : worst.before > 0
+      ? 'Ahead'
+      : 'Behind';
+  final kind = worst.quality == MoveQuality.blunder ? 'blunder' : 'mistake';
+  final blunders = own.where((m) => m.quality == MoveQuality.blunder).length;
+  final mistakes = own.where((m) => m.quality == MoveQuality.mistake).length;
+  String count(int n, String noun) => '$n $noun${n == 1 ? '' : 's'}';
+  return [
+    if (before >= 2) '$standing for $before moves.',
+    // Evaluations are capped, so a move that allowed mate (or lost
+    // everything) reads as what it did rather than a number.
+    worst.after <= -evalCap + 0.05
+        ? 'One $kind on move $number turned the game;'
+        : 'One $kind on move $number cost ${worst.loss.toStringAsFixed(1)} pawns;',
+    '${[if (blunders > 0) count(blunders, 'blunder'), if (mistakes > 0) count(mistakes, 'mistake')].join(' and ')} in all.',
+  ].join(' ');
+}
+
 /// A one-line verdict from the numbers alone, for games the AI hasn't
-/// explained.
+/// explained and where the player made no mistake or blunder.
 String plainVerdict(PlayerOutcome outcome, double? accuracy, int blunders) {
   final acc = accuracy == null ? null : '${accuracy.round()}% accuracy';
   final noun = blunders == 1 ? 'blunder' : 'blunders';

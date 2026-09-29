@@ -151,9 +151,8 @@ void main() {
 
     // Opens on the final position.
     expect(find.text('2…Qh4#'), findsOneWidget, reason: 'no ! once the game is decided');
-    expect(find.text('Loss · Checkmate'), findsOneWidget);
-    expect(find.text('vs Stockfish · 1600'), findsOneWidget);
-    expect(find.text('2 moves'), findsOneWidget);
+    expect(find.text('Loss · 0–1'), findsOneWidget);
+    expect(find.text('vs Stockfish 1600 · 2 moves'), findsOneWidget);
 
     await scrollTo(tester, find.text('2. g4 was a blunder'));
     expect(find.text('1. f3 was inaccurate'), findsOneWidget);
@@ -198,7 +197,7 @@ void main() {
     expect(find.text('2. g4??'), findsOneWidget);
     expect(find.text('move 2 of 2'), findsOneWidget);
     // Stepping scrolls the move strip, never the page: the header stays put.
-    expect(tester.getTopLeft(find.text('Loss · Checkmate')).dy, greaterThan(0));
+    expect(tester.getTopLeft(find.textContaining('Loss · ')).dy, greaterThan(0));
 
     await tester.tap(find.byTooltip('First move'));
     await tester.pumpAndSettle();
@@ -309,7 +308,7 @@ void main() {
 
       await tester.tap(find.descendant(of: table, matching: find.text('g4??', findRichText: true)));
       await tester.pumpAndSettle();
-      expect(tester.getTopLeft(find.text('Loss · Checkmate')).dy, greaterThan(0));
+      expect(tester.getTopLeft(find.textContaining('Loss · ')).dy, greaterThan(0));
       expect(find.text('2. g4??'), findsOneWidget);
 
       // The note and the newly expanded card moved the table: it still returns.
@@ -326,7 +325,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Back to key moments'), findsOneWidget);
 
-      await tester.drag(find.text('Loss · Checkmate'), const Offset(0, -150));
+      await tester.drag(find.textContaining('Loss · '), const Offset(0, -150));
       await tester.pumpAndSettle();
       expect(find.text('Back to key moments'), findsNothing);
     });

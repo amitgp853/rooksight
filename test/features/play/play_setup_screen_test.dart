@@ -40,7 +40,7 @@ void main() {
     await pumpSetup(tester);
     expect(find.text('1600'), findsOneWidget);
     expect(find.text('Club player'), findsOneWidget);
-    expect(find.text('Stockfish 1600 · you play White · Rapid 10+0'), findsOneWidget);
+    expect(find.text('Stockfish 1600 · you play White · your clock 10+0'), findsOneWidget);
   });
 
   testWidgets('steps Elo by 200 and stops at the ends', (tester) async {
@@ -64,7 +64,7 @@ void main() {
     await tester.tap(find.text('Black'));
     await tester.tap(find.text('5+0'));
     await tester.pump();
-    expect(find.text('Stockfish 1400 · you play Black · Blitz 5+0'), findsOneWidget);
+    expect(find.text('Stockfish 1400 · you play Black · your clock 5+0'), findsOneWidget);
 
     await tester.tap(find.text('Start game'));
     await tester.pumpAndSettle();

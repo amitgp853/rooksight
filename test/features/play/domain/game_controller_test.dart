@@ -211,15 +211,37 @@ void main() {
     Duration left(ProviderContainer container, Side side, FakeAsync async) =>
         session(container).clock!.remaining(side, DateTime(2026).add(async.elapsed));
 
-    test("White's first move is free; Stockfish's time runs while it thinks", () {
+    test("White's first move is free; Stockfish thinks off the clock", () {
       withGame(FakeEngine(delay: const Duration(seconds: 3)), (async, container, controller) {
         async.elapse(const Duration(seconds: 10));
         play(controller, 'e2e4');
         expect(left(container, Side.white, async), const Duration(minutes: 3));
+        expect(session(container).clock!.isRunning, isFalse);
 
         async.elapse(const Duration(seconds: 3)); // Stockfish replies.
-        expect(left(container, Side.black, async), const Duration(minutes: 2, seconds: 59));
+        expect(left(container, Side.black, async), const Duration(minutes: 3));
+        expect(left(container, Side.white, async), const Duration(minutes: 3));
         expect(session(container).clock!.running, Side.white);
+      }, config: blitz);
+    });
+
+    test("playing Black, Stockfish's first move starts the player's clock", () {
+      withGame(FakeEngine(delay: const Duration(seconds: 3)), (async, container, controller) {
+        async.elapse(const Duration(seconds: 3)); // Stockfish opens.
+        expect(session(container).game.moves, hasLength(1));
+        expect(session(container).clock!.running, Side.black);
+
+        async.elapse(const Duration(seconds: 10));
+        expect(left(container, Side.black, async), const Duration(minutes: 2, seconds: 50));
+      }, config: (c) => blitz(c).copyWith(playerSide: Side.black));
+    });
+
+    test("Stockfish can't lose on time, however long it thinks", () {
+      withGame(FakeEngine(delay: const Duration(minutes: 5)), (async, container, controller) {
+        play(controller, 'e2e4');
+        async.elapse(const Duration(minutes: 5)); // Longer than the 3 minutes.
+        expect(session(container).game.isOver, isFalse);
+        expect(session(container).game.moves, hasLength(2));
       }, config: blitz);
     });
 

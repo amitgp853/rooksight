@@ -1,31 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/board/move_wise_board.dart';
 import '../../core/llm/gemini_client.dart';
+import '../../core/llm/llm_client.dart';
 import '../../core/llm/llm_failure_text.dart';
 import '../../core/motion/reduce_motion.dart';
+import '../../core/routing/app_router.dart';
 import '../../core/speech/speech_input.dart';
 import '../../core/storage/analysis_repository.dart';
+import '../../core/storage/chat_repository.dart';
 import '../../core/storage/game_repository.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/logo_mark.dart';
 import '../games/games_screen.dart' show opponentName;
+import '../play/domain/game_controller.dart' show nowProvider;
 import '../play/domain/pgn_import.dart';
 import '../play/widgets/result_copy.dart' show moveLabel;
 import '../review/domain/game_analysis.dart';
 import '../review/domain/position_eval.dart';
+import 'chats.dart';
+import 'chats_screen.dart';
 import 'coach_controller.dart';
 import 'domain/coach_tools.dart';
 import 'widgets/agent_steps.dart';
+import 'widgets/chat_options_sheet.dart';
 import 'widgets/coach_answer_view.dart';
 import 'widgets/game_picker_sheet.dart';
 
-/// The coach chat (`design/source/Coach.dc.html`). Opened from a review's
-/// key moment, it starts with a question about that move ready to send.
+/// The AI Coach (`Coach.dc.html`, `CoachThread.dc.html`). A new chat by
+/// default, saved when its first question is sent; or, with [chatId], a
+/// saved chat read back from the phone (never running the AI) to continue.
+/// Opened from a review's key moment, it starts with a question about that
+/// move ready to send.
 class CoachScreen extends ConsumerStatefulWidget {
-  const CoachScreen({super.key, this.gameId, this.moveIndex, this.question});
+  const CoachScreen({super.key, this.chatId, this.gameId, this.moveIndex, this.question});
+
+  /// A saved chat to reopen.
+  final int? chatId;
 
   /// The game and move a review asked about.
   final int? gameId;
@@ -65,6 +80,11 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
     'Where did I lose the advantage?',
     'What should I have played instead?',
   ];
+
+  /// A saved chat, read back: its own header and composer.
+  bool get _saved => widget.chatId != null;
+
+  late final _provider = coachControllerProvider(widget.chatId);
 
   @override
   void initState() {
@@ -184,19 +204,42 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
 
   void _send([String? text]) {
     final question = text ?? _input.text;
-    if (question.trim().isEmpty || ref.read(coachControllerProvider).isBusy) return;
+    if (question.trim().isEmpty || ref.read(_provider).isBusy) return;
     if (_listening) _stopListening();
     // The attachment stays, so follow-ups are about the same game.
-    ref.read(coachControllerProvider.notifier).ask(question, focus: _focus);
+    ref.read(_provider.notifier).ask(question, focus: _focus);
     _input.clear();
     FocusScope.of(context).unfocus();
   }
 
-  void _scrollToEnd() {
+  /// A fresh chat; the one before is already saved.
+  void _newChat() {
+    if (_saved) {
+      context.pushReplacement(Routes.coach);
+      return;
+    }
+    ref.invalidate(_provider);
+    setState(() {
+      _focus = null;
+      _input.clear();
+    });
+  }
+
+  Future<void> _openChats() async {
+    final result = await context.push<ChatsResult>(Routes.coachChats);
+    if (result == ChatsResult.newChat && mounted) _newChat();
+  }
+
+  Future<void> _options(StoredChat chat) async {
+    final deleted = await showChatOptions(context, ref, chat);
+    if (deleted && mounted) context.pop();
+  }
+
+  void _scrollToEnd({bool animate = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scroll.hasClients) return;
       final end = _scroll.position.maxScrollExtent;
-      if (shouldReduceMotion(context, ref)) {
+      if (!animate || shouldReduceMotion(context, ref)) {
         _scroll.jumpTo(end);
       } else {
         _scroll.animateTo(end, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
@@ -207,85 +250,346 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final type = context.type;
-    final state = ref.watch(coachControllerProvider);
+    final state = ref.watch(_provider);
     final hasKey = ref.watch(llmConfiguredProvider);
-    ref.listen(coachControllerProvider, (_, _) => _scrollToEnd());
+    // A saved chat opens at its end; new messages scroll into view.
+    ref.listen(_provider, (previous, next) => _scrollToEnd(animate: previous?.loading != true));
+    final chat = widget.chatId == null ? null : ref.watch(chatProvider(widget.chatId!)).value;
+    final last = state.turns.lastOrNull;
+    final offline = last?.error is LlmOffline;
+
+    // Why the composer is off, if it is.
+    final String? blocked = !hasKey
+        ? 'The AI Coach isn’t set up on this phone yet. Add your key in Settings › Developer '
+              'mode.'
+        : state.isFull
+        ? 'Context memory is full. Please start a new chat.'
+        : offline
+        ? 'You’re offline. You can read this chat; continuing it needs the internet.'
+        : null;
 
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('AI Coach'),
-            Text(
-              'Every move claim checked by Stockfish',
-              style: type.label.copyWith(color: colors.textSecondary, fontWeight: FontWeight.w400),
-            ),
-          ],
-        ),
-        actions: [
-          if (state.turns.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.s2),
-              child: OutlinedButton(
-                onPressed: state.isBusy
-                    ? null
-                    : () => ref.read(coachControllerProvider.notifier).clear(),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 36),
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
-                  foregroundColor: colors.textSecondary,
-                  side: BorderSide(color: colors.border),
+      appBar: _saved
+          ? _SavedHeader(chat: chat, onOptions: chat == null ? null : () => _options(chat))
+          : AppBar(
+              titleSpacing: 0,
+              title: const Text('AI Coach'),
+              actions: [
+                IconButton(
+                  tooltip: 'Your chats',
+                  onPressed: _openChats,
+                  icon: const Icon(Icons.history_rounded),
                 ),
-                child: const Text('New chat'),
-              ),
+                NewChatPill(onPressed: state.turns.isEmpty || state.isBusy ? null : _newChat),
+                const SizedBox(width: AppSpacing.s3),
+              ],
+              shape: Border(bottom: BorderSide(color: colors.bgElevated)),
             ),
-        ],
-        shape: Border(bottom: BorderSide(color: colors.border)),
-      ),
       body: SafeArea(
         child: Column(
           children: [
+            if (_saved && chat?.gameId != null) _ContextRow(chat: chat!),
             Expanded(
-              child: state.turns.isEmpty
+              child: state.loading
+                  ? const SizedBox.shrink()
+                  : state.turns.isEmpty && !_saved
                   ? _Intro(
                       hasKey: hasKey,
+                      withGame: _focus != null && !_focus!.isMove,
                       onAsk: hasKey ? _send : null,
                       suggestions: _focus == null || _focus!.isMove ? suggestions : gameSuggestions,
                     )
-                  : ListView(
+                  : _Transcript(
+                      state: state,
                       controller: _scroll,
-                      padding: const EdgeInsets.all(AppSpacing.s4),
-                      children: [
-                        for (final (i, turn) in state.turns.indexed)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpacing.s6),
-                            child: _Turn(
-                              turn: turn,
-                              onRetry: i == state.turns.length - 1
-                                  ? () => ref.read(coachControllerProvider.notifier).retry()
-                                  : null,
-                            ),
-                          ),
-                      ],
+                      dividers: _saved,
+                      footnote: _saved && blocked == null && !state.isBusy,
+                      onRetry: () => ref.read(_provider.notifier).retry(),
                     ),
             ),
+            if (blocked != null && (_saved || state.turns.isNotEmpty))
+              _Banner(
+                text: blocked,
+                icon: !hasKey
+                    ? Icons.key_rounded
+                    : state.isFull
+                    ? Icons.inventory_2_outlined
+                    : Icons.wifi_off_rounded,
+                action: state.isFull ? NewChatPill(onPressed: _newChat) : null,
+              ),
             _InputBar(
               controller: _input,
-              enabled: hasKey,
-              canSend: hasKey && !state.isBusy && _input.text.trim().isNotEmpty,
+              enabled: blocked == null,
+              canSend: blocked == null && !state.isBusy && _input.text.trim().isNotEmpty,
               focus: _focus,
               onClearFocus: () => setState(() => _focus = null),
-              onAttach: hasKey && !state.isBusy ? _pickGame : null,
+              onAttach: blocked == null && !state.isBusy ? _pickGame : null,
               onSend: _send,
               listening: _listening,
               onVoice: _voiceUnavailable ? null : _toggleVoice,
               // Tapping in to fix a word ends listening.
               onFieldTap: _listening ? _stopListening : null,
               reduceMotion: shouldReduceMotion(context, ref),
+              hint: _saved ? 'Continue the chat…' : 'Ask about a move or a pattern…',
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A saved chat's header: its title over when it started and how long it
+/// is, and its options.
+class _SavedHeader extends StatelessWidget implements PreferredSizeWidget {
+  const _SavedHeader({required this.chat, required this.onOptions});
+
+  final StoredChat? chat;
+  final VoidCallback? onOptions;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final type = context.type;
+    final chat = this.chat;
+    return AppBar(
+      titleSpacing: 0,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            chat?.title ?? '',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: type.heading.copyWith(fontSize: 16, height: 22 / 16),
+          ),
+          if (chat != null)
+            Text(
+              'Started ${shortDay(chat.createdAt, DateTime.now())} · '
+              '${messagesLabel(chat.messageCount)}',
+              style: type.label.copyWith(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: colors.textSecondary,
+              ),
+            ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          tooltip: 'Chat options',
+          onPressed: onOptions,
+          icon: const Icon(Icons.more_horiz_rounded),
+        ),
+        const SizedBox(width: 6),
+      ],
+      shape: Border(bottom: BorderSide(color: colors.bgElevated)),
+    );
+  }
+}
+
+/// "About" and the game the chat is about; opens its review. Reads "Game
+/// deleted" (and does nothing) once the game is gone.
+class _ContextRow extends ConsumerWidget {
+  const _ContextRow({required this.chat});
+
+  final StoredChat chat;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final type = context.type;
+    final gameId = chat.gameId!;
+    final exists = ref.watch(_gameExistsProvider(gameId)).value ?? true;
+    final fen = chat.thumbFen;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.s2),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: colors.bgElevated)),
+      ),
+      child: Row(
+        spacing: AppSpacing.s2,
+        children: [
+          Text('About', style: type.label.copyWith(fontSize: 12, color: colors.textTertiary)),
+          Flexible(
+            child: Material(
+              color: colors.bgElevated,
+              shape: StadiumBorder(
+                side: BorderSide(
+                  color: Color.alphaBlend(colors.focus.withValues(alpha: 0.3), colors.bgElevated),
+                ),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: exists ? () => context.push(Routes.review('$gameId')) : null,
+                child: SizedBox(
+                  height: 30,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 10, 0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: AppSpacing.s2,
+                      children: [
+                        if (fen != null && exists)
+                          MoveWiseStaticBoard(
+                            fen: fen,
+                            size: 22,
+                            coordinates: false,
+                            borderRadius: BorderRadius.circular(4),
+                          )
+                        else
+                          const SizedBox(width: 2),
+                        Flexible(
+                          child: Text(
+                            exists ? chat.scopeLabel : 'Game deleted',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: type.label.copyWith(
+                              color: exists ? colors.textPrimary : colors.textTertiary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+final _gameExistsProvider = FutureProvider.autoDispose.family<bool, int>(
+  (ref, id) async => await ref.watch(gameRepositoryProvider).byId(id) != null,
+);
+
+/// The conversation: questions, steps and answers. In a saved chat, days
+/// are divided and restored steps start folded.
+class _Transcript extends StatelessWidget {
+  const _Transcript({
+    required this.state,
+    required this.controller,
+    required this.dividers,
+    required this.footnote,
+    required this.onRetry,
+  });
+
+  final CoachState state;
+  final ScrollController controller;
+  final bool dividers;
+
+  /// "Continue this chat below…" after the last message.
+  final bool footnote;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final type = context.type;
+    final now = DateTime.now();
+    final turns = state.turns;
+    return ListView(
+      controller: controller,
+      padding: const EdgeInsets.all(AppSpacing.s4),
+      children: [
+        for (final (i, turn) in turns.indexed) ...[
+          if (dividers && (i == 0 || !_sameDay(turns[i - 1].at, turn.at)))
+            _DayDivider(label: dayDivider(turn.at, now)),
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.s6),
+            child: _Turn(turn: turn, onRetry: i == turns.length - 1 ? onRetry : null),
+          ),
+        ],
+        if (footnote && turns.isNotEmpty)
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 300),
+              child: Text(
+                'Continue this chat below. The AI Coach remembers everything above.',
+                textAlign: TextAlign.center,
+                style: type.label.copyWith(
+                  fontSize: 12,
+                  height: 17 / 12,
+                  fontWeight: FontWeight.w400,
+                  color: colors.textTertiary,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  static bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
+/// A centred date between hairlines.
+class _DayDivider extends StatelessWidget {
+  const _DayDivider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final line = Expanded(child: Container(height: 1, color: colors.bgElevated));
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        spacing: AppSpacing.s3,
+        children: [
+          line,
+          Text(label, style: context.type.label.copyWith(fontSize: 12, color: colors.textTertiary)),
+          line,
+        ],
+      ),
+    );
+  }
+}
+
+/// Why the composer is off: offline, no key, or a full chat.
+class _Banner extends StatelessWidget {
+  const _Banner({required this.text, required this.icon, this.action});
+
+  final String text;
+  final IconData icon;
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12, 10, 12, 0),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: colors.bgRaised,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: colors.border),
+        ),
+        child: Row(
+          spacing: 10,
+          children: [
+            Icon(icon, size: 18, color: colors.brass),
+            Expanded(
+              child: Text(
+                text,
+                style: context.type.label.copyWith(
+                  height: 18 / 13,
+                  fontWeight: FontWeight.w400,
+                  color: colors.textSecondary,
+                ),
+              ),
+            ),
+            ?action,
           ],
         ),
       ),
@@ -304,6 +608,7 @@ class _Turn extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final type = context.type;
+    final error = turn.error;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpacing.s4,
@@ -348,13 +653,24 @@ class _Turn extends StatelessWidget {
               ),
           ],
         ),
-        if (turn.steps.isNotEmpty) AgentSteps(steps: turn.steps, running: turn.isRunning),
+        if (turn.steps.isNotEmpty)
+          AgentSteps(
+            steps: turn.steps,
+            running: turn.isRunning,
+            // Read back from a saved chat: folded, a tap to look.
+            initiallyOpen: !turn.restored,
+          ),
         if (turn.answer case final answer?) CoachAnswerView(answer: answer),
-        if (turn.error != null)
+        if (error != null)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(llmFailureText(turn.error), style: type.body.copyWith(color: colors.coral)),
+              Text(
+                error is NotAnswered ? 'Not answered yet.' : llmFailureText(error),
+                style: type.body.copyWith(
+                  color: error is NotAnswered ? colors.textSecondary : colors.coral,
+                ),
+              ),
               if (onRetry != null) TextButton(onPressed: onRetry, child: const Text('Try again')),
             ],
           ),
@@ -363,12 +679,102 @@ class _Turn extends StatelessWidget {
   }
 }
 
-/// Before the first question (not in the design): what the coach does, and
-/// a few questions to start with; or how to add a key.
+/// "Pick up where you left off": the latest saved chat, one tap to reopen.
+class _PickUp extends ConsumerWidget {
+  const _PickUp();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final type = context.type;
+    final latest = ref.watch(chatsProvider('')).value?.firstOrNull;
+    if (latest == null) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpacing.s2,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'PICK UP WHERE YOU LEFT OFF',
+                style: type.overline.copyWith(color: colors.textTertiary),
+              ),
+            ),
+            TextButton(
+              onPressed: () => context.push(Routes.coachChats),
+              style: TextButton.styleFrom(
+                minimumSize: const Size(0, 32),
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                textStyle: type.label.copyWith(fontWeight: FontWeight.w600),
+              ),
+              child: const Text('All chats'),
+            ),
+          ],
+        ),
+        Material(
+          color: colors.bgRaised,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: colors.border),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => context.push(Routes.coachChat(latest.id)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                spacing: AppSpacing.s3,
+                children: [
+                  ChatThumbnail(chat: latest, size: 40, radius: 6),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 2,
+                      children: [
+                        Text(
+                          latest.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: type.body.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          '${chatWhen(latest.updatedAt, ref.read(nowProvider)())} · '
+                          '${messagesLabel(latest.messageCount)}',
+                          style: type.label.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: colors.textTertiary),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Before the first question (`CoachEmpty.dc.html`, `CoachEmptyGame.dc.html`):
+/// what the AI Coach does and questions to start with; or that it needs a key.
 class _Intro extends StatelessWidget {
-  const _Intro({required this.hasKey, required this.onAsk, required this.suggestions});
+  const _Intro({
+    required this.hasKey,
+    required this.withGame,
+    required this.onAsk,
+    required this.suggestions,
+  });
 
   final bool hasKey;
+
+  /// A game is attached: the text and questions are about it.
+  final bool withGame;
   final ValueChanged<String>? onAsk;
   final List<String> suggestions;
 
@@ -376,45 +782,78 @@ class _Intro extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final type = context.type;
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.gutter),
-      child: Column(
-        spacing: AppSpacing.s3,
-        children: [
-          const SizedBox(height: AppSpacing.s6),
-          const LogoMark(size: 48),
-          Text('Ask the AI Coach', style: type.title, textAlign: TextAlign.center),
-          Text(
-            hasKey
-                ? 'It looks through your games and asks Stockfish before it answers. '
-                      'Every move it mentions comes from Stockfish or your games.'
-                : 'The AI Coach isn’t set up on this device yet.',
-            style: type.body.copyWith(color: colors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-          if (hasKey) ...[
-            const SizedBox(height: AppSpacing.s2),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: AppSpacing.s2,
-              runSpacing: AppSpacing.s2,
-              children: [
-                for (final question in suggestions)
-                  OutlinedButton(
-                    onPressed: onAsk == null ? null : () => onAsk!(question),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(0, 36),
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      shape: const StadiumBorder(),
-                      side: BorderSide(color: colors.border),
-                      foregroundColor: colors.textPrimary,
+    final text = !hasKey
+        ? 'The AI Coach isn’t set up on this device yet.'
+        : withGame
+        ? 'Ask anything about this game. The AI Coach sees every move and checks each one '
+              'it mentions with Stockfish.'
+        : 'Ask about your games, a move or a pattern. Every move it suggests is checked by '
+              'Stockfish before you see it. Tap + to pick a game.';
+
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+        child: ConstrainedBox(
+          // Sits at the bottom, just above the composer, when there's room.
+          constraints: BoxConstraints(minHeight: constraints.maxHeight - 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 22,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
+                child: Column(
+                  spacing: AppSpacing.s3,
+                  children: [
+                    const LogoMark(size: 56),
+                    Text(
+                      'Ask the AI Coach',
+                      textAlign: TextAlign.center,
+                      style: type.title.copyWith(fontSize: 22),
                     ),
-                    child: Text(question),
-                  ),
-              ],
-            ),
-          ],
-        ],
+                    Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: type.body.copyWith(color: colors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              // Hidden with a game attached: this chat is about that game.
+              if (!withGame) const _PickUp(),
+              if (hasKey)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpacing.s2,
+                  children: [
+                    Text('TRY ASKING', style: type.overline.copyWith(color: colors.textTertiary)),
+                    for (final question in suggestions)
+                      OutlinedButton(
+                        onPressed: onAsk == null ? null : () => onAsk!(question),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          alignment: Alignment.centerLeft,
+                          backgroundColor: colors.bgRaised,
+                          side: BorderSide(color: colors.border),
+                          foregroundColor: colors.textPrimary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          textStyle: type.body.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                        child: Row(
+                          spacing: AppSpacing.s3,
+                          children: [
+                            Expanded(child: Text(question)),
+                            Icon(Icons.arrow_upward_rounded, size: 16, color: colors.focus),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -516,9 +955,13 @@ class _InputBar extends StatelessWidget {
     required this.onVoice,
     required this.reduceMotion,
     required this.onFieldTap,
+    this.hint = 'Ask about a move or a pattern…',
   });
 
   final TextEditingController controller;
+
+  /// The field's placeholder.
+  final String hint;
   final bool enabled;
   final bool canSend;
 
@@ -595,9 +1038,7 @@ class _InputBar extends StatelessWidget {
                   onTap: onFieldTap,
                   style: type.body.copyWith(fontSize: 15),
                   decoration: InputDecoration(
-                    hintText: listening
-                        ? 'Listening… tap ■ to stop'
-                        : 'Ask about a move or a pattern…',
+                    hintText: listening ? 'Listening… tap ■ to stop' : hint,
                     suffixIcon: onVoice == null
                         ? null
                         : _MicButton(

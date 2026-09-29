@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MoveWise splash</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./motion.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=Instrument+Sans:wght@400;500&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div role="img" aria-label="MoveWise splash screen" style="position: relative; width: 390px; height: 844px; overflow: hidden; background: {{c.bg}}; font-family: 'Instrument Sans', system-ui, sans-serif">
+
+<sc-if value="{{is.native}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; display: flex; align-items: center; justify-content: center">
+<dc-import name="Logo" variant="brand" mode="{{c.mode}}" knock="{{c.bg}}" tile="false" size="148" hint-size="148px,148px"></dc-import>
+</div>
+</sc-if>
+
+<sc-if value="{{is.android12}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; display: flex; align-items: center; justify-content: center">
+<div style="position: relative; width: 160px; height: 160px; border-radius: 50%; overflow: hidden; background: {{c.tile}}">
+<div style="position: absolute; left: -40px; top: -40px"><dc-import name="Logo" variant="brand" mode="{{c.mode}}" knock="{{c.tile}}" tile="false" scale="0.64" size="240" hint-size="240px,240px"></dc-import></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{is.intro}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px">
+<svg viewBox="0 0 100 100" width="148" height="148" aria-hidden="true" style="position: absolute; left: 121px; top: 348px; display: block; overflow: visible">
+<g style="animation: mw-i-body 3000ms infinite; transform-box: fill-box; transform-origin: center bottom">
+<rect x="22" y="80" width="56" height="8" rx="2" style="fill: {{c.pri}}"></rect>
+<rect x="27" y="73" width="46" height="5" rx="1.5" style="fill: {{c.pri}}"></rect>
+<path d="M33 71H67L63.5 41H36.5Z" style="fill: {{c.pri}}"></path>
+<rect x="28" y="33" width="44" height="6" rx="1.5" style="fill: {{c.pri}}"></rect>
+</g>
+<rect x="28" y="24" width="11" height="7" rx="1.2" style="fill: {{c.pri}}; transform-box: fill-box; transform-origin: center bottom; animation: mw-i-b1 3000ms infinite"></rect>
+<rect x="44.5" y="18" width="11" height="13" rx="1.2" style="fill: {{c.pri}}; transform-box: fill-box; transform-origin: center bottom; animation: mw-i-b2 3000ms infinite"></rect>
+<rect x="61" y="11" width="11" height="20" rx="1.2" style="fill: {{c.acc}}; transform-box: fill-box; transform-origin: center bottom; animation: mw-i-b3 3000ms infinite"></rect>
+<path d="M50 46.5L52.28 53.72L59.5 56L52.28 58.28L50 65.5L47.72 58.28L40.5 56L47.72 53.72Z" style="fill: {{c.bg}}; transform-box: fill-box; transform-origin: center; animation: mw-i-spark 3000ms infinite"></path>
+</svg>
+<div style="position: absolute; left: 0; right: 0; top: 521px; display: flex; flex-direction: column; align-items: center; gap: 4px; animation: mw-i-word 3000ms infinite">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 30px; letter-spacing: -0.025em; color: {{c.fg}}">MoveWise</span>
+<span style="font-size: 14px; color: {{c.sub}}">Your AI chess coach</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{is.blend}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; animation: mw-i-bgblend 3000ms infinite">
+<svg viewBox="0 0 100 100" width="148" height="148" aria-hidden="true" style="position: absolute; left: 121px; top: 348px; display: block; overflow: visible">
+<g style="animation: mw-i-body 3000ms infinite; transform-box: fill-box; transform-origin: center bottom">
+<rect x="22" y="80" width="56" height="8" rx="2" style="animation: mw-i-pri 3000ms infinite"></rect>
+<rect x="27" y="73" width="46" height="5" rx="1.5" style="animation: mw-i-pri 3000ms infinite"></rect>
+<path d="M33 71H67L63.5 41H36.5Z" style="animation: mw-i-pri 3000ms infinite"></path>
+<rect x="28" y="33" width="44" height="6" rx="1.5" style="animation: mw-i-pri 3000ms infinite"></rect>
+</g>
+<rect x="28" y="24" width="11" height="7" rx="1.2" style="transform-box: fill-box; transform-origin: center bottom; animation: mw-i-b1 3000ms infinite, mw-i-pri 3000ms infinite"></rect>
+<rect x="44.5" y="18" width="11" height="13" rx="1.2" style="transform-box: fill-box; transform-origin: center bottom; animation: mw-i-b2 3000ms infinite, mw-i-pri 3000ms infinite"></rect>
+<rect x="61" y="11" width="11" height="20" rx="1.2" style="transform-box: fill-box; transform-origin: center bottom; animation: mw-i-b3 3000ms infinite, mw-i-acc 3000ms infinite"></rect>
+<path d="M50 46.5L52.28 53.72L59.5 56L52.28 58.28L50 65.5L47.72 58.28L40.5 56L47.72 53.72Z" style="transform-box: fill-box; transform-origin: center; animation: mw-i-spark 3000ms infinite, mw-i-hole 3000ms infinite"></path>
+</svg>
+<div style="position: absolute; left: 0; right: 0; top: 521px; display: flex; flex-direction: column; align-items: center; gap: 4px; animation: mw-i-word 3000ms infinite">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 30px; letter-spacing: -0.025em; animation: mw-i-ink 3000ms infinite">MoveWise</span>
+<span style="font-size: 14px; animation: mw-i-inksub 3000ms infinite">Your AI chess coach</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{is.branding}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; left: 0; right: 0; bottom: 56px; display: flex; justify-content: center">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 20px; letter-spacing: -0.02em; color: {{c.brand}}">MoveWise</span>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["native","android12","intro","introBlend"],"default":"native"},"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var k = this.props.kind || 'native';
+    var dark = this.props.theme !== 'light';
+    return {
+      is: { native: k === 'native', android12: k === 'android12', intro: k === 'intro', blend: k === 'introBlend', branding: k === 'native' || k === 'android12' },
+      c: dark
+        ? { bg: '#0E1217', tile: '#151B22', mode: 'dark', pri: '#86A8FF', acc: '#E3B25C', fg: '#E9EDF2', sub: '#A3AFBD', brand: '#7C8898' }
+        : { bg: '#F1F3F6', tile: '#FFFFFF', mode: 'light', pri: '#2F5BD3', acc: '#C98A1B', fg: '#121820', sub: '#4A5563', brand: '#5F6B7A' }
+    };
+  }
+}
+</script>
+</body>
+</html>

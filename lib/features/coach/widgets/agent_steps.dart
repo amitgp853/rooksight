@@ -9,19 +9,26 @@ import '../domain/coach_tools.dart';
 
 /// The coach's steps as they happen (the design's agent step rows): a
 /// spinner while a step runs, a check with its detail once done. The header
-/// folds the list away once the answer is in.
+/// folds the list away once the answer is in; a saved chat's steps start
+/// folded ([initiallyOpen] false), read only.
 class AgentSteps extends StatefulWidget {
-  const AgentSteps({super.key, required this.steps, required this.running});
+  const AgentSteps({
+    super.key,
+    required this.steps,
+    required this.running,
+    this.initiallyOpen = true,
+  });
 
   final List<AgentStep> steps;
   final bool running;
+  final bool initiallyOpen;
 
   @override
   State<AgentSteps> createState() => _AgentStepsState();
 }
 
 class _AgentStepsState extends State<AgentSteps> {
-  bool _open = true;
+  late bool _open = widget.initiallyOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -49,16 +56,27 @@ class _AgentStepsState extends State<AgentSteps> {
                 padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
                 child: Row(
                   children: [
+                    // Folded: a check says the work is done.
+                    if (!widget.running && !_open) ...[
+                      Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(color: colors.focus, shape: BoxShape.circle),
+                        child: Icon(Icons.check, size: 11, color: colors.onFocus),
+                      ),
+                      const SizedBox(width: AppSpacing.s2),
+                    ],
                     Expanded(
                       child: Text(
                         title.toUpperCase(),
                         style: type.overline.copyWith(color: colors.textSecondary),
                       ),
                     ),
-                    Text(
-                      '$done / ${widget.steps.length}',
-                      style: type.mono.copyWith(fontSize: 12, color: colors.textTertiary),
-                    ),
+                    if (widget.running || _open)
+                      Text(
+                        '$done / ${widget.steps.length}',
+                        style: type.mono.copyWith(fontSize: 12, color: colors.textTertiary),
+                      ),
                     if (!widget.running) ...[
                       const SizedBox(width: AppSpacing.s1),
                       Icon(
@@ -71,12 +89,22 @@ class _AgentStepsState extends State<AgentSteps> {
                 ),
               ),
             ),
-            if (_open || widget.running)
-              for (final (i, step) in widget.steps.indexed)
-                FadeInUp(
-                  key: ValueKey(i),
-                  child: _StepRow(step: step),
-                ),
+            AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              alignment: Alignment.topCenter,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_open || widget.running)
+                    for (final (i, step) in widget.steps.indexed)
+                      FadeInUp(
+                        key: ValueKey(i),
+                        child: _StepRow(step: step),
+                      ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

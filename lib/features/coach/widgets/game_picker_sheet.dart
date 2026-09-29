@@ -130,6 +130,7 @@ class _GameRow extends StatelessWidget {
       movesLabel(record),
       switch (record.source) {
         GameSource.stockfish => 'MoveWise',
+        GameSource.passAndPlay => 'Pass & Play',
         GameSource.chesscom => 'Chess.com',
         GameSource.lichess => 'Lichess',
       },

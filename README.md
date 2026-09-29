@@ -10,7 +10,7 @@ Flutter · Android and iOS · no login, no backend, free to run.
 
 <p align="center">
   <img src="design/screenshots/home.png" width="200" alt="Home">
-  <img src="design/screenshots/game.png" width="200" alt="Playing Stockfish">
+  <img src="design/screenshots/game.png" width="200" alt="Playing Stockfish: only your clock runs">
   <img src="design/screenshots/result.png" width="200" alt="Game over">
   <img src="design/screenshots/review.png" width="200" alt="Game review with AI explanations">
   <br>
@@ -21,14 +21,16 @@ Flutter · Android and iOS · no login, no backend, free to run.
   <br>
   <img src="design/screenshots/play-setup.png" width="200" alt="New game setup">
   <img src="design/screenshots/pass-setup.png" width="200" alt="Pass & Play setup">
-  <img src="design/screenshots/pass-game.png" width="200" alt="Pass & Play, board turned for the next player">
   <img src="design/screenshots/pass-tabletop.png" width="200" alt="Pass & Play, face to face">
+  <img src="design/screenshots/pass-result.png" width="200" alt="Pass & Play result, saved to your games">
   <br>
+  <img src="design/screenshots/coach-new.png" width="200" alt="AI Coach, new chat">
   <img src="design/screenshots/coach-chats.png" width="200" alt="Saved AI Coach chats">
-  <img src="design/screenshots/coach-chat.png" width="200" alt="A saved chat, ready to continue">
+  <img src="design/screenshots/coach-chat-options.png" width="200" alt="Rename or delete a chat">
   <img src="design/screenshots/import.png" width="200" alt="Chess.com and Lichess import">
-  <img src="design/screenshots/games.png" width="200" alt="Game library">
   <br>
+  <img src="design/screenshots/stats-openings.png" width="200" alt="Results by opening and personal bests">
+  <img src="design/screenshots/games.png" width="200" alt="Game library">
   <img src="design/screenshots/home-light.png" width="200" alt="Light mode">
 </p>
 

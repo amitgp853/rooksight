@@ -147,6 +147,47 @@ class AnalysisTree {
     return parts.join(' ');
   }
 
+  /// The moves as JSON-ready data, main line first:
+  /// `[{"m": "e2e4", "c": [{"m": "e7e5"}]}]` (`c` only when it has moves).
+  List<Object?> toJson() {
+    List<Object?> encode(AnalysisNode node) => [
+      for (final child in node.children)
+        {'m': child.move!.move.uci, if (child.children.isNotEmpty) 'c': encode(child)},
+    ];
+    return encode(root);
+  }
+
+  /// [start] with the moves [toJson] wrote. Moves that aren't legal (or
+  /// aren't moves) are dropped with what follows them.
+  factory AnalysisTree.fromJson(Position start, List<Object?> json) {
+    final tree = AnalysisTree(start);
+    void decode(AnalysisNode node, List<Object?> children) {
+      for (final child in children.whereType<Map<String, Object?>>()) {
+        final uci = child['m'];
+        final move = uci is String ? Move.parse(uci) : null;
+        final next = move == null ? null : tree.play(node, move);
+        if (next == null) continue;
+        decode(next, child['c'] as List<Object?>? ?? const []);
+      }
+    }
+
+    decode(tree.root, json);
+    return tree;
+  }
+
+  /// Child indices from the start to [node], to find it again with [nodeAt].
+  List<int> pathTo(AnalysisNode node) => [for (final n in node.path) n.parent!.children.indexOf(n)];
+
+  /// The node [pathTo] led to, or as far along as it still goes.
+  AnalysisNode nodeAt(List<int> path) {
+    var node = root;
+    for (final i in path) {
+      if (i < 0 || i >= node.children.length) break;
+      node = node.children[i];
+    }
+    return node;
+  }
+
   /// The move list: the main line, broken where a move has alternatives,
   /// which follow it one level deeper (as Lichess shows them).
   List<MoveBlock> blocks() {

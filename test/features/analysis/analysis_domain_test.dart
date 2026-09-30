@@ -62,6 +62,59 @@ void main() {
     });
   });
 
+  group('saving the tree', () {
+    test('moves and variations survive a round trip, and so does the place', () {
+      final tree = AnalysisTree.withLine(Chess.initial, ['e2e4', 'e7e5', 'g1f3']);
+      final e4 = tree.root.children.single;
+      final c5 = tree.play(e4, _m('c7c5'))!;
+      final nf3 = tree.play(c5, _m('g1f3'))!;
+
+      final json = tree.toJson();
+      expect(json, [
+        {
+          'm': 'e2e4',
+          'c': [
+            {
+              'm': 'e7e5',
+              'c': [
+                {'m': 'g1f3'},
+              ],
+            },
+            {
+              'm': 'c7c5',
+              'c': [
+                {'m': 'g1f3'},
+              ],
+            },
+          ],
+        },
+      ]);
+      expect(tree.pathTo(nf3), [0, 1, 0]);
+
+      final back = AnalysisTree.fromJson(Chess.initial, json);
+      expect(back.blocks().map(_text), tree.blocks().map(_text));
+      expect(back.nodeAt([0, 1, 0]).label, '2. Nf3');
+      expect(back.nodeAt([0, 1, 0]).isMainLine, isFalse);
+    });
+
+    test('illegal or unknown moves are dropped, a stale path stops early', () {
+      final tree = AnalysisTree.fromJson(Chess.initial, [
+        {
+          'm': 'e2e4',
+          'c': [
+            {'m': 'e2e4'},
+            {'m': 42},
+          ],
+        },
+        'junk',
+      ]);
+      expect(tree.toJson(), [
+        {'m': 'e2e4'},
+      ]);
+      expect(tree.nodeAt([0, 3, 1]).ply, 1);
+    });
+  });
+
   group('analysis text', () {
     test('engine lines as SAN with move numbers', () {
       final tokens = lineTokens(Chess.initial, ['e2e4', 'e7e5', 'g1f3', 'zzzz']);

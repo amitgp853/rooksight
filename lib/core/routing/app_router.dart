@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../storage/saved_position_repository.dart';
+
 import '../../features/analysis/analysis_screen.dart';
 import '../../features/analysis/domain/analysis_args.dart';
+import '../../features/analysis/saved_positions_screen.dart';
 import '../../features/coach/chats_screen.dart';
 import '../../features/coach/coach_screen.dart';
 import '../../features/games/games_screen.dart';
@@ -35,6 +38,9 @@ abstract final class Routes {
 
   /// Check or set up a position; takes a `ScanCheckArgs` as `extra`.
   static const scanCheck = '/scan/check';
+
+  /// Positions saved from the analysis board.
+  static const savedPositions = '/positions';
   static const game = '/play/game';
   static const passSetup = '/pass';
   static const passGame = '/pass/game';
@@ -101,8 +107,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AnalysisArgs.path,
-        builder: (context, state) =>
-            AnalysisScreen(args: AnalysisArgs.fromQuery(state.uri.queryParameters)),
+        builder: (context, state) => AnalysisScreen(
+          args: AnalysisArgs.fromQuery(state.uri.queryParameters),
+          saved: state.extra is SavedPosition ? state.extra! as SavedPosition : null,
+        ),
+      ),
+      GoRoute(
+        path: Routes.savedPositions,
+        builder: (context, state) => const SavedPositionsScreen(),
       ),
       GoRoute(path: Routes.game, builder: (context, state) => const GameScreen()),
       GoRoute(path: Routes.passSetup, builder: (context, state) => const PassSetupScreen()),

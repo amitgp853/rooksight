@@ -272,6 +272,9 @@ Start Pass & Play with "Flip board after each move" **off**, so it's easier to t
 - [ ] **AN-07** Engine switch off: lines, arrows and the bar stop; on: they resume.
 - [ ] **AN-08** ⋯ menu: Ask AI Coach (question prefilled with the FEN), Play from here vs Stockfish (setup opens with you as the side to move; the game starts from this position), Flip board, Edit position (back in the editor; Analyze returns with the new position), Copy FEN, Share position image.
 - [ ] **AN-09** Stockfish analysis on the board works in airplane mode.
+- [ ] **AN-10** Tap the bookmark (or ⋯ → Save position), keep or change the name, Save. **Expect:** the bookmark fills, and "Saved positions · 1 saved" appears on Home under Scan a board.
+- [ ] **AN-11** Play a few moves (and a variation), leave, kill the app, reopen from Saved positions. **Expect:** the same moves and variations, on the move you left at.
+- [ ] **AN-12** Saved positions: ⋮ → Rename and Delete work; deleting the last one hides the Home row.
 
 ## 12. AI Coach
 

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/board/move_wise_board.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/storage/analysis_repository.dart';
+import '../../core/storage/saved_position_repository.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/logo_mark.dart';
@@ -119,6 +120,7 @@ class HomeScreen extends ConsumerWidget {
                 iconSize: 44,
               ),
             ),
+            _SavedPositionsRow(onTap: () => open(Routes.savedPositions)),
             const SizedBox(height: AppSpacing.s4),
             Row(
               spacing: 12,
@@ -558,6 +560,30 @@ class _StatsCard extends ConsumerWidget {
 }
 
 /// The games list: not in the design, which has no way to it.
+/// Under Scan a board, once something is saved: the saved positions.
+class _SavedPositionsRow extends ConsumerWidget {
+  const _SavedPositionsRow({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(savedPositionsProvider).value?.length ?? 0;
+    if (count == 0) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: _Card(
+        onTap: onTap,
+        child: _RowHeader(
+          icon: Icons.bookmark_border_rounded,
+          title: 'Saved positions',
+          subtitle: '$count saved · carry on analysing',
+        ),
+      ),
+    );
+  }
+}
+
 class _GamesCard extends ConsumerWidget {
   const _GamesCard({required this.onTap});
 

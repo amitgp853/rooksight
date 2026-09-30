@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:chessground/chessground.dart';
@@ -12,10 +13,12 @@ import '../../core/board/landing_square.dart';
 import '../../core/board/move_wise_board.dart';
 import '../../core/motion/reduce_motion.dart';
 import '../../core/routing/app_router.dart';
+import '../../core/storage/saved_position_repository.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/move_wise_sheet.dart';
 import '../../engine/engine_provider.dart';
+import '../games/games_screen.dart' show shortDate;
 import '../report_card/data/image_sharer.dart';
 import '../review/widgets/eval_bar.dart';
 import '../review/widgets/quality_chip.dart';
@@ -33,9 +36,12 @@ import 'widgets/analysis_panels.dart';
 /// play for both sides. New moves off the line become variations, each
 /// marked against Stockfish's best. Runs on the phone; no AI.
 class AnalysisScreen extends ConsumerStatefulWidget {
-  const AnalysisScreen({super.key, required this.args});
+  const AnalysisScreen({super.key, required this.args, this.saved});
 
   final AnalysisArgs args;
+
+  /// A saved position to reopen, with its moves; [args] is ignored then.
+  final SavedPosition? saved;
 
   @override
   ConsumerState<AnalysisScreen> createState() => _AnalysisScreenState();
@@ -43,16 +49,45 @@ class AnalysisScreen extends ConsumerStatefulWidget {
 
 class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   late AnalysisSession _session;
-  late Side _orientation = widget.args.orientation;
-  late final String _subtitle;
+  late Side _orientation;
+  late String _subtitle;
   late final ChessboardController _board;
   final _boardKey = GlobalKey();
+
+  /// The saved position this board keeps up to date, once saved.
+  int? _savedId;
+
+  /// The moves and place last written, to skip writing when nothing moved.
+  String? _savedState;
+  Timer? _saveTimer;
+
+  /// After a change, the save waits this long for more.
+  static const _saveDelay = Duration(milliseconds: 800);
+
+  /// Read once: the last save runs in [dispose], where `ref` can't be used.
+  late final SavedPositionRepository _positions;
 
   @override
   void initState() {
     super.initState();
-    _session = _newSession(_startPosition(), widget.args.moves, widget.args.ply);
-    _subtitle = _subtitleFor(widget.args.source, _session);
+    _positions = ref.read(savedPositionRepositoryProvider);
+    final saved = widget.saved;
+    if (saved != null) {
+      final tree = AnalysisTree.fromJson(_startPosition(saved.fen), saved.moves);
+      _session = AnalysisSession(
+        engine: ref.read(chessEngineProvider),
+        tree: tree,
+        current: tree.nodeAt(saved.path),
+      )..addListener(_onChange);
+      _orientation = saved.orientation == 'black' ? Side.black : Side.white;
+      _subtitle = saved.title;
+      _savedId = saved.id;
+      _savedState = _stateOf(_session);
+    } else {
+      _session = _newSession(_startPosition(widget.args.fen), widget.args.moves, widget.args.ply);
+      _orientation = widget.args.orientation;
+      _subtitle = _subtitleFor(widget.args.source, _session);
+    }
     _board = ChessboardController(game: _gameData());
     // Stockfish reports progress at once; start once this state can rebuild.
     scheduleMicrotask(() {
@@ -62,6 +97,11 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
 
   @override
   void dispose() {
+    // Leaving: write any change still waiting.
+    if (_saveTimer?.isActive ?? false) {
+      _saveTimer!.cancel();
+      unawaited(_writeMoves());
+    }
     _session
       ..removeListener(_onChange)
       ..dispose();
@@ -69,12 +109,69 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     super.dispose();
   }
 
-  Position _startPosition() {
+  static Position _startPosition(String fen) {
     try {
-      return Chess.fromSetup(Setup.parseFen(widget.args.fen));
+      return Chess.fromSetup(Setup.parseFen(fen));
     } on Object {
       return Chess.initial;
     }
+  }
+
+  /// The moves explored and where the board is, as saved.
+  static String _stateOf(AnalysisSession session) =>
+      jsonEncode([session.tree.toJson(), session.tree.pathTo(session.current)]);
+
+  Future<void> _writeMoves() async {
+    final id = _savedId;
+    if (id == null) return;
+    final state = _stateOf(_session);
+    if (state == _savedState) return;
+    _savedState = state;
+    await _positions.updateMoves(
+      id,
+      moves: _session.tree.toJson(),
+      path: _session.tree.pathTo(_session.current),
+      now: DateTime.now(),
+    );
+  }
+
+  String get _defaultTitle {
+    final date = shortDate(DateTime.now());
+    final source = widget.saved == null ? widget.args.source : null;
+    return switch (source) {
+      AnalysisSource.scan => 'Scanned position · $date',
+      AnalysisSource.game => '${_subtitle.replaceFirst('From your game', 'Game')} · $date',
+      _ => 'Position · $date',
+    };
+  }
+
+  /// Saves the position (asking for a name), or says it's already saved.
+  Future<void> _save() async {
+    final messenger = ScaffoldMessenger.of(context);
+    if (_savedId != null) {
+      messenger.showSnackBar(const SnackBar(content: Text('Saved. New moves are kept as you go.')));
+      return;
+    }
+    final title = await showDialog<String>(
+      context: context,
+      builder: (context) => _SaveDialog(initial: _defaultTitle),
+    );
+    if (title == null || !mounted) return;
+    final tree = _session.tree;
+    final id = await _positions.create((
+      title: title,
+      fen: tree.root.position.fen,
+      moves: tree.toJson(),
+      path: tree.pathTo(_session.current),
+      source: (widget.saved == null ? widget.args.source : AnalysisSource.setup).name,
+      orientation: _orientation.name,
+    ), DateTime.now());
+    if (!mounted) return;
+    setState(() {
+      _savedId = id;
+      _savedState = _stateOf(_session);
+    });
+    messenger.showSnackBar(const SnackBar(content: Text('Saved to Saved positions on Home')));
   }
 
   AnalysisSession _newSession(Position start, List<String> moves, int? ply) {
@@ -104,6 +201,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     if (!mounted) return;
     setState(() {});
     _board.updatePosition(_gameData());
+    // Once saved, moves explored are kept (checked a moment after changes).
+    if (_savedId != null && !(_saveTimer?.isActive ?? false)) {
+      _saveTimer = Timer(_saveDelay, () => unawaited(_writeMoves()));
+    }
   }
 
   GameData _gameData() {
@@ -160,7 +261,17 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       return;
     }
     final old = _session;
-    setState(() => _session = _newSession(start, const [], null));
+    await _writeMoves();
+    if (!mounted) return;
+    setState(() {
+      _session = _newSession(start, const [], null);
+      // A new start position: the saved one stays as it was; this one can be
+      // saved on its own.
+      _savedId = null;
+      _savedState = null;
+      _saveTimer?.cancel();
+      _subtitle = _subtitleFor(AnalysisSource.setup, _session);
+    });
     old
       ..removeListener(_onChange)
       ..dispose();
@@ -199,6 +310,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
         _askCoach,
         colors.brass,
       ),
+      if (_savedId == null) (Icons.bookmark_add_outlined, 'Save position', _save, null),
       if (!over) (Icons.smart_toy_outlined, 'Play from here vs Stockfish', _playFromHere, null),
       (Icons.swap_vert_rounded, 'Flip board', _flip, null),
       (Icons.edit_outlined, 'Edit position', _editPosition, null),
@@ -208,29 +320,33 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     final chosen = await showMoveWiseSheet<VoidCallback>(
       context,
       reduceMotion: shouldReduceMotion(context, ref),
-      builder: (context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 6),
-            child: Text('This position', style: context.type.heading),
-          ),
-          for (final (icon, label, action, colour) in actions)
-            ListTile(
-              minTileHeight: 52,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              leading: Icon(icon, size: 20, color: colour ?? context.colors.textPrimary),
-              title: Text(
-                label,
-                style: context.type.body.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: colour ?? context.colors.textPrimary,
-                ),
-              ),
-              onTap: () => Navigator.of(context).pop(action),
+      // ListTiles paint their ink on a Material, not on the sheet's box.
+      builder: (context) => Material(
+        type: MaterialType.transparency,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text('This position', style: context.type.heading),
             ),
-        ],
+            for (final (icon, label, action, colour) in actions)
+              ListTile(
+                minTileHeight: 52,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                leading: Icon(icon, size: 20, color: colour ?? context.colors.textPrimary),
+                title: Text(
+                  label,
+                  style: context.type.body.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: colour ?? context.colors.textPrimary,
+                  ),
+                ),
+                onTap: () => Navigator.of(context).pop(action),
+              ),
+          ],
+        ),
       ),
     );
     chosen?.call();
@@ -353,6 +469,8 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                 _Header(
                   subtitle: _subtitle,
                   onAskCoach: _askCoach,
+                  saved: _savedId != null,
+                  onSave: _save,
                   onFlip: _flip,
                   onMore: _showActions,
                 ),
@@ -411,6 +529,65 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   }
 }
 
+/// Names a position before it's saved. Pops with the name, or null.
+class _SaveDialog extends StatefulWidget {
+  const _SaveDialog({required this.initial});
+
+  final String initial;
+
+  @override
+  State<_SaveDialog> createState() => _SaveDialogState();
+}
+
+class _SaveDialogState extends State<_SaveDialog> {
+  late final _name = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  void _done() {
+    final name = _name.text.trim();
+    Navigator.of(context).pop(name.isEmpty ? widget.initial : name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Save position'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpacing.s2,
+        children: [
+          TextField(
+            controller: _name,
+            autofocus: true,
+            maxLength: 60,
+            textInputAction: TextInputAction.done,
+            decoration: const InputDecoration(labelText: 'Name'),
+            onSubmitted: (_) => _done(),
+          ),
+          Text(
+            'Kept on this phone with the moves you explore. Open it again from Saved '
+            'positions on Home.',
+            style: context.type.label.copyWith(
+              fontWeight: FontWeight.w400,
+              color: context.colors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        FilledButton(onPressed: _done, child: const Text('Save')),
+      ],
+    );
+  }
+}
+
 /// The quality chip pops onto the square (0.6 → 1) after the move lands.
 class _Pop extends ConsumerWidget {
   const _Pop({required this.child});
@@ -434,12 +611,16 @@ class _Header extends StatelessWidget {
   const _Header({
     required this.subtitle,
     required this.onAskCoach,
+    required this.saved,
+    required this.onSave,
     required this.onFlip,
     required this.onMore,
   });
 
   final String subtitle;
   final VoidCallback onAskCoach;
+  final bool saved;
+  final VoidCallback onSave;
   final VoidCallback onFlip;
   final VoidCallback onMore;
 
@@ -483,6 +664,13 @@ class _Header extends StatelessWidget {
               color: colors.brass,
               onPressed: onAskCoach,
               icon: const Icon(Icons.chat_bubble_outline_rounded, size: 22),
+            ),
+            IconButton(
+              tooltip: saved ? 'Saved' : 'Save position',
+              isSelected: saved,
+              color: saved ? colors.focus : null,
+              onPressed: onSave,
+              icon: Icon(saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, size: 22),
             ),
             IconButton(
               tooltip: 'Flip board',

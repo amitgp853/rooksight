@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:move_wise/core/storage/analysis_repository.dart';
 import 'package:move_wise/core/storage/game_repository.dart';
+import 'package:move_wise/core/storage/saved_position_repository.dart';
 import 'package:move_wise/core/storage/settings_store.dart';
 import 'package:move_wise/core/theme/app_theme.dart';
 import 'package:move_wise/features/home/home_screen.dart';
@@ -28,11 +29,13 @@ void main() {
   late SettingsStore store;
   late FakeGameRepository games;
   late FakeAnalysisRepository analyses;
+  late MemorySavedPositionRepository positions;
 
   setUp(() {
     store = SettingsStore.inMemory();
     games = FakeGameRepository();
     analyses = FakeAnalysisRepository();
+    positions = MemorySavedPositionRepository();
   });
 
   /// Saves an unfinished game: 1. e4, Black to move, 8:42 left for White.
@@ -67,6 +70,7 @@ void main() {
           '/pass',
           '/pass/game',
           '/scan',
+          '/positions',
           '/import',
           '/coach',
           '/stats',
@@ -87,6 +91,7 @@ void main() {
           settingsStoreProvider.overrideWithValue(store),
           gameRepositoryProvider.overrideWithValue(games),
           analysisRepositoryProvider.overrideWithValue(analyses),
+          savedPositionRepositoryProvider.overrideWithValue(positions),
         ],
         child: MaterialApp.router(theme: theme ?? AppTheme.dark(), routerConfig: router),
       ),
@@ -124,6 +129,25 @@ void main() {
     await tester.tap(find.text('Pass & Play'));
     await tester.pumpAndSettle();
     expect(find.text('route /pass'), findsOneWidget);
+  });
+
+  testWidgets('saved positions show under Scan a board once there are some', (tester) async {
+    await pumpHome(tester);
+    expect(find.text('Saved positions'), findsNothing);
+
+    await positions.create((
+      title: 'Book diagram',
+      fen: Chess.initial.fen,
+      moves: const [],
+      path: const [],
+      source: 'scan',
+      orientation: 'white',
+    ), DateTime(2026, 9, 30));
+    await tester.pumpAndSettle();
+    expect(find.text('1 saved · carry on analysing'), findsOneWidget);
+    await tester.tap(find.text('Saved positions'));
+    await tester.pumpAndSettle();
+    expect(find.text('route /positions'), findsOneWidget);
   });
 
   testWidgets('Scan a board opens the camera', (tester) async {

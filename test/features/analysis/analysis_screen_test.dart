@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:move_wise/core/storage/saved_position_repository.dart';
 import 'package:move_wise/core/theme/app_theme.dart';
 import 'package:move_wise/engine/engine_provider.dart';
 import 'package:move_wise/engine/uci.dart';
@@ -40,7 +41,10 @@ void main() {
     );
   });
 
-  Future<void> pump(WidgetTester tester, AnalysisArgs args) async {
+  late MemorySavedPositionRepository positions;
+  setUp(() => positions = MemorySavedPositionRepository());
+
+  Future<void> pump(WidgetTester tester, AnalysisArgs args, {SavedPosition? saved}) async {
     tester.view.physicalSize = const Size(390 * 3, 844 * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -48,15 +52,30 @@ void main() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (_, _) => AnalysisScreen(args: args),
+          builder: (_, _) => Column(
+            children: [
+              Expanded(
+                child: AnalysisScreen(args: args, saved: saved),
+              ),
+              // Leaves the board, as Back would.
+              Builder(
+                builder: (context) =>
+                    TextButton(onPressed: () => context.go('/away'), child: const Text('leave')),
+              ),
+            ],
+          ),
         ),
+        GoRoute(path: '/away', builder: (_, _) => const Text('away')),
         GoRoute(path: '/coach', builder: (_, state) => Text('coach ${state.uri.query}')),
       ],
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [chessEngineProvider.overrideWithValue(engine)],
+        overrides: [
+          chessEngineProvider.overrideWithValue(engine),
+          savedPositionRepositoryProvider.overrideWithValue(positions),
+        ],
         child: MaterialApp.router(theme: AppTheme.dark(), routerConfig: router),
       ),
     );
@@ -128,5 +147,92 @@ void main() {
     await tester.tap(find.byTooltip('Ask AI Coach about this position'));
     await tester.pumpAndSettle();
     expect(find.textContaining('coach q='), findsOneWidget);
+  });
+
+  group('saving', () {
+    /// Plays the first move of Stockfish's top line.
+    Future<void> playBest(WidgetTester tester, Position position) async {
+      final best = Move.parse(FakeEngine.firstLegalMove(position.fen))!;
+      final san = position.makeSan(best).$2;
+      await tester.tap(find.descendant(of: find.byType(InkWell), matching: find.text(san)).first);
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    testWidgets('saves a scanned position, then keeps the moves explored', (tester) async {
+      await pump(tester, AnalysisArgs(fen: Chess.initial.fen, source: AnalysisSource.scan));
+
+      await tester.tap(find.byTooltip('Save position'));
+      await tester.pumpAndSettle();
+      expect(find.text('Save position'), findsOneWidget); // The dialog title.
+      expect(find.textContaining('Scanned position · '), findsOneWidget);
+      await tester.enterText(find.byType(TextField), 'Book diagram p. 42');
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final saved = positions.all.single;
+      expect(saved.title, 'Book diagram p. 42');
+      expect(saved.fen, Chess.initial.fen);
+      expect(saved.source, 'scan');
+      expect(saved.moveCount, 0);
+      expect(find.byTooltip('Saved'), findsOneWidget);
+
+      await playBest(tester, Chess.initial);
+      await tester.pump(const Duration(seconds: 1));
+      expect(positions.all.single.moveCount, 1);
+      expect(positions.all.single.path, [0]);
+    });
+
+    testWidgets('the ⋯ menu offers saving too', (tester) async {
+      await pump(tester, AnalysisArgs(fen: Chess.initial.fen));
+      await tester.tap(find.byTooltip('More actions'));
+      await tester.pumpAndSettle();
+      expect(find.text('This position'), findsOneWidget);
+      await tester.tap(find.widgetWithText(ListTile, 'Save position'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(positions.all.single.title, startsWith('Position · '));
+    });
+
+    testWidgets('leaving right after a move still keeps it', (tester) async {
+      await pump(tester, AnalysisArgs(fen: Chess.initial.fen));
+      await tester.tap(find.byTooltip('Save position'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      await playBest(tester, Chess.initial);
+      await tester.tap(find.text('leave'));
+      await tester.pumpAndSettle();
+      expect(find.text('away'), findsOneWidget);
+      expect(positions.all.single.moveCount, 1);
+    });
+
+    testWidgets('reopens a saved position where it was left', (tester) async {
+      final saved = SavedPosition(
+        id: 7,
+        title: 'Italian study',
+        fen: Chess.initial.fen,
+        moves: const [
+          {
+            'm': 'e2e4',
+            'c': [
+              {'m': 'e7e5'},
+            ],
+          },
+        ],
+        path: const [0, 0],
+        source: 'scan',
+        orientation: 'black',
+        createdAt: DateTime(2026, 9, 30),
+        updatedAt: DateTime(2026, 9, 30),
+      );
+      await pump(tester, AnalysisArgs(fen: Chess.initial.fen), saved: saved);
+
+      expect(find.text('Italian study'), findsOneWidget);
+      expect(find.text('1… e5'), findsOneWidget); // The stepper.
+      expect(find.byTooltip('Saved'), findsOneWidget);
+    });
   });
 }

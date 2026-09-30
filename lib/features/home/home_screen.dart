@@ -108,6 +108,17 @@ class HomeScreen extends ConsumerWidget {
                 iconSize: 44,
               ),
             ),
+            const SizedBox(height: 12),
+            _Card(
+              onTap: () => open(Routes.scan),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              child: const _RowHeader(
+                icon: Icons.photo_camera_outlined,
+                title: 'Scan a board',
+                subtitle: 'Photo of a real board or a book diagram',
+                iconSize: 44,
+              ),
+            ),
             const SizedBox(height: AppSpacing.s4),
             Row(
               spacing: 12,

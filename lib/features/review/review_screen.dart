@@ -21,6 +21,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../engine/chess_engine.dart';
 import '../../engine/engine_provider.dart';
+import '../analysis/domain/analysis_args.dart';
 import '../games/games_screen.dart' show movesLabel, timeControlLabel;
 import '../games/widgets/delete_game_sheet.dart';
 import '../play/domain/game_state.dart';
@@ -384,6 +385,28 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
     });
   }
 
+  /// Opens the analysis board on the position shown, with the game (or the
+  /// line being explored) as its main line, so Back returns to this move.
+  void _analyze() {
+    final game = _analysis.game;
+    final line = _line;
+    final moves = line == null
+        ? [for (final m in game.moves) m.move.uci]
+        : [
+            for (final m in game.moves.take(line.from)) m.move.uci,
+            for (final m in line.game.moves) m.move.uci,
+          ];
+    context.push(
+      AnalysisArgs(
+        fen: game.history.first.fen,
+        moves: moves,
+        ply: line == null ? _ply : line.from + line.step,
+        source: AnalysisSource.game,
+        orientation: _player,
+      ).location,
+    );
+  }
+
   void _stepLine(int step) {
     _lineTimer?.cancel();
     _update(() => _line!.step = step.clamp(0, _line!.game.moves.length));
@@ -520,6 +543,20 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
             onNext: _ply < total ? () => _goTo(_ply + 1) : null,
             onLast: _ply < total ? () => _goTo(total) : null,
           ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, 4),
+          child: OutlinedButton.icon(
+            onPressed: _analyze,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(44),
+              backgroundColor: colors.bgRaised,
+              shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
+              textStyle: type.label.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            icon: Icon(Icons.insights_rounded, size: 18, color: colors.focus),
+            label: const Text('Analyze this position'),
+          ),
+        ),
         AnimatedSize(
           duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,

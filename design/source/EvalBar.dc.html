@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Eval bar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div role="img" aria-label="{{aria}}" style="width: {{w}}px; height: 38px; box-sizing: border-box; padding: 6px 8px; background: {{bg}}">
+<div style="position: relative; height: 26px; border-radius: 13px; overflow: hidden; background: {{right.grad}}">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{leftPct}}%; background: {{left.grad}}; box-shadow: {{seam}}; transition: {{tr}}"></div>
+<sc-if value="{{label.on}}" hint-placeholder-val="{{true}}">
+<span style="position: absolute; top: 50%; left: {{label.l}}; right: {{label.r}}; transform: translateY(-50%); padding: 3px 7px; border-radius: 9px; background: {{label.bg}}; color: {{label.fg}}; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 12px; line-height: 1; white-space: nowrap">{{label.t}}</span>
+</sc-if>
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; box-sizing: border-box; border-radius: 13px; border: 1.5px solid {{stroke}}; pointer-events: none"></span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"cp":{"editor":"int","min":-2000,"max":2000,"default":120},"mate":{"editor":"int","min":-20,"max":20,"default":0},"result":{"editor":"enum","options":["","1-0","0-1"],"default":""},"analysed":{"editor":"boolean","default":true},"player":{"editor":"enum","options":["white","black"],"default":"white"},"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"motion":{"editor":"enum","options":["full","reduced"],"default":"full"},"width":{"editor":"int","min":200,"max":800,"default":390},"signed":{"editor":"boolean","default":false},"$preview":{"width":390,"height":38}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var yes = function (v) { return v === true || v === 'true'; };
+    var dark = p.theme !== 'light';
+    var playerWhite = p.player !== 'black';
+    var analysed = p.analysed === undefined ? true : yes(p.analysed);
+    var cp = Number(p.cp || 0), mate = Number(p.mate || 0), result = p.result || '';
+    var W = { face: '#F5F7FA', grad: 'linear-gradient(180deg, #F5F7FA 0%, #DCE2EA 100%)', name: 'White' };
+    var B = { face: '#1E2530', grad: 'linear-gradient(180deg, #1E2530 0%, #141A22 100%)', name: 'Black' };
+    var whitePct = 50, text = '', ahead = null, aria = 'Evaluation not known yet';
+    if (result === '1-0' || result === '0-1') {
+      var wWon = result === '1-0';
+      whitePct = wWon ? 100 : 0; ahead = wWon ? 'w' : 'b'; text = wWon ? '1–0' : '0–1';
+      aria = 'Checkmate, ' + (wWon ? 'White' : 'Black') + ' won';
+    } else if (mate !== 0) {
+      whitePct = mate > 0 ? 100 : 0; ahead = mate > 0 ? 'w' : 'b'; text = 'M' + Math.abs(mate);
+      aria = 'Evaluation mate in ' + Math.abs(mate) + ', ' + (mate > 0 ? 'White' : 'Black') + ' is winning';
+    } else if (analysed) {
+      var win = 50 + 50 * (2 / (1 + Math.exp(-0.00368208 * cp)) - 1);
+      whitePct = Math.max(3, Math.min(97, win));
+      ahead = cp >= 0 ? 'w' : 'b';
+      text = (Math.abs(cp) / 100).toFixed(1);
+      if (yes(p.signed) && cp !== 0) text = (cp > 0 ? '+' : '−') + text;
+      aria = cp === 0 ? 'Evaluation 0.0, equal' : 'Evaluation ' + text + ', ' + (cp > 0 ? 'White' : 'Black') + ' is better';
+    }
+    var left = playerWhite ? W : B, right = playerWhite ? B : W;
+    var leftPct = playerWhite ? whitePct : 100 - whitePct;
+    var aheadIsLeft = ahead && ((ahead === 'w') === playerWhite);
+    var aheadSide = ahead === 'w' ? W : B;
+    return {
+      w: Number(p.width || 390),
+      bg: dark ? '#0E1217' : '#F1F3F6',
+      stroke: dark ? 'rgba(124,136,152,0.55)' : 'rgba(95,107,122,0.55)',
+      left: left, right: right,
+      leftPct: Math.round(leftPct * 10) / 10,
+      seam: leftPct > 0 && leftPct < 100 ? '1px 0 4px rgba(0,0,0,0.35)' : 'none',
+      tr: p.motion === 'reduced' ? 'none' : 'width 240ms cubic-bezier(0.33, 1, 0.68, 1)',
+      label: ahead
+        ? { on: true, t: text, l: aheadIsLeft ? '8px' : 'auto', r: aheadIsLeft ? 'auto' : '8px', bg: aheadSide.face, fg: ahead === 'w' ? '#1E2530' : '#F5F7FA' }
+        : { on: false, t: '', l: 'auto', r: 'auto', bg: 'transparent', fg: 'transparent' },
+      aria: aria
+    };
+  }
+}
+</script>
+</body>
+</html>

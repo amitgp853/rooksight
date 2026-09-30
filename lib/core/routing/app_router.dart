@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/analysis/analysis_screen.dart';
+import '../../features/analysis/domain/analysis_args.dart';
 import '../../features/coach/chats_screen.dart';
 import '../../features/coach/coach_screen.dart';
 import '../../features/games/games_screen.dart';
@@ -13,6 +15,8 @@ import '../../features/play/game_screen.dart';
 import '../../features/play/play_setup_screen.dart';
 import '../../features/report_card/report_card_screen.dart';
 import '../../features/review/review_screen.dart';
+import '../../features/scan/scan_check_screen.dart';
+import '../../features/scan/scan_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/stats/stats_screen.dart';
 
@@ -20,6 +24,17 @@ import '../../features/stats/stats_screen.dart';
 abstract final class Routes {
   static const home = '/';
   static const playSetup = '/play';
+
+  /// Play setup for a game starting from [fen] (e.g. from the analysis
+  /// board).
+  static String playFrom(String fen) =>
+      Uri(path: playSetup, queryParameters: {'fen': fen}).toString();
+
+  /// Scan a board: camera, crop, reading.
+  static const scan = '/scan';
+
+  /// Check or set up a position; takes a `ScanCheckArgs` as `extra`.
+  static const scanCheck = '/scan/check';
   static const game = '/play/game';
   static const passSetup = '/pass';
   static const passGame = '/pass/game';
@@ -71,7 +86,24 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: Routes.home,
     routes: [
       GoRoute(path: Routes.home, builder: (context, state) => const HomeScreen()),
-      GoRoute(path: Routes.playSetup, builder: (context, state) => const PlaySetupScreen()),
+      GoRoute(
+        path: Routes.playSetup,
+        builder: (context, state) => PlaySetupScreen(startFen: state.uri.queryParameters['fen']),
+      ),
+      GoRoute(path: Routes.scan, builder: (context, state) => const ScanScreen()),
+      GoRoute(
+        path: Routes.scanCheck,
+        builder: (context, state) => ScanCheckScreen(
+          args: state.extra is ScanCheckArgs
+              ? state.extra! as ScanCheckArgs
+              : const ScanCheckArgs(edit: true),
+        ),
+      ),
+      GoRoute(
+        path: AnalysisArgs.path,
+        builder: (context, state) =>
+            AnalysisScreen(args: AnalysisArgs.fromQuery(state.uri.queryParameters)),
+      ),
       GoRoute(path: Routes.game, builder: (context, state) => const GameScreen()),
       GoRoute(path: Routes.passSetup, builder: (context, state) => const PassSetupScreen()),
       GoRoute(path: Routes.passGame, builder: (context, state) => const PassGameScreen()),

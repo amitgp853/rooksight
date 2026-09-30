@@ -7,6 +7,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../domain/move_review.dart';
 import '../domain/position_eval.dart';
+import 'quality_chip.dart' show formatEval;
 
 /// Who is better in the position on the board, as a horizontal bar of
 /// winning chances. It follows the board: the side at the bottom (the
@@ -19,6 +20,7 @@ class EvalBar extends ConsumerWidget {
     required this.eval,
     required this.toMove,
     this.orientation = Side.white,
+    this.signed = false,
   });
 
   /// Null while the position isn't analysed yet (shown level, no number).
@@ -27,6 +29,10 @@ class EvalBar extends ConsumerWidget {
 
   /// The side at the bottom of the board, shown on the left.
   final Side orientation;
+
+  /// Shows the number with its sign from White's side (`+0.4`, `−1.8`), as
+  /// the analysis board does.
+  final bool signed;
 
   static const height = 26.0;
 
@@ -45,7 +51,9 @@ class EvalBar extends ConsumerWidget {
     final whiteShare = whiteShareOf(eval, toMove);
     // The left side's share of the bar.
     final leftShare = orientation == Side.white ? whiteShare : 1 - whiteShare;
-    final label = eval == null ? null : evalLabel(eval, toMove);
+    final label = eval == null
+        ? null
+        : (signed ? signedEvalLabel(eval, toMove) : evalLabel(eval, toMove));
     final reduce = shouldReduceMotion(context, ref);
 
     Color face(Side side) => side == Side.white ? _white : _black;
@@ -170,6 +178,13 @@ String evalLabel(PositionEval eval, Side toMove) {
     return 'M${mate.abs()}';
   }
   return eval.pawnsFor(Side.white, toMove).abs().toStringAsFixed(1);
+}
+
+/// The evaluation with White's sign: `+0.4`, `−1.8`, `M3` (whoever mates),
+/// `1–0` / `0–1` once a side is mated.
+String signedEvalLabel(PositionEval eval, Side toMove) {
+  if (eval.score.mate != null) return evalLabel(eval, toMove);
+  return formatEval(eval.pawnsFor(Side.white, toMove));
 }
 
 /// The evaluation in words, naming the side that is better: `White +0.4`,

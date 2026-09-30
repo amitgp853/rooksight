@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Voice questions to the AI Coach (speech_to_text). -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Scan a board (camera). Phones without a camera can still upload a photo. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <application
         android:label="MoveWise"
         android:name="${applicationName}"

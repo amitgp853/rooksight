@@ -235,6 +235,43 @@ Start Pass & Play with "Flip board after each move" **off**, so it's easier to t
 - [ ] **REV-41** "Share report card" opens the report card.
 - [ ] **REV-42** "Delete game" goes back to the list with the game gone.
 - [ ] **REV-43** Open a review link for a deleted game (e.g. via a Coach chat). **Expect:** "This game couldn't be found."
+- [ ] **REV-44** Step to a move and tap "Analyze this position". **Expect:** the analysis board opens on that move ("From your game · after …"), the game as its main line. Back returns to the same move.
+
+## 11b. Scan a board and the analysis board
+
+**Camera and crop** (needs a real phone)
+- [ ] **SCAN-01** Home → "Scan a board". First time: the camera permission prompt. **Expect:** a dimmed preview with a square frame and "Fit the whole board inside the frame".
+- [ ] **SCAN-02** Deny the camera. **Expect:** a message and "Upload a photo"; picking a photo reaches the crop.
+- [ ] **SCAN-03** Flash turns the torch on and off; "Tips for a good scan" opens the tips sheet; tapping the preview focuses.
+- [ ] **SCAN-04** Take a photo. **Expect:** a white flash (none with Reduce motion), then "Crop to the board". Drag a corner: the frame follows, then snaps back to a square. Rotate left/right turn the photo.
+- [ ] **SCAN-05** The gallery button opens your photos; a book diagram works as well as a real board.
+
+**Reading** (needs a Gemini key)
+- [ ] **SCAN-10** "Scan board". **Expect:** "Reading your board" with a sweeping line and the steps appearing one by one (Finding the board → Identifying pieces → Checking the position is legal), then "Position ready".
+- [ ] **SCAN-11** A board with a shadowy square (or a real misread). **Expect:** a brass "Double-checking e1 and g1…" step.
+- [ ] **SCAN-12** "Cancel" mid-scan returns to the crop; nothing arrives later.
+- [ ] **SCAN-13** A photo with no board (e.g. a wall). **Expect:** "We couldn't find a board" with tips, "Try again" and "Upload a photo".
+- [ ] **SCAN-14** A very dark photo. **Expect:** "Too dark or too blurry".
+- [ ] **SCAN-15** Airplane mode. **Expect:** "You're offline", "Set up the position by hand" and "Try again".
+- [ ] **SCAN-16** Remove the key in Settings, scan. **Expect:** "Scanning needs your AI Coach key"; "Add key in Settings" opens Settings with Developer mode on; after saving a key and coming back, the scan carries on.
+
+**Check the position**
+- [ ] **SCAN-20** Doubtful squares have a brass ring and "?"; the banner names them. Tap the photo thumbnail: photo and board side by side; tap either to go back.
+- [ ] **SCAN-21** Tap a square: the editor opens with it selected; pick a piece to place it there. The eraser removes pieces; tapping the same piece again removes it.
+- [ ] **SCAN-22** Put a second white king on the board. **Expect:** a coral banner ("Each side needs exactly one king. White has two, on …"), coral rings, and Analyze disabled. "Reset to detected" brings the scan back.
+- [ ] **SCAN-23** Side to move, castling (only offered when king and rook are at home) and "White is at the bottom" (turns the board round) all end up in the analysis.
+- [ ] **SCAN-24** Error screen → "Set up the position by hand": an empty board in the editor; Analyze stays off until both kings are placed.
+
+**Analysis board**
+- [ ] **AN-01** Analyze. **Expect:** "From your scan · White to move", the eval bar with a signed number (+0.4 / −1.8 / M3), the win/draw/loss strip, three lines filling in, "thinking · depth N / 24" with a breathing dot, then "depth 24".
+- [ ] **AN-02** The blue best-move arrow appears once depth reaches 12.
+- [ ] **AN-03** Play a bad move. **Expect:** a chip pops on its square, and the feedback card ("?? Blunder · 7. Nxe5 +0.4 → −1.8 · Best was 7. Bg5") with "Take back", which removes it.
+- [ ] **AN-04** Go back a move and play something else: it becomes a variation, indented under the move it replaces. Long-press it: Promote to main line / Copy line / Delete from here.
+- [ ] **AN-05** Tap a move inside an engine line: the line up to it is played on the board.
+- [ ] **AN-06** Threat on: a coral arrow and "Threat: …Na5, going after your bishop on c4" (or similar). Off hides both.
+- [ ] **AN-07** Engine switch off: lines, arrows and the bar stop; on: they resume.
+- [ ] **AN-08** ⋯ menu: Ask AI Coach (question prefilled with the FEN), Play from here vs Stockfish (setup opens with you as the side to move; the game starts from this position), Flip board, Edit position (back in the editor; Analyze returns with the new position), Copy FEN, Share position image.
+- [ ] **AN-09** Stockfish analysis on the board works in airplane mode.
 
 ## 12. AI Coach
 

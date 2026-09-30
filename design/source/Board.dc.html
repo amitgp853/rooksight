@@ -37,7 +37,7 @@
 
 <sc-if value="{{sq.has}}" hint-placeholder-val="{{false}}">
 <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; z-index: {{sq.z}}; opacity: {{sq.pOp}}; --dx: {{sq.dx}}px; --dy: {{sq.dy}}px; animation: {{sq.pAnim}}">
-<svg viewBox="0 0 48 48" width="{{ps}}" height="{{ps}}" aria-hidden="true" style="display: block; overflow: visible; filter: drop-shadow(0 1.5px 1.5px rgba(0,0,0,0.35))"><path d="{{sq.pc.b}}" style="fill: {{sq.pc.fill}}; stroke: {{sq.pc.stroke}}; stroke-width: {{sq.pc.sw}}; stroke-linejoin: round; paint-order: stroke"></path><path d="{{sq.pc.d}}" style="fill: none; stroke: {{sq.pc.dcol}}; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"></path></svg>
+<svg viewBox="0 0 48 48" width="{{ps}}" height="{{ps}}" aria-hidden="true" style="display: block; overflow: visible; filter: drop-shadow(0 1.5px 1.5px rgba(0,0,0,0.35)); transform: {{pieceTf}}; transition: transform 300ms cubic-bezier(0.65, 0, 0.35, 1)"><path d="{{sq.pc.b}}" style="fill: {{sq.pc.fill}}; stroke: {{sq.pc.stroke}}; stroke-width: {{sq.pc.sw}}; stroke-linejoin: round; paint-order: stroke"></path><path d="{{sq.pc.d}}" style="fill: none; stroke: {{sq.pc.dcol}}; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round"></path></svg>
 </div>
 </sc-if>
 
@@ -51,6 +51,10 @@
 <div style="position: absolute; left: 3px; top: 3px; right: 3px; bottom: 3px; border-radius: 50%; border: 2.5px dashed #E3B25C; z-index: 3; animation: {{sq.popAnim}}"></div>
 </sc-if>
 
+<sc-if value="{{sq.unsure}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; box-shadow: inset 0 0 0 2px rgba(227,178,92,0.85); z-index: 4"></div>
+<span style="position: absolute; top: 2px; right: 2px; z-index: 6; width: {{markSize}}px; height: {{markSize}}px; border-radius: 50%; background: #E3B25C; color: #1A1204; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: {{markFont}}px; box-shadow: 0 1px 4px rgba(0,0,0,0.45)">?</span>
+</sc-if>
 <sc-if value="{{sq.mark}}" hint-placeholder-val="{{false}}">
 <span style="position: absolute; top: 2px; right: 2px; z-index: 6; width: {{markSize}}px; height: {{markSize}}px; border-radius: 50%; background: {{sq.markBg}}; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: {{markFont}}px; letter-spacing: -0.04em; box-shadow: 0 1px 4px rgba(0,0,0,0.45)">{{sq.markT}}</span>
 </sc-if>
@@ -60,8 +64,15 @@
 
 <sc-if value="{{arrow.on}}" hint-placeholder-val="{{false}}">
 <svg width="{{size}}" height="{{size}}" viewBox="{{arrow.vb}}" aria-hidden="true" style="position: absolute; left: 0; top: 0; z-index: 8; pointer-events: none; overflow: visible">
-<path d="{{arrow.d}}" style="fill: none; stroke: #E3B25C; stroke-opacity: 0.92; stroke-width: {{arrow.w}}; stroke-linecap: round; stroke-dasharray: {{arrow.len}}; stroke-dashoffset: 0; --len: {{arrow.len}}; animation: {{arrow.anim}}"></path>
-<polygon points="{{arrow.head}}" style="fill: #E3B25C; fill-opacity: 0.92; animation: {{arrow.headAnim}}"></polygon>
+<path d="{{arrow.d}}" style="fill: none; stroke: {{arrow.col}}; stroke-opacity: 0.92; stroke-width: {{arrow.w}}; stroke-linecap: round; stroke-dasharray: {{arrow.len}}; stroke-dashoffset: 0; --len: {{arrow.len}}; animation: {{arrow.anim}}"></path>
+<polygon points="{{arrow.head}}" style="fill: {{arrow.col}}; fill-opacity: 0.92; animation: {{arrow.headAnim}}"></polygon>
+</svg>
+</sc-if>
+
+<sc-if value="{{arrow2.on}}" hint-placeholder-val="{{false}}">
+<svg width="{{size}}" height="{{size}}" viewBox="{{arrow2.vb}}" aria-hidden="true" style="position: absolute; left: 0; top: 0; z-index: 7; pointer-events: none; overflow: visible">
+<path d="{{arrow2.d}}" style="fill: none; stroke: #F2677A; stroke-opacity: 0.88; stroke-width: {{arrow2.w}}; stroke-linecap: round; stroke-dasharray: {{arrow2.dash}}"></path>
+<polygon points="{{arrow2.head}}" style="fill: #F2677A; fill-opacity: 0.88"></polygon>
 </svg>
 </sc-if>
 
@@ -87,7 +98,7 @@
 
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["slate","ink","dusk","ember"],"default":"slate"},"flipped":{"editor":"boolean","default":false},"coords":{"editor":"boolean","default":true},"motion":{"editor":"enum","options":["full","reduced"],"default":"full"},"size":{"editor":"int","min":48,"max":800,"default":390},"fen":{"editor":null},"radius":{"editor":null},"lastFrom":{"editor":null},"lastTo":{"editor":null},"tipFrom":{"editor":null},"tipTo":{"editor":null},"markSq":{"editor":null},"markKind":{"editor":null},"selSq":{"editor":null},"dots":{"editor":null},"caps":{"editor":null},"castleSq":{"editor":null},"hoverSq":{"editor":null},"ghostSq":{"editor":null},"popIn":{"editor":null},"slideFrom":{"editor":null},"slideTo":{"editor":null},"slide2From":{"editor":null},"slide2To":{"editor":null},"fadeSq":{"editor":null},"fadePiece":{"editor":null},"shakeSq":{"editor":null},"shakeFrom":{"editor":null},"checkSq":{"editor":null},"morphSq":{"editor":null},"morphFrom":{"editor":null},"arrowFrom":{"editor":null},"arrowTo":{"editor":null},"liftPiece":{"editor":null},"liftSq":{"editor":null},"promoSq":{"editor":null},"promoColor":{"editor":null},"$preview":{"width":390,"height":390}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["slate","ink","dusk","ember"],"default":"slate"},"flipped":{"editor":"boolean","default":false},"turnPieces":{"editor":"boolean","default":false},"still":{"editor":"boolean","default":false},"arrowColor":{"editor":null},"arrow2From":{"editor":null},"arrow2To":{"editor":null},"unsure":{"editor":null},"coords":{"editor":"boolean","default":true},"motion":{"editor":"enum","options":["full","reduced"],"default":"full"},"size":{"editor":"int","min":48,"max":800,"default":390},"fen":{"editor":null},"radius":{"editor":null},"lastFrom":{"editor":null},"lastTo":{"editor":null},"tipFrom":{"editor":null},"tipTo":{"editor":null},"markSq":{"editor":null},"markKind":{"editor":null},"selSq":{"editor":null},"dots":{"editor":null},"caps":{"editor":null},"castleSq":{"editor":null},"hoverSq":{"editor":null},"ghostSq":{"editor":null},"popIn":{"editor":null},"slideFrom":{"editor":null},"slideTo":{"editor":null},"slide2From":{"editor":null},"slide2To":{"editor":null},"fadeSq":{"editor":null},"fadePiece":{"editor":null},"shakeSq":{"editor":null},"shakeFrom":{"editor":null},"checkSq":{"editor":null},"morphSq":{"editor":null},"morphFrom":{"editor":null},"arrowFrom":{"editor":null},"arrowTo":{"editor":null},"liftPiece":{"editor":null},"liftSq":{"editor":null},"promoSq":{"editor":null},"promoColor":{"editor":null},"$preview":{"width":390,"height":390}}'>
 class Component extends DCLogic {
   renderVals() {
     var p = this.props;
@@ -111,7 +122,7 @@ class Component extends DCLogic {
       p: { b: 'M24 8.5a6 6 0 1 1 0 12a6 6 0 1 1 0-12zM18 21.5h12l-1.5 3h-9zM19.5 25.5h9c.5 4.2 2 7.6 4.5 10.5H15c2.5-2.9 4-6.3 4.5-10.5z' + BASE, d: '' },
       r: { b: 'M12 7h5v4h3.5V7h7v4H31V7h5v8l-3 3H15l-3-3zM15 19h18l1.4 15.5H13.6zM11 35.5h26a2 2 0 0 1 2 2v2.5a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2v-2.5a2 2 0 0 1 2-2z', d: '' },
       b: { b: 'M24 3.5a2.6 2.6 0 1 1 0 5.2a2.6 2.6 0 1 1 0-5.2zM24 9.5c5 3.5 8 7.8 8 12c0 2.8-1.6 4.6-3.6 5H19.6c-2-.4-3.6-2.2-3.6-5c0-4.2 3-8.5 8-12zM16.5 27.5h15a1 1 0 0 1 1 1v.5a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1v-.5a1 1 0 0 1 1-1zM19 31h10l2.5 4.5h-15z' + BASE, d: 'M27 14.5l-4.5 5.5' },
-      n: { b: 'M16.5 35.5c0-6 2.5-9 5.5-11.5c-2 .6-4 1.6-6 3.4l-3-2.4c-1.2-1-1.3-2.4-.3-3.6L20 12l-1.2-4.2l4.2 2.6c7 .6 12 6 12 14v11.1z' + BASE, d: 'M18.4 16.6h1.8M26 13.5c4 2 6.5 5.5 7 10' },
+      n: { b: 'M34.54 36.8L36.38 30.36L38.22 28.98L36.38 26.22L37.3 22.54L35 20.7L35 17.02L32.7 15.64L31.78 11.96L29.02 10.58L28.1 5.06L26.26 2.3L24.88 7.36L22.12 8.28L11.54 20.24L9.24 23.46L9.24 26.68L12 28.06L15.22 26.91L14.99 29.21L19.36 29.44L23.96 25.76L25.34 24.38L21.2 28.98L17.98 32.66L16.14 36.8Z' + BASE, d: 'M11.54 24.61L10.62 25.07M21.2 12.42L19.59 13.57L21.2 14.72L22.81 13.57Z' },
       q: { b: 'M10 9.8a2.2 2.2 0 1 1 0 4.4a2.2 2.2 0 1 1 0-4.4zM17 6.3a2.2 2.2 0 1 1 0 4.4a2.2 2.2 0 1 1 0-4.4zM24 4.8a2.2 2.2 0 1 1 0 4.4a2.2 2.2 0 1 1 0-4.4zM31 6.3a2.2 2.2 0 1 1 0 4.4a2.2 2.2 0 1 1 0-4.4zM38 9.8a2.2 2.2 0 1 1 0 4.4a2.2 2.2 0 1 1 0-4.4zM10.5 15L14.5 28h19l4-13l-6.5 6.8L30.5 11.5l-4 9.5L24 10l-2.5 11l-4-9.5l-.5 10.3zM14.5 29h19l-1 3.5h-17zM15.8 33.5h16.4l1.3 2.3H14.5z' + BASE, d: '' },
       k: { b: 'M22.6 2.5h2.8v2.8h2.8v2.8h-2.8v3.4h-2.8V8.1h-2.8V5.3h2.8zM24 12.5c-2.8 0-4.6 2.2-4.6 4.6c0 .9.2 1.7.6 2.4C17.4 18 12.6 18.2 11.4 22c-1 3.3 1.6 5.8 3.6 6.5h18c2-.7 4.6-3.2 3.6-6.5c-1.2-3.8-6-4-8.6-2.5c.4-.7.6-1.5.6-2.4c0-2.4-1.8-4.6-4.6-4.6zM15 29.5h18l-1 3h-16zM16 33.5h16l1.3 2.3H14.7z' + BASE, d: 'M24 18v10' }
     };
@@ -219,30 +230,39 @@ class Component extends DCLogic {
           ghost: !!(g && g.ch), g: piece(g ? g.ch : ''), gAnim: g ? g.anim : 'none',
           dot: dots.indexOf(name) !== -1, cap: caps.indexOf(name) !== -1, castle: name === p.castleSq,
           popAnim: popAnim,
-          mark: !!(mk && name === p.markSq), markBg: mk ? mk.bg : '', markT: mk ? mk.t : ''
+          mark: !!(mk && name === p.markSq), markBg: mk ? mk.bg : '', markT: mk ? mk.t : '',
+          unsure: list(p.unsure).indexOf(name) !== -1
         });
       }
     }
 
-    var arrow = { on: false, vb: '0 0 1 1', d: '', w: 0, len: 0, head: '', anim: 'none', headAnim: 'none' };
-    if (p.arrowFrom && p.arrowTo) {
-      var f = pos(p.arrowFrom), e = pos(p.arrowTo);
+    var still = p.still === true || p.still === 'true';
+    var r2 = function (n) { return Math.round(n * 10) / 10; };
+    var geo = function (from, to) {
+      var f = pos(from), e = pos(to);
       var vx = e.cx - f.cx, vy = e.cy - f.cy, L = Math.sqrt(vx * vx + vy * vy) || 1;
       var ux = vx / L, uy = vy / L, hl = sq * 0.5, hw = sq * 0.56;
       var tipX = e.cx + ux * sq * 0.08, tipY = e.cy + uy * sq * 0.08;
       var bx = tipX - ux * hl, by = tipY - uy * hl;
       var sx = f.cx + ux * sq * 0.28, sy = f.cy + uy * sq * 0.28;
       var ex = bx + ux * 1.5, ey = by + uy * 1.5;
-      var len = Math.round(Math.sqrt((ex - sx) * (ex - sx) + (ey - sy) * (ey - sy)));
-      var r2 = function (n) { return Math.round(n * 10) / 10; };
-      arrow = {
-        on: true, vb: '0 0 ' + size + ' ' + size,
+      return {
+        vb: '0 0 ' + size + ' ' + size,
         d: 'M' + r2(sx) + ' ' + r2(sy) + 'L' + r2(ex) + ' ' + r2(ey),
-        w: r2(sq * 0.2), len: len,
-        head: r2(tipX) + ',' + r2(tipY) + ' ' + r2(bx - uy * hw / 2) + ',' + r2(by + ux * hw / 2) + ' ' + r2(bx + uy * hw / 2) + ',' + r2(by - ux * hw / 2),
-        anim: A(reduced ? 'mw-fadein' : 'mw-draw'),
-        headAnim: A(reduced ? 'mw-fadein' : 'mw-headin')
+        w: r2(sq * 0.2), len: Math.round(Math.sqrt((ex - sx) * (ex - sx) + (ey - sy) * (ey - sy))),
+        head: r2(tipX) + ',' + r2(tipY) + ' ' + r2(bx - uy * hw / 2) + ',' + r2(by + ux * hw / 2) + ' ' + r2(bx + uy * hw / 2) + ',' + r2(by - ux * hw / 2)
       };
+    };
+    var arrow = { on: false, vb: '0 0 1 1', d: '', w: 0, len: 0, head: '', anim: 'none', headAnim: 'none', col: '#E3B25C' };
+    if (p.arrowFrom && p.arrowTo) {
+      arrow = Object.assign({ on: true, col: p.arrowColor || '#E3B25C',
+        anim: still ? 'none' : A(reduced ? 'mw-fadein' : 'mw-draw'),
+        headAnim: still ? 'none' : A(reduced ? 'mw-fadein' : 'mw-headin') }, geo(p.arrowFrom, p.arrowTo));
+    }
+    var arrow2 = { on: false, vb: '0 0 1 1', d: '', w: 0, head: '', dash: 'none' };
+    if (p.arrow2From && p.arrow2To) {
+      var g2 = geo(p.arrow2From, p.arrow2To);
+      arrow2 = { on: true, vb: g2.vb, d: g2.d, w: r2(sq * 0.14), head: g2.head, dash: r2(sq * 0.22) + ' ' + r2(sq * 0.16) };
     }
 
     var lift = { on: false, x: 0, y: 0, tf: 'none', anim: 'none', pc: piece('') };
@@ -279,9 +299,10 @@ class Component extends DCLogic {
     }
 
     return {
-      size: size, sqpx: sq, squares: squares, arrow: arrow, lift: lift, promo: promo,
+      size: size, sqpx: sq, squares: squares, arrow: arrow, arrow2: arrow2, lift: lift, promo: promo,
       radius: Number(p.radius != null && p.radius !== '' ? p.radius : 0),
       ps: Math.round(sq * 0.9),
+      pieceTf: yes(p.turnPieces) ? 'rotate(180deg)' : 'none',
       capW: Math.round(sq * 0.09 * 10) / 10,
       coordSize: Math.max(8, Math.round(sq * 0.21)),
       markSize: Math.round(Math.max(16, sq * 0.44)),

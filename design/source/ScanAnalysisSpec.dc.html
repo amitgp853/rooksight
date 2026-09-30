@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scan + Analysis · flow, layout, motion</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./motion.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 1440px; height: 2300px; box-sizing: border-box; padding: 64px; background: #0B0F13; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 48px">
+
+<header style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 28px; border-bottom: 1px solid #2A3441">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #7C8898">New feature · spec</span>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 48px; letter-spacing: -0.02em">Scan a board, then analyse it</h1>
+<p style="margin: 0; max-width: 980px; font-size: 17px; line-height: 26px; color: #A3AFBD">Point the camera at a real board or a book diagram, fix anything the scan misread, and open it on a full analysis board with Stockfish. The analysis board also opens from any move in Game Review.</p>
+</header>
+
+<section aria-labelledby="flow-h" style="display: flex; flex-direction: column; gap: 20px">
+<h2 id="flow-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 24px">Flow</h2>
+<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
+<sc-for list="{{flow}}" as="f" hint-placeholder-count="7">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="width: 150px; min-height: 76px; box-sizing: border-box; padding: 12px 14px; border-radius: 14px; background: {{f.bg}}; border: 1px solid {{f.line}}; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 14px; font-weight: 600">{{f.t}}</span>
+<span style="font-size: 12px; line-height: 16px; color: #A3AFBD">{{f.s}}</span>
+</div>
+<sc-if value="{{f.arrow}}" hint-placeholder-val="{{true}}"><svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true"><path d="M1 7h18M13 1l6 6-6 6" fill="none" stroke="#7C8898" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></sc-if>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{branches}}" as="b" hint-placeholder-count="3">
+<div style="padding: 16px 18px; border-radius: 14px; background: #151B22; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 14px; font-weight: 600; color: {{b.col}}">{{b.t}}</span>
+<span style="font-size: 14px; line-height: 21px; color: #C4CCD6">{{b.s}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="lay-h" style="display: flex; flex-direction: column; gap: 20px">
+<h2 id="lay-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 24px">Eval bar: two layouts explored</h2>
+<div style="display: grid; grid-template-columns: 234px 234px minmax(0, 1fr); gap: 32px; align-items: start">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="width: 234px; height: 506px; overflow: hidden; border-radius: 18px; box-shadow: 0 0 0 1px #2A3441"><div style="width: 390px; height: 844px; transform: scale(0.6); transform-origin: 0 0"><dc-import name="Analysis" state="blunder" layout="horizontal" hint-size="390px,844px"></dc-import></div></div>
+<span style="font-size: 14px; font-weight: 600">A · Horizontal, above the board</span>
+<span style="font-size: 13px; color: #A3AFBD">Board 390 px (48.75 px squares)</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="width: 234px; height: 506px; overflow: hidden; border-radius: 18px; box-shadow: 0 0 0 1px #2A3441"><div style="width: 390px; height: 844px; transform: scale(0.6); transform-origin: 0 0"><dc-import name="Analysis" state="blunder" layout="vertical" hint-size="390px,844px"></dc-import></div></div>
+<span style="font-size: 14px; font-weight: 600">B · Thin vertical bar beside it</span>
+<span style="font-size: 13px; color: #A3AFBD">Board 368 px (46 px squares)</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px; padding-top: 4px">
+<div style="padding: 18px 20px; border-radius: 16px; background: rgba(134,168,255,0.08); border: 1px solid rgba(134,168,255,0.4); display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A9C0FF">Recommendation</span>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 20px">Ship A. Keep B as a setting later if people ask.</span>
+<span style="font-size: 15px; line-height: 23px; color: #C4CCD6">A keeps the board full width, matches Game Review, and has room for a readable, signed number (+0.4, M3). B costs 6% of board width on a 390 px phone, and its 18 px bar only fits a 9 px number without the sign.</span>
+</div>
+<sc-for list="{{layoutNotes}}" as="n" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-top: 1px solid #1C242E; font-size: 14px; line-height: 21px">
+<span style="font-weight: 600">{{n.k}}</span><span style="color: #C4CCD6">{{n.v}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section aria-labelledby="mo-h" style="display: flex; flex-direction: column; gap: 16px">
+<h2 id="mo-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 24px">Motion &amp; reduced motion</h2>
+<div role="table" aria-label="Motion" style="border-radius: 18px; overflow: hidden; background: #151B22">
+<div role="row" style="display: grid; grid-template-columns: 220px minmax(0, 1.4fr) 120px minmax(0, 1fr); gap: 20px; padding: 12px 22px; background: #1C242E; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">
+<span role="columnheader">Moment</span><span role="columnheader">Full motion</span><span role="columnheader">Timing</span><span role="columnheader">Reduced motion</span>
+</div>
+<sc-for list="{{motion}}" as="m" hint-placeholder-count="12">
+<div role="row" style="display: grid; grid-template-columns: 220px minmax(0, 1.4fr) 120px minmax(0, 1fr); gap: 20px; padding: 12px 22px; border-top: 1px solid #222B36; font-size: 14px; line-height: 20px">
+<span role="cell" style="font-weight: 600">{{m.n}}</span>
+<span role="cell" style="color: #C4CCD6">{{m.f}}</span>
+<span role="cell" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A9C0FF">{{m.t}}</span>
+<span role="cell" style="color: #C4CCD6">{{m.r}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="ru-h" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="3">
+<div style="padding: 20px; border-radius: 16px; background: #151B22; display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">{{r.t}}</span>
+<span style="font-size: 14px; line-height: 22px; color: #C4CCD6">{{r.s}}</span>
+</div>
+</sc-for>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var F = function (t, s, arrow, hi) { return { t: t, s: s, arrow: arrow !== false, bg: hi ? 'rgba(134,168,255,0.1)' : '#151B22', line: hi ? 'rgba(134,168,255,0.45)' : '#222B36' }; };
+    return {
+      flow: [
+        F('Home', '“Scan a board” card'),
+        F('Camera', 'Guide frame, flash, gallery'),
+        F('Crop', 'Square crop, rotate'),
+        F('Scanning', 'Live agent steps'),
+        F('Check position', 'Fix squares, side to move, castling'),
+        F('Analysis board', 'Stockfish, lines, free play', false, true)
+      ],
+      branches: [
+        { t: 'From Game Review', col: '#A9C0FF', s: '“Analyze this position” under the move stepper opens the Analysis board at the move you’re on. Back returns to that move.' },
+        { t: 'When the scan fails', col: '#E3B25C', s: 'No board found, or too dark/blurry: tips + Try again / Upload photo. Impossible position: Edit position / Scan again.' },
+        { t: 'When AI can’t run', col: '#F2677A', s: 'Offline, no Gemini key, or daily limit: offer “Set up the position by hand” (the same editor, starting empty). Stockfish still works offline.' }
+      ],
+      layoutNotes: [
+        { k: 'Orientation', v: 'Both follow the board: the side at the bottom fills from the left (A) or from the bottom (B). Flipping the board flips the bar.' },
+        { k: 'Number', v: 'A: signed pill (+0.4 / −1.8 / M3) at the leading side’s end. B: unsigned 9 px number at the leading end.' },
+        { k: 'Under the bar', v: 'Win / draw / loss strip, 6 px, from Stockfish’s WDL output: “White 34% · Draw 55% · Black 11%”.' },
+        { k: 'Accessibility', v: '“Evaluation +0.4, White is better” / “Mate in 3 for White”. The WDL strip reads out all three numbers.' }
+      ],
+      motion: [
+        { n: 'Camera guide', f: 'Corner brackets settle in (scale 1.04 → 1) when a board is detected in the frame.', t: '200ms', r: 'Brackets change colour only.' },
+        { n: 'Capture', f: 'White flash over the preview, then the photo slides into the crop view.', t: '120 + 280', r: 'No flash; 150ms crossfade.' },
+        { n: 'Crop handles', f: 'Handles follow the finger; the frame snaps to square on release.', t: '160', r: 'Snap without easing.' },
+        { n: 'Scan steps', f: 'Rows fade up 4px as each starts; spinner turns to a check. A scan line sweeps the dimmed photo.', t: '300 / 1600 loop', r: 'Rows appear, no sweep; spinner replaced by “…”.' },
+        { n: 'Retry step', f: 'Brass spinner and text for “Double-checking e1 and g1…”.', t: '300', r: 'Same colours, no spin.' },
+        { n: 'Unsure squares', f: 'Brass ring and “?” fade in after the board appears.', t: '200 delay 150', r: 'Shown immediately.' },
+        { n: 'Eval bar', f: 'Fill animates to the new share; label jumps ends when the lead changes.', t: '240', r: 'Instant.' },
+        { n: 'WDL strip', f: 'Segments tween with the eval.', t: '240', r: 'Instant.' },
+        { n: 'Best-move arrow', f: 'Focus-blue arrow fades in once depth ≥ 12; updates crossfade.', t: '150', r: 'Same (fade only).' },
+        { n: 'Threat arrow', f: 'Coral dashed arrow fades in when Threat is on.', t: '150', r: 'Same.' },
+        { n: 'Quality chip', f: 'Chip pops on the destination square (0.6 → 1) after the move lands; feedback card slides down under the board.', t: '160 / 240', r: 'Fade in, no scale or slide.' },
+        { n: 'Depth counter', f: 'Number ticks up; engine dot breathes while thinking.', t: '1000 loop', r: 'Number updates, dot steady.' },
+        { n: 'Swipe on board', f: 'Board follows the finger 12% then the move plays with the standard 200ms slide.', t: '200', r: 'Swipe steps instantly with a 150ms crossfade.' },
+        { n: 'Sheets & menus', f: 'Actions sheet slides up; variation menu scales from the pressed move.', t: '320 / 160', r: 'Fade.' }
+      ],
+      rules: [
+        { t: 'AI only when asked', s: 'Reading a photo uses the user’s Gemini key, and only after they tap “Scan board”. The photo isn’t stored after the position is confirmed. Analysis itself is Stockfish on the phone, no AI.' },
+        { t: 'Legal-position checks', s: 'Before Analyze is enabled: exactly one king per side; no pawns on the first or last rank; at most 16 pieces a side; the side not to move isn’t in check. The first failing rule is the inline message.' },
+        { t: 'Free exploration', s: 'Any legal move for either side. Each move gets a quality chip against Stockfish’s best at the previous position, with the eval change (+0.4 → −1.8). New moves off the main line become a variation; long-press to promote or delete.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

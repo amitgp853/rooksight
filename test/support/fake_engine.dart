@@ -23,6 +23,12 @@ class FakeEngine implements ChessEngine {
     return reply?.call(fen) ?? [line(firstLegalMove(fen))];
   }
 
+  /// How many times [stop] was called.
+  int stops = 0;
+
+  @override
+  void stop() => stops++;
+
   @override
   Future<void> warmUp() async {}
 

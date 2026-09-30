@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 /// One turn of a conversation with a language model.
 @immutable
 class LlmMessage {
-  const LlmMessage.user(this.text)
+  const LlmMessage.user(this.text, {this.images = const []})
     : role = LlmRole.user,
       toolCalls = const [],
       toolResults = const [],
@@ -11,17 +11,22 @@ class LlmMessage {
 
   const LlmMessage.model(this.text, {this.toolCalls = const [], this.raw})
     : role = LlmRole.model,
-      toolResults = const [];
+      toolResults = const [],
+      images = const [];
 
   /// The results of the tools the model asked for in its previous turn.
   const LlmMessage.toolResults(this.toolResults)
     : role = LlmRole.user,
       text = '',
       toolCalls = const [],
+      images = const [],
       raw = null;
 
   final LlmRole role;
   final String text;
+
+  /// Pictures sent with the text (user turns only), e.g. a board photo.
+  final List<LlmImage> images;
 
   /// Tools the model asked to run (model turns only).
   final List<LlmToolCall> toolCalls;
@@ -34,6 +39,15 @@ class LlmMessage {
 }
 
 enum LlmRole { user, model }
+
+/// An image in a user turn: encoded bytes and their media type.
+@immutable
+class LlmImage {
+  const LlmImage(this.bytes, {this.mimeType = 'image/jpeg'});
+
+  final Uint8List bytes;
+  final String mimeType;
+}
 
 /// A tool the model may call: a name, what it does, and a JSON Schema for
 /// its arguments (null when it takes none).

@@ -127,6 +127,10 @@ void main() {
                 builder: (context, state) => Text('Coach ${state.uri.query}'),
               ),
               GoRoute(path: '/games', builder: (context, state) => const Text('games list')),
+              GoRoute(
+                path: '/analysis',
+                builder: (context, state) => Text('analysis ${state.uri.query}'),
+              ),
             ],
           ),
         ),
@@ -202,6 +206,21 @@ void main() {
     await tester.tap(find.byTooltip('First move'));
     await tester.pumpAndSettle();
     expect(find.text('Start'), findsOneWidget);
+  });
+
+  testWidgets('Analyze this position opens the analysis board at the move shown', (tester) async {
+    await pumpReview(tester);
+    await tester.tap(find.byTooltip('Previous move'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Analyze this position'));
+    await tester.pumpAndSettle();
+    final text = tester.widget<Text>(find.textContaining('analysis ')).data!;
+    final query = Uri.splitQueryString(text.substring('analysis '.length));
+    expect(query['from'], 'game');
+    expect(query['ply'], '3');
+    expect(query['moves'], 'f2f3,e7e5,g2g4,d8h4');
+    expect(query['fen'], Chess.initial.fen);
   });
 
   testWidgets('filters the move list by mark', (tester) async {

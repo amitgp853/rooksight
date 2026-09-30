@@ -5,8 +5,19 @@ import 'uci.dart';
 /// How hard and how strongly the engine should search.
 @immutable
 class SearchLimits {
-  const SearchLimits({this.depth, this.moveTime, this.lines = 1, this.limitElo, this.skillLevel})
-    : assert(depth != null || moveTime != null, 'Give a depth or a move time');
+  const SearchLimits({
+    this.depth,
+    this.moveTime,
+    this.lines = 1,
+    this.limitElo,
+    this.skillLevel,
+    this.stoppable = false,
+  }) : assert(depth != null || moveTime != null, 'Give a depth or a move time');
+
+  /// [ChessEngine.stop] may end this search early. Off by default, so one
+  /// screen stopping its search never cuts short another's (a review
+  /// running underneath the analysis board).
+  final bool stoppable;
 
   /// Stop at this depth (plies).
   final int? depth;
@@ -32,6 +43,11 @@ abstract interface class ChessEngine {
   /// Returns an empty list when the side to move has no legal moves.
   /// Searches are queued: a call waits for the previous one to finish.
   Future<List<EngineLine>> search(String fen, SearchLimits limits);
+
+  /// Ends the running search early if it is [SearchLimits.stoppable]; it
+  /// returns what it has found so far. Queued searches still run. Does
+  /// nothing otherwise.
+  void stop();
 
   /// Starts the engine ahead of the first search, to hide start-up time.
   Future<void> warmUp();

@@ -66,6 +66,7 @@ void main() {
           '/play/game',
           '/pass',
           '/pass/game',
+          '/scan',
           '/import',
           '/coach',
           '/stats',
@@ -123,6 +124,14 @@ void main() {
     await tester.tap(find.text('Pass & Play'));
     await tester.pumpAndSettle();
     expect(find.text('route /pass'), findsOneWidget);
+  });
+
+  testWidgets('Scan a board opens the camera', (tester) async {
+    await pumpHome(tester);
+    expect(find.text('Photo of a real board or a book diagram'), findsOneWidget);
+    await tester.tap(find.text('Scan a board'));
+    await tester.pumpAndSettle();
+    expect(find.text('route /scan'), findsOneWidget);
   });
 
   testWidgets('the most recently left game is the one to continue', (tester) async {

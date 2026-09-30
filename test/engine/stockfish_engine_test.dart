@@ -9,7 +9,10 @@ const _startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
 /// Answers UCI commands like Stockfish would, and records what it was sent.
 class _ScriptedProcess implements UciProcess {
-  _ScriptedProcess({this.searchOutput = _defaultSearch});
+  _ScriptedProcess({this.searchOutput = _defaultSearch, this.untilStopped = false});
+
+  /// Searches answer only once told to `stop`, like an infinite search.
+  final bool untilStopped;
 
   static const _defaultSearch = [
     'info depth 1 multipv 1 score cp 20 pv e2e4',
@@ -36,7 +39,7 @@ class _ScriptedProcess implements UciProcess {
     // Reply asynchronously, as the real engine does.
     scheduleMicrotask(() {
       if (command == 'isready') _output.add('readyok');
-      if (command.startsWith('go')) searchOutput.forEach(_output.add);
+      if (command.startsWith(untilStopped ? 'stop' : 'go')) searchOutput.forEach(_output.add);
     });
   }
 
@@ -95,6 +98,33 @@ void main() {
 
     expect(process.sent, contains('setoption name Skill Level value 20'));
     expect(process.sent, contains('setoption name UCI_LimitStrength value false'));
+  });
+
+  test('stop ends a stoppable search, which returns what it found', () async {
+    final process = _ScriptedProcess(untilStopped: true);
+    final engine = StockfishEngine(process);
+    final search = engine.search(_startFen, const SearchLimits(depth: 30, stoppable: true));
+    await pumpEventQueue();
+    engine.stop();
+    final lines = await search;
+    expect(process.sent, contains('stop'));
+    expect(lines.first.move, 'e2e4');
+  });
+
+  test('stop leaves other searches alone', () async {
+    final process = _ScriptedProcess();
+    final engine = StockfishEngine(process);
+    final search = engine.search(_startFen, const SearchLimits(depth: 8));
+    await pumpEventQueue(times: 2);
+    engine.stop();
+    await search;
+    expect(process.sent, isNot(contains('stop')));
+  });
+
+  test('asks for win/draw/loss chances once started', () async {
+    final process = _ScriptedProcess();
+    await StockfishEngine(process).search(_startFen, const SearchLimits(depth: 1));
+    expect(process.sent, contains('setoption name UCI_ShowWDL value true'));
   });
 
   test('queued searches do not interleave', () async {

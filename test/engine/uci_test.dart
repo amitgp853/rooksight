@@ -34,6 +34,20 @@ void main() {
     });
   });
 
+  group('parseInfo with WDL', () {
+    test('reads win/draw/loss chances when UCI_ShowWDL is on', () {
+      final line = UciParser.parseInfo(
+        'info depth 20 multipv 1 score cp 42 wdl 312 601 87 nodes 1000 pv e2e4 e7e5',
+      )!;
+      expect(line.wdl, (win: 312, draw: 601, loss: 87));
+      expect(line.pv, ['e2e4', 'e7e5']);
+    });
+
+    test('is null without them', () {
+      expect(UciParser.parseInfo('info depth 5 score cp 10 pv e2e4')!.wdl, isNull);
+    });
+  });
+
   group('parseBestMove', () {
     test('reads the move and ignores the ponder move', () {
       expect(UciParser.parseBestMove('bestmove e2e4 ponder e7e5'), 'e2e4');

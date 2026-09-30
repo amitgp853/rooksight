@@ -17,7 +17,22 @@ import 'widgets/setup_controls.dart';
 /// New game: Stockfish strength, colour and time control
 /// (`design/source/PlaySetup.dc.html`).
 class PlaySetupScreen extends ConsumerStatefulWidget {
-  const PlaySetupScreen({super.key});
+  const PlaySetupScreen({super.key, this.startFen});
+
+  /// The game starts from this position (e.g. "Play from here" on the
+  /// analysis board); the standard start when null or not a legal position.
+  final String? startFen;
+
+  /// The position the game starts from.
+  Position get startPosition {
+    final fen = startFen;
+    if (fen == null) return Chess.initial;
+    try {
+      return Chess.fromSetup(Setup.parseFen(fen));
+    } on Object {
+      return Chess.initial;
+    }
+  }
 
   @override
   ConsumerState<PlaySetupScreen> createState() => _PlaySetupScreenState();
@@ -27,7 +42,9 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
   late final GameConfig _previous = ref.read(gameConfigProvider);
   late EloLevel _level = _previous.level;
   late TimeControl _timeControl = _previous.timeControl;
-  late ColourChoice _colour = _previous.playerSide == Side.white
+  // From a given position, you play the side to move by default.
+  late ColourChoice _colour =
+      (widget.startFen != null ? widget.startPosition.turn : _previous.playerSide) == Side.white
       ? ColourChoice.white
       : ColourChoice.black;
 
@@ -64,6 +81,9 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
             level: _level,
             playerSide: _colour.resolve(Random()),
             timeControl: _timeControl,
+            // Set every time, so a position from the analysis board doesn't
+            // carry over to the next ordinary game.
+            startPosition: widget.startPosition,
           ),
         );
     // Replace setup, so Back from the game returns Home.

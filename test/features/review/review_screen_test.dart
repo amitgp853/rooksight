@@ -232,6 +232,92 @@ void main() {
     expect(find.text('Coach game=$id&move=2'), findsOneWidget);
   });
 
+  group('many key moments', () {
+    // 24 moves, every one a blunder: +3 for whoever is to move each time.
+    final pawnWalk = GameRecord(
+      source: GameSource.stockfish,
+      pgn:
+          '[Result "1/2-1/2"]\n\n1. a3 a6 2. b3 b6 3. c3 c6 4. d3 d6 5. e3 e6 6. f3 f6 '
+          '7. g3 g6 8. h3 h6 9. a4 a5 10. b4 b5 11. c4 c5 12. d4 d5 1/2-1/2',
+      playerSide: Side.white,
+      result: '1/2-1/2',
+      endReason: 'agreement',
+      engineElo: 1600,
+      opponentName: 'Stockfish 1600',
+      plyCount: 24,
+      startedAt: DateTime(2026, 9, 28),
+      endedAt: DateTime(2026, 9, 28),
+    );
+
+    Future<void> pumpLong(WidgetTester tester) async {
+      engine.reply = (fen) => [sf(FakeEngine.firstLegalMove(fen), cp: 300)];
+      final long = await games.save(pawnWalk);
+      await pumpReview(tester, gameId: '$long');
+      await scrollTo(tester, find.text('Key moments'));
+    }
+
+    testWidgets('the 3 costliest are cards, the rest one-line rows behind Show all', (
+      tester,
+    ) async {
+      await pumpLong(tester);
+      expect(find.byType(KeyMomentCard), findsNWidgets(3));
+      expect(find.byType(KeyMomentRow), findsNothing);
+      await scrollTo(tester, find.text('Show all 24 moments'));
+      await tester.tap(find.text('Show all 24 moments'));
+      await tester.pumpAndSettle();
+      // The review opens on the last move, itself a key moment: that one is
+      // a full card, the other 20 are rows.
+      expect(find.byType(KeyMomentRow), findsNWidgets(20));
+      expect(find.byType(KeyMomentCard), findsNWidgets(4));
+
+      // Only your moves, then only the opponent's.
+      await scrollTo(tester, find.textContaining('Yours · '));
+      await tester.tap(find.textContaining('Yours · '));
+      await tester.pumpAndSettle();
+      final yours = tester.widgetList<KeyMomentRow>(find.byType(KeyMomentRow));
+      expect(yours.every((r) => r.mover == 'You'), isTrue);
+      await tester.tap(find.textContaining('Opponent’s · '));
+      await tester.pumpAndSettle();
+      final theirs = tester.widgetList<KeyMomentRow>(find.byType(KeyMomentRow));
+      expect(theirs.every((r) => r.mover == 'Stockfish'), isTrue);
+      expect(yours.length + theirs.length, 20);
+
+      await scrollTo(tester, find.text('Show fewer'));
+      await tester.tap(find.text('Show fewer'));
+      await tester.pumpAndSettle();
+      expect(find.byType(KeyMomentRow), findsNothing);
+    });
+
+    testWidgets('a row opens as a full card once its move is on the board', (tester) async {
+      await pumpLong(tester);
+      await scrollTo(tester, find.text('Show all 24 moments'));
+      await tester.tap(find.text('Show all 24 moments'));
+      await tester.pumpAndSettle();
+      final row = find.byType(KeyMomentRow).first;
+      await scrollTo(tester, row);
+      final tapped = tester.widget<KeyMomentRow>(row).move;
+      await tester.tap(row);
+      await tester.pumpAndSettle();
+      // The board comes up; back to the list, where it's now a card.
+      await tester.tap(find.text('Back to key moments'));
+      await tester.pumpAndSettle();
+      final rows = tester.widgetList<KeyMomentRow>(find.byType(KeyMomentRow));
+      expect(rows.map((r) => r.move), isNot(contains(tapped)));
+      expect(rows, hasLength(20));
+    });
+
+    testWidgets('the AI explains only the 3 costliest, in one request', (tester) async {
+      await pumpLong(tester);
+      expect(find.textContaining('Explains the 3 moments that cost most'), findsOneWidget);
+      await scrollTo(tester, find.text('Explain key moments'));
+      await tester.tap(find.text('Explain key moments'));
+      await tester.pumpAndSettle();
+      expect(llm.requests, hasLength(1));
+      final prompt = llm.requests.single.messages.single.text;
+      expect(RegExp('"id":').allMatches(prompt).length, 3);
+    });
+  });
+
   testWidgets('filters the move list by mark', (tester) async {
     await pumpReview(tester);
     final blunders = find.text('Blunders  1', findRichText: true);

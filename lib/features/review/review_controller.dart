@@ -144,7 +144,7 @@ class ReviewController extends Notifier<ReviewState> {
   );
 
   /// Key moments the AI explains in its one call, at most.
-  static const maxExplainedMoments = 10;
+  static const maxExplainedMoments = 3;
 
   /// Explains the key moments with one language-model call, and keeps the
   /// result with the game. Only once the analysis is complete.
@@ -154,8 +154,9 @@ class ReviewController extends Notifier<ReviewState> {
     if (analysis == null || saved == null || !analysis.isComplete) return;
     if (state.explainPhase == ExplainPhase.running) return;
 
-    // The costliest ones (the list comes costliest first): a game full of
-    // blunders shouldn't make one huge request. The rest keep plain text.
+    // The costliest ones (the list comes costliest first), shown as the full
+    // cards: a game full of blunders shouldn't make one big request. The rest
+    // keep plain text; "Ask AI" covers any move on request.
     final moments = analysis.keyMoments(saved.record.playerSide).take(maxExplainedMoments).toList();
     if (moments.isEmpty) return;
     state = state.copyWith(explainPhase: ExplainPhase.running, explainError: () => null);

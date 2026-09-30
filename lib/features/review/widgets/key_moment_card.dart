@@ -406,3 +406,84 @@ class _LessonBox extends StatelessWidget {
     );
   }
 }
+
+/// A key moment in one line, for the moments after the first cards: the
+/// mark, the move, who played it and what it cost. Tap to see it on the
+/// board (where it opens as a full card).
+class KeyMomentRow extends StatelessWidget {
+  const KeyMomentRow({
+    super.key,
+    required this.quality,
+    required this.move,
+    required this.mover,
+    required this.change,
+    required this.onTap,
+  });
+
+  final MoveQuality quality;
+
+  /// `23. Qxd4??`
+  final String move;
+
+  /// `You`, `Stockfish` or the opponent's name.
+  final String mover;
+
+  /// `+1.2 → −3.4`
+  final String change;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final type = context.type;
+    final light = Theme.of(context).brightness == Brightness.light;
+    return Semantics(
+      button: true,
+      label: '${quality.label}, $move by $mover, $change',
+      excludeSemantics: true,
+      child: Material(
+        color: colors.bgRaised,
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadius.mdAll,
+          side: light ? BorderSide(color: colors.border) : BorderSide.none,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            height: 48,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 8, 0),
+              child: Row(
+                spacing: AppSpacing.s3,
+                children: [
+                  QualityDisc(quality: quality),
+                  Text(move, style: type.mono.copyWith(fontSize: 14)),
+                  Expanded(
+                    child: Text(
+                      mover,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: type.label.copyWith(
+                        fontWeight: FontWeight.w400,
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    change,
+                    style: type.mono.copyWith(
+                      fontSize: 13,
+                      color: quality.isError ? qualityColor(colors, quality) : colors.textSecondary,
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, size: 20, color: colors.textTertiary),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

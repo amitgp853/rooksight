@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/chess/uci.dart';
 import '../../core/board/board_style.dart';
 import '../../core/board/landing_square.dart';
 import '../../core/board/move_wise_board.dart';
@@ -371,7 +373,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
   void _playBestMove(MoveReview moment, {String? backTo, GlobalKey? spot}) {
     var line = GameState.start(_analysis.game.history[moment.index]);
     for (final uci in _analysis.evals[moment.index].bestLine.take(8)) {
-      final move = Move.parse(uci);
+      final move = parseUci(uci);
       final next = move == null ? null : line.play(move);
       if (next == null) break;
       line = next;
@@ -384,6 +386,14 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
       if (_line?.step == 0) _update(() => _line!.step = 1);
     });
   }
+
+  ButtonStyle _toolStyle(BuildContext context) => OutlinedButton.styleFrom(
+    minimumSize: const Size.fromHeight(44),
+    padding: const EdgeInsets.symmetric(horizontal: 10),
+    backgroundColor: context.colors.bgRaised,
+    shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
+    textStyle: context.type.label.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+  );
 
   /// Opens the analysis board on the position shown, with the game (or the
   /// line being explored) as its main line, so Back returns to this move.
@@ -486,7 +496,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
         );
       }
     } else if (_showBest && eval != null && evalTurn == position.turn) {
-      if (Move.parse(eval.bestMove ?? '') case final NormalMove best) {
+      if (parseUci(eval.bestMove) case final NormalMove best) {
         shapes.add(hintArrow(colors, from: best.from, to: best.to));
       }
     }
@@ -545,16 +555,36 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, 4),
-          child: OutlinedButton.icon(
-            onPressed: _analyze,
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(44),
-              backgroundColor: colors.bgRaised,
-              shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
-              textStyle: type.label.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            icon: Icon(Icons.insights_rounded, size: 18, color: colors.focus),
-            label: const Text('Analyze this position'),
+          child: Row(
+            spacing: AppSpacing.s2,
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _analyze,
+                  style: _toolStyle(context),
+                  icon: Icon(Icons.insights_rounded, size: 18, color: colors.focus),
+                  label: const Text(
+                    'Analyze position',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              // Any move of the game, not just the key moments.
+              if (line == null && _ply > 0)
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push(Routes.coachAbout(widget.gameId, _ply - 1)),
+                    style: _toolStyle(context),
+                    icon: Icon(Icons.chat_bubble_outline_rounded, size: 18, color: colors.brass),
+                    label: Text(
+                      'Ask AI about ${moveLabel(game, _ply - 1)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         AnimatedSize(
@@ -634,7 +664,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
                     _ExplainPanel(
                       state: widget.state,
                       gameId: widget.gameId,
-                      moments: moments.length,
+                      moments: math.min(moments.length, ReviewController.maxExplainedMoments),
                     ),
                     for (final moment in moments) _momentCard(moment, moments),
                   ],

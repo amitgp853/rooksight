@@ -356,7 +356,7 @@ class _Standard extends ConsumerWidget {
                           label: 'Draw',
                           pressed: session.request?.kind == PassRequestKind.draw,
                           onPressed: session.canOfferDraw(toMove)
-                              ? () => controller.offerDraw(toMove)
+                              ? () => _confirmDraw(context, session, toMove, controller)
                               : null,
                         ),
                       ),
@@ -364,7 +364,9 @@ class _Standard extends ConsumerWidget {
                         child: GameActionButton(
                           icon: Icons.flag_outlined,
                           label: 'Resign',
-                          onPressed: session.canMove ? () => controller.resign(toMove) : null,
+                          onPressed: session.canMove
+                              ? () => _confirmResign(context, session, toMove, controller)
+                              : null,
                         ),
                       ),
                     ],
@@ -609,11 +611,15 @@ class _TablePanel extends ConsumerWidget {
                 ),
                 action(
                   'Offer draw',
-                  session.canOfferDraw(side) ? () => controller.offerDraw(side) : null,
+                  session.canOfferDraw(side)
+                      ? () => _confirmDraw(context, session, side, controller, turned: across)
+                      : null,
                 ),
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: session.canMove ? () => controller.resign(side) : null,
+                    onPressed: session.canMove
+                        ? () => _confirmResign(context, session, side, controller, turned: across)
+                        : null,
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(48),
                       padding: EdgeInsets.zero,
@@ -662,4 +668,88 @@ class _Notice extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Resigning ends the game at once: asked first, since a stray tap happens.
+Future<void> _confirmResign(
+  BuildContext context,
+  PassSession session,
+  Side side,
+  PassController controller, {
+  bool turned = false,
+}) async {
+  final name = session.config.nameOf(side);
+  final winner = session.config.nameOf(side.opposite);
+  final ok = await _confirm(
+    context,
+    title: 'Resign this game?',
+    body: '$name resigns and $winner wins. This can’t be undone.',
+    action: 'Resign',
+    danger: true,
+    turned: turned,
+  );
+  if (ok) controller.resign(side);
+}
+
+/// Offering a draw hands the phone's question to the other player: asked
+/// first, so a stray tap doesn't.
+Future<void> _confirmDraw(
+  BuildContext context,
+  PassSession session,
+  Side side,
+  PassController controller, {
+  bool turned = false,
+}) async {
+  final other = session.config.nameOf(side.opposite);
+  final ok = await _confirm(
+    context,
+    title: 'Offer a draw?',
+    body: '$other will be asked to accept or decline.',
+    action: 'Offer draw',
+    turned: turned,
+  );
+  if (ok) controller.offerDraw(side);
+}
+
+/// A yes/no question in the app's dialog style. [turned] shows it upside
+/// down, for the player across the table.
+Future<bool> _confirm(
+  BuildContext context, {
+  required String title,
+  required String body,
+  required String action,
+  bool danger = false,
+  bool turned = false,
+}) async {
+  final answer = await showDialog<bool>(
+    context: context,
+    builder: (context) {
+      final colors = context.colors;
+      final type = context.type;
+      final dialog = AlertDialog(
+        backgroundColor: colors.bgRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(title, style: type.heading),
+        content: Text(body, style: type.body.copyWith(color: colors.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: danger
+                ? FilledButton.styleFrom(
+                    backgroundColor: colors.coral,
+                    foregroundColor: colors.bgBase,
+                  )
+                : null,
+            child: Text(action),
+          ),
+        ],
+      );
+      return turned ? RotatedBox(quarterTurns: 2, child: dialog) : dialog;
+    },
+  );
+  return answer ?? false;
 }

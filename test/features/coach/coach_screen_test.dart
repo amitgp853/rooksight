@@ -166,6 +166,28 @@ void main() {
     expect(find.text('About 2. g4'), findsNWidgets(2));
   });
 
+  testWidgets('offline: a spaced banner above the composer, and Try again from it', (tester) async {
+    llm.failure = const LlmOffline();
+    await pumpCoach(tester);
+    await tester.tap(find.text('Why do I keep losing?'));
+    await tester.pumpAndSettle();
+    final banner = find.textContaining('You’re offline');
+    expect(banner, findsOneWidget);
+    // Not flush against the composer.
+    final gap = tester.getTopLeft(find.byType(TextField)).dy - tester.getBottomLeft(banner).dy;
+    expect(gap, greaterThanOrEqualTo(18));
+
+    llm.failure = null;
+    final retry = find.descendant(
+      of: find.ancestor(of: banner, matching: find.byType(Row)).first,
+      matching: find.text('Try again'),
+    );
+    await tester.tap(retry);
+    await tester.pumpAndSettle();
+    expect(banner, findsNothing);
+    expect(find.text('You opened lines to your own king.'), findsOneWidget);
+  });
+
   testWidgets('a failed question explains why and can be asked again', (tester) async {
     llm.failure = const LlmRateLimited();
     await pumpCoach(tester);
@@ -440,7 +462,7 @@ void main() {
       expect(find.text('You weaken your king.'), findsOneWidget);
       expect(find.text('WORKED THROUGH 1 STEP'), findsOneWidget);
       expect(find.text('Checked your last 20 games'), findsNothing, reason: 'steps start folded');
-      expect(find.textContaining('Continue this chat below'), findsOneWidget);
+      expect(find.textContaining('Continue this chat below'), findsNothing);
       expect(find.text('Sat 26 Sep'), findsOneWidget);
       expect(llm.requests, isEmpty);
     });

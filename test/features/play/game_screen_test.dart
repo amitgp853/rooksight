@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:move_wise/core/board/move_wise_board.dart';
 import 'package:move_wise/core/board/board_style.dart';
 import 'package:move_wise/core/feedback/sound_player.dart';
 import 'package:move_wise/core/storage/game_repository.dart';
@@ -121,6 +122,78 @@ void main() {
     expect(find.text('Look at your knight on g1.'), findsOneWidget);
     final board = tester.widget<Chessboard>(find.byType(Chessboard));
     expect(board.shapes.whereType<Arrow>().single.dest, Square.f3);
+  });
+
+  group('looking back', () {
+    String boardFen(WidgetTester tester) =>
+        tester.widget<MoveWiseBoard>(find.byType(MoveWiseBoard)).controller.fen;
+
+    testWidgets('steps back through the moves, read-only, then back to the game', (tester) async {
+      final container = await pumpGame(tester);
+      await tapMove(tester, Square.e2, Square.e4); // Stockfish replies.
+      final live = boardFen(tester);
+
+      await tester.tap(find.byTooltip('Previous move'));
+      await tester.pumpAndSettle();
+      expect(find.text('Looking back at 1. e4'), findsOneWidget);
+      expect(boardFen(tester), startsWith('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR'));
+
+      // No moving while looking back.
+      await tapMove(tester, Square.d2, Square.d4);
+      expect(container.read(gameControllerProvider).game.moves, hasLength(2));
+
+      await tester.tap(find.text('Back to game'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Looking back'), findsNothing);
+      expect(boardFen(tester), live);
+    });
+
+    testWidgets('tapping a move in the strip shows it; the last one is live', (tester) async {
+      await pumpGame(tester);
+      await tapMove(tester, Square.e2, Square.e4);
+      await tester.tap(find.text('e4'));
+      await tester.pumpAndSettle();
+      expect(find.text('Looking back at 1. e4'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Next move'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Looking back'), findsNothing);
+    });
+  });
+
+  group('pause', () {
+    final timed = GameConfig.initial.copyWith(timeControl: TimeControl.options.first);
+
+    testWidgets('only timed games can be paused', (tester) async {
+      await pumpGame(tester);
+      expect(find.text('Pause'), findsNothing);
+    });
+
+    testWidgets('pausing stops the clock and hides the board until Resume', (tester) async {
+      final container = await pumpGame(tester, config: timed);
+      await tapMove(tester, Square.e2, Square.e4); // Stockfish replies: your clock runs.
+      expect(container.read(gameControllerProvider).clock!.running, Side.white);
+
+      await tester.tap(find.text('Pause'));
+      await tester.pump();
+      final paused = container.read(gameControllerProvider);
+      expect(paused.paused, isTrue);
+      expect(paused.clock!.running, isNull);
+      expect(find.text('Game paused'), findsOneWidget);
+
+      // Coming back to the app doesn't restart the clock: only Resume does.
+      container.read(gameControllerProvider.notifier)
+        ..pauseClock()
+        ..resumeClock();
+      expect(container.read(gameControllerProvider).clock!.running, isNull);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Resume'));
+      await tester.pump();
+      final resumed = container.read(gameControllerProvider);
+      expect(resumed.paused, isFalse);
+      expect(resumed.clock!.running, Side.white);
+      expect(find.text('Game paused'), findsNothing);
+    });
   });
 
   testWidgets("only the player's clock is shown, with the time control", (tester) async {

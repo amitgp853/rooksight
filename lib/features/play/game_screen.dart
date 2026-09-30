@@ -21,6 +21,8 @@ import 'widgets/game_board.dart';
 import 'widgets/game_sheets.dart';
 import 'widgets/move_strip.dart';
 import 'widgets/player_row.dart';
+import '../pass_play/widgets/pass_widgets.dart' show PausedOverlay;
+import 'domain/game_state.dart';
 import 'widgets/result_copy.dart';
 
 /// A game against Stockfish (`design/source/Game.dc.html`, every state in
@@ -46,6 +48,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   /// The player's last move was dropped by drag: it lands without sliding.
   bool _dropped = false;
+
+  /// Looking back during the game: the position after this many moves.
+  /// Null shows the live position.
+  int? _viewPly;
+
+  /// Shows the position after [ply] moves; the live one at the end.
+  void _view(int ply) {
+    final total = ref.read(gameControllerProvider).game.moves.length;
+    setState(() => _viewPly = ply >= total ? null : ply.clamp(0, total));
+  }
 
   /// The landing sound and haptic, due when the sliding piece arrives.
   Timer? _landingTimer;
@@ -193,18 +205,48 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                     key: ValueKey(_orientation),
                     children: [
                       PlayerRow(session: session, side: _orientation.opposite),
-                      GameBoard(
-                        orientation: _orientation,
-                        size: boardSize,
-                        onPlayerMove: ({required dragged}) => _dropped = dragged,
+                      SizedBox.square(
+                        dimension: boardSize,
+                        child: Stack(
+                          children: [
+                            GameBoard(
+                              orientation: _orientation,
+                              size: boardSize,
+                              viewPly: _viewPly,
+                              onPlayerMove: ({required dragged}) => _dropped = dragged,
+                            ),
+                            if (session.paused)
+                              Positioned.fill(
+                                child: PausedOverlay(
+                                  toMove: 'You',
+                                  message:
+                                      'Your clock is stopped. The board is hidden so you don’t '
+                                      'get extra thinking time.',
+                                  resumeLabel: 'Resume',
+                                  onResume: controller.resume,
+                                  onLeave: () => Navigator.of(context).maybePop(),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                       PlayerRow(session: session, side: _orientation),
                     ],
                   ),
                 ),
-                MoveStrip(game: session.game),
+                _MoveBrowser(
+                  game: session.game,
+                  ply: _viewPly,
+                  // Looking back isn't allowed while paused: the board stays hidden.
+                  onView: session.paused ? null : _view,
+                ),
                 Expanded(
-                  child: _MessageArea(session: session, onShowResult: _showResult),
+                  child: _MessageArea(
+                    session: session,
+                    onShowResult: _showResult,
+                    viewPly: _viewPly,
+                    onBackToGame: () => setState(() => _viewPly = null),
+                  ),
                 ),
                 _ActionBar(
                   session: session,
@@ -212,6 +254,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   onUndo: controller.undo,
                   onLockedUndo: _showOptions,
                   onFlip: () => setState(() => _orientation = _orientation.opposite),
+                  onPause: session.canPause && !session.paused ? controller.pause : null,
                   onMore: _showOptions,
                 ),
               ],
@@ -225,10 +268,19 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
 /// Hint text, notices, engine errors, or the result once the sheet is closed.
 class _MessageArea extends ConsumerWidget {
-  const _MessageArea({required this.session, required this.onShowResult});
+  const _MessageArea({
+    required this.session,
+    required this.onShowResult,
+    required this.viewPly,
+    required this.onBackToGame,
+  });
 
   final GameSession session;
   final VoidCallback onShowResult;
+
+  /// Looking back at the position after this many moves.
+  final int? viewPly;
+  final VoidCallback onBackToGame;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -236,7 +288,16 @@ class _MessageArea extends ConsumerWidget {
     final type = context.type;
 
     final Widget? message;
-    if (session.engineError) {
+    if (viewPly case final ply?) {
+      final game = session.game;
+      message = _Toast(
+        icon: Icons.history_rounded,
+        text: ply == 0
+            ? 'Looking at the start position'
+            : 'Looking back at ${moveLabel(game, ply - 1)}',
+        action: TextButton(onPressed: onBackToGame, child: const Text('Back to game')),
+      );
+    } else if (session.engineError) {
       message = _EngineErrorCard(onRetry: ref.read(gameControllerProvider.notifier).retryEngine);
     } else if (session.game.isOver) {
       message = _Toast(
@@ -386,6 +447,7 @@ class _ActionBar extends StatelessWidget {
     required this.onUndo,
     required this.onLockedUndo,
     required this.onFlip,
+    required this.onPause,
     required this.onMore,
   });
 
@@ -396,6 +458,9 @@ class _ActionBar extends StatelessWidget {
   final VoidCallback onUndo;
   final VoidCallback onLockedUndo;
   final VoidCallback onFlip;
+
+  /// Null hides Pause: only timed games can be paused.
+  final VoidCallback? onPause;
   final VoidCallback onMore;
 
   @override
@@ -421,15 +486,70 @@ class _ActionBar extends StatelessWidget {
               icon: Icons.undo,
               label: 'Undo',
               locked: !practice,
-              onPressed: !practice ? onLockedUndo : (session.canUndo ? onUndo : null),
+              onPressed: session.paused
+                  ? null
+                  : (!practice ? onLockedUndo : (session.canUndo ? onUndo : null)),
             ),
           ),
+          if (session.canPause)
+            Expanded(
+              child: GameActionButton(
+                icon: Icons.pause_rounded,
+                label: 'Pause',
+                onPressed: onPause,
+              ),
+            ),
           Expanded(
             child: GameActionButton(icon: Icons.swap_vert, label: 'Flip', onPressed: onFlip),
           ),
           Expanded(
             child: GameActionButton(icon: Icons.more_horiz, label: 'More', onPressed: onMore),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The moves so far, with ‹ › to step back through them. Tapping a move or
+/// stepping shows that position (read-only); the last step is the live game.
+class _MoveBrowser extends StatelessWidget {
+  const _MoveBrowser({required this.game, required this.ply, required this.onView});
+
+  final GameState game;
+
+  /// The position shown, or null for the live one.
+  final int? ply;
+  final ValueChanged<int>? onView;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final total = game.moves.length;
+    final shown = ply ?? total;
+    Widget step(IconData icon, String tooltip, int? to) => IconButton(
+      tooltip: tooltip,
+      onPressed: to == null || onView == null ? null : () => onView!(to),
+      icon: Icon(icon),
+      color: colors.textSecondary,
+      disabledColor: colors.textTertiary.withValues(alpha: 0.4),
+      padding: EdgeInsets.zero,
+      // Exactly the strip's height: the board is sized to what's left.
+      style: IconButton.styleFrom(
+        fixedSize: const Size(40, MoveStrip.height),
+        minimumSize: const Size(40, MoveStrip.height),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
+    return SizedBox(
+      height: MoveStrip.height,
+      child: Row(
+        children: [
+          step(Icons.chevron_left_rounded, 'Previous move', shown > 0 ? shown - 1 : null),
+          Expanded(
+            child: MoveStrip(game: game, ply: shown, onSelect: onView),
+          ),
+          step(Icons.chevron_right_rounded, 'Next move', shown < total ? shown + 1 : null),
         ],
       ),
     );

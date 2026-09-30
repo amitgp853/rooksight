@@ -143,6 +143,9 @@ class ReviewController extends Notifier<ReviewState> {
     StoredAnalysis(depth: depth, evals: [for (final e in evals) e.toJson()], complete: complete),
   );
 
+  /// Key moments the AI explains in its one call, at most.
+  static const maxExplainedMoments = 10;
+
   /// Explains the key moments with one language-model call, and keeps the
   /// result with the game. Only once the analysis is complete.
   Future<void> explain() async {
@@ -151,7 +154,9 @@ class ReviewController extends Notifier<ReviewState> {
     if (analysis == null || saved == null || !analysis.isComplete) return;
     if (state.explainPhase == ExplainPhase.running) return;
 
-    final moments = analysis.keyMoments(saved.record.playerSide);
+    // The costliest ones (the list comes costliest first): a game full of
+    // blunders shouldn't make one huge request. The rest keep plain text.
+    final moments = analysis.keyMoments(saved.record.playerSide).take(maxExplainedMoments).toList();
     if (moments.isEmpty) return;
     state = state.copyWith(explainPhase: ExplainPhase.running, explainError: () => null);
     final llm = ref.read(llmClientProvider);

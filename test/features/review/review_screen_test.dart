@@ -213,7 +213,7 @@ void main() {
     await tester.tap(find.byTooltip('Previous move'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Analyze this position'));
+    await tester.tap(find.text('Analyze position'));
     await tester.pumpAndSettle();
     final text = tester.widget<Text>(find.textContaining('analysis ')).data!;
     final query = Uri.splitQueryString(text.substring('analysis '.length));
@@ -221,6 +221,15 @@ void main() {
     expect(query['ply'], '3');
     expect(query['moves'], 'f2f3,e7e5,g2g4,d8h4');
     expect(query['fen'], Chess.initial.fen);
+  });
+
+  testWidgets('any move shown can be asked about, not only key moments', (tester) async {
+    await pumpReview(tester);
+    await tester.tap(find.byTooltip('Previous move'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ask AI about 2. g4'));
+    await tester.pumpAndSettle();
+    expect(find.text('Coach game=$id&move=2'), findsOneWidget);
   });
 
   testWidgets('filters the move list by mark', (tester) async {
@@ -409,9 +418,10 @@ void main() {
   testWidgets('Ask coach opens the coach about that move', (tester) async {
     await pumpReview(tester);
     await scrollTo(tester, find.text('Ask AI Coach about this move'));
-    await tester.tap(find.text('Ask AI Coach about this move'));
+    await tester.tap(find.text('Ask AI Coach about this move').first);
     await tester.pumpAndSettle();
-    expect(find.text('Coach game=$id&move=0'), findsOneWidget);
+    // The first card is the move that cost most: 2. g4?? (move index 2).
+    expect(find.text('Coach game=$id&move=2'), findsOneWidget);
   });
 
   testWidgets('Ask coach about this game attaches the game', (tester) async {
@@ -527,6 +537,21 @@ void main() {
       expect(find.text('Your line · 2. Kf2??'), findsOneWidget);
       expect(find.textContaining('Blunder · '), findsOneWidget);
       expect(find.textContaining('best was d4'), findsOneWidget);
+    });
+
+    testWidgets('Best move on the final checkmate: no best move, no blank page', (tester) async {
+      await pumpReview(tester); // Opens on the last position: Black has mated.
+      await tester.tap(find.text('Best move'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(MoveWiseBoard), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Previous move'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<MoveWiseBoard>(find.byType(MoveWiseBoard)).shapes.whereType<Arrow>(),
+        isNotEmpty,
+      );
     });
 
     testWidgets('the best-move arrow is off until asked for', (tester) async {

@@ -106,10 +106,19 @@ class PausedOverlay extends StatelessWidget {
     required this.toMove,
     required this.onResume,
     required this.onLeave,
+    this.message =
+        'Both clocks are stopped. The board is hidden so nobody gets extra thinking time.',
+    this.resumeLabel,
   });
 
   /// The name of the player to move.
   final String toMove;
+
+  /// Under the title.
+  final String message;
+
+  /// The Resume button; `Resume · <toMove> to move` by default.
+  final String? resumeLabel;
   final VoidCallback onResume;
 
   /// "Save and finish later".
@@ -157,8 +166,7 @@ class PausedOverlay extends StatelessWidget {
                       style: type.heading.copyWith(fontSize: 20, height: 26 / 20),
                     ),
                     Text(
-                      'Both clocks are stopped. The board is hidden so nobody gets extra '
-                      'thinking time.',
+                      message,
                       textAlign: TextAlign.center,
                       style: type.body.copyWith(
                         fontSize: 14,
@@ -174,7 +182,7 @@ class PausedOverlay extends StatelessWidget {
                         shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
                         textStyle: type.heading.copyWith(fontSize: 15),
                       ),
-                      child: Text('Resume · $toMove to move'),
+                      child: Text(resumeLabel ?? 'Resume · $toMove to move'),
                     ),
                     TextButton(onPressed: onLeave, child: const Text('Save and finish later')),
                   ],

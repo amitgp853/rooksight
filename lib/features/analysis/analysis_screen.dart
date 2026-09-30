@@ -28,6 +28,7 @@ import 'domain/analysis_args.dart';
 import 'domain/analysis_session.dart';
 import 'domain/analysis_text.dart';
 import 'domain/analysis_tree.dart';
+import 'saved_positions_screen.dart' show PositionNameDialog;
 import 'widgets/analysis_panels.dart';
 
 /// The analysis board (`Analysis*.dc.html`): any position (from a scan, a
@@ -154,7 +155,13 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     }
     final title = await showDialog<String>(
       context: context,
-      builder: (context) => _SaveDialog(initial: _defaultTitle),
+      builder: (context) => PositionNameDialog(
+        title: 'Save position',
+        initial: _defaultTitle,
+        note:
+            'Kept on this phone with the moves you explore. Open it again from Saved '
+            'positions on Home.',
+      ),
     );
     if (title == null || !mounted) return;
     final tree = _session.tree;
@@ -525,65 +532,6 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
         ),
       ),
       backgroundColor: colors.bgBase,
-    );
-  }
-}
-
-/// Names a position before it's saved. Pops with the name, or null.
-class _SaveDialog extends StatefulWidget {
-  const _SaveDialog({required this.initial});
-
-  final String initial;
-
-  @override
-  State<_SaveDialog> createState() => _SaveDialogState();
-}
-
-class _SaveDialogState extends State<_SaveDialog> {
-  late final _name = TextEditingController(text: widget.initial);
-
-  @override
-  void dispose() {
-    _name.dispose();
-    super.dispose();
-  }
-
-  void _done() {
-    final name = _name.text.trim();
-    Navigator.of(context).pop(name.isEmpty ? widget.initial : name);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Save position'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpacing.s2,
-        children: [
-          TextField(
-            controller: _name,
-            autofocus: true,
-            maxLength: 60,
-            textInputAction: TextInputAction.done,
-            decoration: const InputDecoration(labelText: 'Name'),
-            onSubmitted: (_) => _done(),
-          ),
-          Text(
-            'Kept on this phone with the moves you explore. Open it again from Saved '
-            'positions on Home.',
-            style: context.type.label.copyWith(
-              fontWeight: FontWeight.w400,
-              color: context.colors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-        FilledButton(onPressed: _done, child: const Text('Save')),
-      ],
     );
   }
 }

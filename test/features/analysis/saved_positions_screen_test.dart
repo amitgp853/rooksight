@@ -87,7 +87,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Options for New name'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Delete'));
+    await tester.tap(find.text('Delete position'));
     await tester.pumpAndSettle();
     expect(positions.all, isEmpty);
     expect(find.text('No saved positions yet'), findsOneWidget);

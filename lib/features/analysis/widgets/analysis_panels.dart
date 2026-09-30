@@ -517,9 +517,7 @@ class _LineRow extends StatelessWidget {
                     ? colors.bgElevated
                     : (white ? const Color(0xFFF5F7FA) : const Color(0xFF1E2530)),
                 borderRadius: BorderRadius.circular(7),
-                border: line == null
-                    ? null
-                    : Border.all(color: light ? const Color(0xFFD5DBE3) : const Color(0xFF2A3441)),
+                border: line == null ? null : Border.all(color: colors.border),
               ),
               child: line == null
                   ? null

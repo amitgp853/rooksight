@@ -144,7 +144,7 @@ class ReviewController extends Notifier<ReviewState> {
   );
 
   /// Key moments the AI explains in its one call, at most.
-  static const maxExplainedMoments = 3;
+  static const maxExplainedMoments = 8;
 
   /// Explains the key moments with one language-model call, and keeps the
   /// result with the game. Only once the analysis is complete.

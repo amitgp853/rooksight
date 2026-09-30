@@ -256,19 +256,19 @@ void main() {
       await scrollTo(tester, find.text('Key moments'));
     }
 
-    testWidgets('the 3 costliest are cards, the rest one-line rows behind Show all', (
+    testWidgets('the 8 costliest are cards, the rest one-line rows behind Show all', (
       tester,
     ) async {
       await pumpLong(tester);
-      expect(find.byType(KeyMomentCard), findsNWidgets(3));
+      expect(find.byType(KeyMomentCard), findsNWidgets(8));
       expect(find.byType(KeyMomentRow), findsNothing);
       await scrollTo(tester, find.text('Show all 24 moments'));
       await tester.tap(find.text('Show all 24 moments'));
       await tester.pumpAndSettle();
       // The review opens on the last move, itself a key moment: that one is
-      // a full card, the other 20 are rows.
-      expect(find.byType(KeyMomentRow), findsNWidgets(20));
-      expect(find.byType(KeyMomentCard), findsNWidgets(4));
+      // a full card, the other 15 are rows.
+      expect(find.byType(KeyMomentRow), findsNWidgets(15));
+      expect(find.byType(KeyMomentCard), findsNWidgets(9));
 
       // Only your moves, then only the opponent's.
       await scrollTo(tester, find.textContaining('Yours · '));
@@ -280,7 +280,7 @@ void main() {
       await tester.pumpAndSettle();
       final theirs = tester.widgetList<KeyMomentRow>(find.byType(KeyMomentRow));
       expect(theirs.every((r) => r.mover == 'Stockfish'), isTrue);
-      expect(yours.length + theirs.length, 20);
+      expect(yours.length + theirs.length, 15);
 
       await scrollTo(tester, find.text('Show fewer'));
       await tester.tap(find.text('Show fewer'));
@@ -303,18 +303,18 @@ void main() {
       await tester.pumpAndSettle();
       final rows = tester.widgetList<KeyMomentRow>(find.byType(KeyMomentRow));
       expect(rows.map((r) => r.move), isNot(contains(tapped)));
-      expect(rows, hasLength(20));
+      expect(rows, hasLength(15));
     });
 
-    testWidgets('the AI explains only the 3 costliest, in one request', (tester) async {
+    testWidgets('the AI explains only the 8 costliest, in one request', (tester) async {
       await pumpLong(tester);
-      expect(find.textContaining('Explains the 3 moments that cost most'), findsOneWidget);
+      expect(find.textContaining('Explains the 8 moments that cost most'), findsOneWidget);
       await scrollTo(tester, find.text('Explain key moments'));
       await tester.tap(find.text('Explain key moments'));
       await tester.pumpAndSettle();
       expect(llm.requests, hasLength(1));
       final prompt = llm.requests.single.messages.single.text;
-      expect(RegExp('"id":').allMatches(prompt).length, 3);
+      expect(RegExp('"id":').allMatches(prompt).length, 8);
     });
   });
 

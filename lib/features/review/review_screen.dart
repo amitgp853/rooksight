@@ -173,7 +173,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
   final _momentKeys = <int, GlobalKey>{};
 
   /// The key moments shown as full cards; the rest are one-line rows.
-  static const _fullCards = 3;
+  static const _fullCards = 8;
 
   /// The rows beyond the first cards are open, and whose moves they show.
   bool _allMoments = false;

@@ -55,7 +55,7 @@ class ScanErrorView extends StatelessWidget {
                     onPressed: onClose,
                     icon: const Icon(Icons.close_rounded),
                   ),
-                  Text('Scan a board', style: type.heading),
+                  Text('Scan Position', style: type.heading),
                 ],
               ),
             ),

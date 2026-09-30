@@ -361,7 +361,7 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
                           ),
                           Expanded(
                             child: Text(
-                              'Scan a board',
+                              'Scan Position',
                               textAlign: TextAlign.center,
                               style: context.type.heading.copyWith(
                                 fontSize: 16,

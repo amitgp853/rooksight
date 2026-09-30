@@ -83,7 +83,7 @@ class _Failed extends _Stage {
   final Uint8List? cropped;
 }
 
-/// Scan a board (spec: `ScanAnalysisSpec.dc.html`): camera → crop → the
+/// Scan Position (spec: `ScanAnalysisSpec.dc.html`): camera → crop → the
 /// reading, step by step → Check the position (its own screen) → the
 /// analysis board. Failures get their own screen with a way on; when the AI
 /// can't run, the same editor opens empty to set the position up by hand.

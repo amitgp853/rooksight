@@ -131,9 +131,9 @@ void main() {
     expect(find.text('route /pass'), findsOneWidget);
   });
 
-  testWidgets('saved positions show under Scan a board once there are some', (tester) async {
+  testWidgets('saved positions show under Scan Position once there are some', (tester) async {
     await pumpHome(tester);
-    expect(find.text('Saved positions'), findsNothing);
+    expect(find.text('Saved Positions'), findsNothing);
 
     await positions.create((
       title: 'Book diagram',
@@ -145,15 +145,15 @@ void main() {
     ), DateTime(2026, 9, 30));
     await tester.pumpAndSettle();
     expect(find.text('1 saved · carry on analysing'), findsOneWidget);
-    await tester.tap(find.text('Saved positions'));
+    await tester.tap(find.text('Saved Positions'));
     await tester.pumpAndSettle();
     expect(find.text('route /positions'), findsOneWidget);
   });
 
-  testWidgets('Scan a board opens the camera', (tester) async {
+  testWidgets('Scan Position opens the camera', (tester) async {
     await pumpHome(tester);
-    expect(find.text('Photo of a real board or a book diagram'), findsOneWidget);
-    await tester.tap(find.text('Scan a board'));
+    expect(find.text('Real board or a book diagram'), findsOneWidget);
+    await tester.tap(find.text('Scan Position'));
     await tester.pumpAndSettle();
     expect(find.text('route /scan'), findsOneWidget);
   });

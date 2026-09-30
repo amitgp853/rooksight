@@ -115,8 +115,8 @@ class HomeScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
               child: const _RowHeader(
                 icon: Icons.photo_camera_outlined,
-                title: 'Scan a board',
-                subtitle: 'Photo of a real board or a book diagram',
+                title: 'Scan Position',
+                subtitle: 'Real board or a book diagram',
                 iconSize: 44,
               ),
             ),
@@ -560,7 +560,7 @@ class _StatsCard extends ConsumerWidget {
 }
 
 /// The games list: not in the design, which has no way to it.
-/// Under Scan a board, once something is saved: the saved positions.
+/// Under Scan Position, once something is saved: the saved positions.
 class _SavedPositionsRow extends ConsumerWidget {
   const _SavedPositionsRow({required this.onTap});
 
@@ -576,7 +576,7 @@ class _SavedPositionsRow extends ConsumerWidget {
         onTap: onTap,
         child: _RowHeader(
           icon: Icons.bookmark_border_rounded,
-          title: 'Saved positions',
+          title: 'Saved Positions',
           subtitle: '$count saved · carry on analysing',
         ),
       ),

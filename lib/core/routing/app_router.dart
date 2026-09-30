@@ -33,7 +33,7 @@ abstract final class Routes {
   static String playFrom(String fen) =>
       Uri(path: playSetup, queryParameters: {'fen': fen}).toString();
 
-  /// Scan a board: camera, crop, reading.
+  /// Scan Position: camera, crop, reading.
   static const scan = '/scan';
 
   /// Check or set up a position; takes a `ScanCheckArgs` as `extra`.

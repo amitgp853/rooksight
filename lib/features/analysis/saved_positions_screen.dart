@@ -27,7 +27,7 @@ class SavedPositionsScreen extends ConsumerWidget {
     final positions = ref.watch(savedPositionsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Saved positions')),
+      appBar: AppBar(title: const Text('Saved Positions')),
       body: switch (positions) {
         AsyncData(value: final list) when list.isEmpty => Center(
           child: Padding(

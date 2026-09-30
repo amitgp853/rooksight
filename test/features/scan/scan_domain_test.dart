@@ -7,6 +7,7 @@ import 'package:move_wise/core/llm/llm_client.dart';
 import 'package:move_wise/features/scan/domain/board_reader.dart';
 import 'package:move_wise/features/scan/domain/board_setup.dart';
 import 'package:move_wise/features/scan/domain/position_check.dart';
+import 'package:move_wise/features/scan/domain/scan_photo.dart';
 
 import '../../support/fake_llm.dart';
 
@@ -189,10 +190,26 @@ void main() {
         ],
       );
       final seen = <List<ScanStep>>[];
-      final result = await BoardReader(llm).read(photo, onSteps: seen.add);
+      final boxes = <CellBox>[];
+      final closeUp = Uint8List.fromList([9, 9]);
+      final reader = BoardReader(
+        llm,
+        crop: (board, box) async {
+          boxes.add(box);
+          return closeUp;
+        },
+      );
+      final result = await reader.read(photo, onSteps: seen.add);
 
       expect(result!.setup.fen, Chess.initial.fen);
       expect(llm.requests, hasLength(2));
+      // Only e1–g1 and one cell around them, at low resolution.
+      expect(boxes.single, (top: 6, left: 3, bottom: 7, right: 7));
+      final second = llm.requests.last;
+      expect(second.messages.single.images.single.bytes, closeUp);
+      expect(second.mediaResolution, LlmMediaResolution.low);
+      expect(second.messages.single.text, contains('rows 6–7 and columns 3–7'));
+      expect(llm.requests.first.mediaResolution, isNull, reason: 'first look: full detail');
       final last = seen.last;
       expect(last.last.label, 'Double-checking e1 and g1…');
       expect(last.last.retry, isTrue);
@@ -219,6 +236,50 @@ void main() {
           ),
         ),
       );
+    });
+
+    test('the close-up gives each square at least the first look’s detail', () {
+      expect(BoardReader.closeUpOf([(row: 0, col: 0)]), (top: 0, left: 0, bottom: 1, right: 1));
+      expect(
+        BoardReader.resolutionFor((top: 0, left: 0, bottom: 2, right: 2)),
+        LlmMediaResolution.low,
+      );
+      expect(
+        BoardReader.resolutionFor((top: 0, left: 0, bottom: 3, right: 5)),
+        LlmMediaResolution.medium,
+      );
+      expect(BoardReader.resolutionFor(BoardReader.fullBoard), LlmMediaResolution.high);
+    });
+
+    test('squares far apart: the whole photo, at its default resolution', () async {
+      final llm = FakeLlm(
+        turns: [
+          _json(
+            _reading(
+              ranks: [..._startRanks.take(7), 'RNBQKBKR'],
+              unsure: [
+                {'row': 0, 'col': 0},
+              ],
+            ),
+          ),
+          _json({
+            'cells': [
+              {'row': 7, 'col': 6, 'piece': 'N'},
+            ],
+          }),
+        ],
+      );
+      var cropped = false;
+      await BoardReader(
+        llm,
+        crop: (b, _) async {
+          cropped = true;
+          return b;
+        },
+      ).read(photo, onSteps: (_) {});
+      expect(cropped, isFalse);
+      expect(llm.requests.last.messages.single.images.single.bytes, photo);
+      expect(llm.requests.last.mediaResolution, isNull);
     });
 
     test('no board, and a dark photo', () async {

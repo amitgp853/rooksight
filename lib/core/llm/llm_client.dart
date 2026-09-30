@@ -40,6 +40,11 @@ class LlmMessage {
 
 enum LlmRole { user, model }
 
+/// Image detail. On Gemini 3 an image costs a fixed number of tokens set by
+/// this, whatever its pixel size: low 280, medium 560, high (the default)
+/// 1120.
+enum LlmMediaResolution { low, medium, high }
+
 /// An image in a user turn: encoded bytes and their media type.
 @immutable
 class LlmImage {
@@ -100,7 +105,12 @@ class LlmRequest {
     this.temperature = 0.4,
     this.tools = const [],
     this.toolMode = LlmToolMode.auto,
+    this.mediaResolution,
   });
+
+  /// How much detail (and how many tokens) each image gets; the model's
+  /// default when null.
+  final LlmMediaResolution? mediaResolution;
 
   final String? system;
   final List<LlmMessage> messages;

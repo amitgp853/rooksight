@@ -134,6 +134,8 @@ class GeminiClient implements LlmClient {
     },
     'generationConfig': {
       'temperature': request.temperature,
+      if (request.mediaResolution case final resolution?)
+        'mediaResolution': 'MEDIA_RESOLUTION_${resolution.name.toUpperCase()}',
       if (thinkingLevel != null && thinkingLevel.isNotEmpty)
         'thinkingConfig': {'thinkingLevel': thinkingLevel},
       if (request.jsonSchema != null) ...{

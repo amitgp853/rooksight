@@ -118,8 +118,8 @@ class ScanReadingView extends ConsumerWidget {
                 spacing: AppSpacing.s2,
                 children: [
                   Text(
-                    'The photo goes to your Gemini key and nowhere else. Every square is checked '
-                    'before you continue.',
+                    'The photo is sent to Gemini with your key and is never saved on this phone. '
+                    'Every square is checked before you continue.',
                     textAlign: TextAlign.center,
                     style: type.label.copyWith(
                       fontSize: 12,

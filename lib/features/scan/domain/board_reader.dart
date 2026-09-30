@@ -1,10 +1,15 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../core/llm/llm_client.dart';
 import 'board_setup.dart';
 import 'position_check.dart';
+import 'scan_photo.dart';
+
+/// Cuts [box] out of a board photo, as a JPEG.
+typedef CellCropper = Future<Uint8List> Function(Uint8List board, CellBox box);
 
 /// One row of the "Reading your board" list: what the reader is doing, and
 /// once done, what it found.
@@ -63,11 +68,15 @@ class ScanFailure implements Exception {
 /// if something doesn't add up (two white kings, a pawn on the back rank) a
 /// second request looks again at just those squares.
 ///
-/// Photos go to the model only; nothing is stored.
+/// Nothing is stored. Tokens: the first request is the photo (1120 tokens on
+/// Gemini 3) plus about 400 of text; the second look, when needed, sends a
+/// close-up of the doubtful squares at a lower resolution, which still gives
+/// each square at least as much detail as the first look did.
 class BoardReader {
-  BoardReader(this._llm);
+  BoardReader(this._llm, {CellCropper? crop}) : _crop = crop ?? ScanPhoto.cropCells;
 
   final LlmClient _llm;
+  final CellCropper _crop;
 
   /// Squares asked about in the second look, at most.
   static const maxRecheck = 6;
@@ -161,17 +170,29 @@ class BoardReader {
       return (row: 7 - s.rank, col: s.file);
     }
 
+    final cells = [for (final s in recheck) toCell(s)];
+    final box = closeUpOf(cells);
+    Uint8List? closeUp;
+    if (box != fullBoard) {
+      try {
+        closeUp = await _crop(jpeg, box);
+      } on Object {
+        closeUp = null; // The whole photo, then.
+      }
+    }
+    if (cancelled()) return null;
     final second = await _ask(
       LlmRequest(
         system: _readSystem,
         messages: [
           LlmMessage.user(
-            _recheckPrompt(ranks, [for (final s in recheck) toCell(s)]),
-            images: [LlmImage(jpeg)],
+            _recheckPrompt(ranks, cells, closeUp == null ? null : box),
+            images: [LlmImage(closeUp ?? jpeg)],
           ),
         ],
         jsonSchema: _recheckSchema,
         temperature: 0.1,
+        mediaResolution: closeUp == null ? null : resolutionFor(box),
       ),
     );
     if (cancelled()) return null;
@@ -204,6 +225,32 @@ class BoardReader {
     );
     if (problem != null) throw ScanFailure(ScanFailureKind.illegal, result: result);
     return result;
+  }
+
+  static const fullBoard = (top: 0, left: 0, bottom: 7, right: 7);
+
+  /// The cells around [cells], one cell of margin each way (tall pieces lean
+  /// into the next square in a photo).
+  static CellBox closeUpOf(List<({int row, int col})> cells) {
+    int at(Iterable<int> values, int Function(int, int) pick) => values.reduce(pick);
+    final rows = cells.map((c) => c.row);
+    final cols = cells.map((c) => c.col);
+    return (
+      top: math.max(0, at(rows, math.min) - 1),
+      left: math.max(0, at(cols, math.min) - 1),
+      bottom: math.min(7, at(rows, math.max) + 1),
+      right: math.min(7, at(cols, math.max) + 1),
+    );
+  }
+
+  /// The lowest resolution that still gives each square of [box] as many
+  /// image tokens as the first look gave each of the 64 (1120 / 64 = 17.5):
+  /// low (280) up to 16 cells, medium (560) up to 32, else high.
+  static LlmMediaResolution resolutionFor(CellBox box) {
+    final count = (box.bottom - box.top + 1) * (box.right - box.left + 1);
+    if (count <= 16) return LlmMediaResolution.low;
+    if (count <= 32) return LlmMediaResolution.medium;
+    return LlmMediaResolution.high;
   }
 
   /// [checkPosition], ignoring whose move it is: a photo can't show that,
@@ -329,11 +376,15 @@ Read the chess position in this photo.
     'required': ['row', 'col'],
   };
 
-  static String _recheckPrompt(List<String> ranks, List<({int row, int col})> cells) =>
+  static String _recheckPrompt(
+    List<String> ranks,
+    List<({int row, int col})> cells,
+    CellBox? closeUp,
+  ) =>
       '''
 You read this board as (top row of the photo first, "." empty):
 ${ranks.join('\n')}
-
+${closeUp == null ? '' : '\nThe picture is a close-up of part of that board: rows ${closeUp.top}–${closeUp.bottom} and columns ${closeUp.left}–${closeUp.right} of the 8×8 grid. Use the full grid’s row and column numbers in your answer.\n'}
 That position is impossible, so some of it is misread. Look again, carefully, at only these cells (row 0–7 from the top, col 0–7 from the left):
 ${[for (final c in cells) '- row ${c.row}, col ${c.col}'].join('\n')}
 

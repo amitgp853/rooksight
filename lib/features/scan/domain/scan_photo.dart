@@ -32,7 +32,23 @@ class ScanPhoto {
   /// The part inside [crop] (fractions of the width and height), as a
   /// [scanSide]-pixel JPEG for the model.
   Future<Uint8List> crop(Rect crop) => compute(_crop, (bytes, crop));
+
+  /// A close-up of [cells] of [board] (a photo cropped to the 64 squares),
+  /// for a second look at a few squares.
+  static Future<Uint8List> cropCells(Uint8List board, CellBox cells) {
+    final rect = Rect.fromLTRB(
+      cells.left / 8,
+      cells.top / 8,
+      (cells.right + 1) / 8,
+      (cells.bottom + 1) / 8,
+    );
+    return compute(_crop, (board, rect));
+  }
 }
+
+/// A block of board cells in the photo's grid, inclusive: row 0 is the top
+/// of the photo, column 0 its left.
+typedef CellBox = ({int top, int left, int bottom, int right});
 
 ScanPhoto? _normalize(Uint8List raw) {
   final decoded = img.decodeImage(raw);

@@ -456,6 +456,21 @@ void main() {
       ]);
     });
 
+    test('media resolution, only when asked for', () {
+      Object? resolution(LlmRequest request) =>
+          (GeminiClient.requestBody(request)['generationConfig']! as Map)['mediaResolution'];
+      expect(resolution(request), isNull);
+      expect(
+        resolution(
+          const LlmRequest(
+            messages: [LlmMessage.user('Hi')],
+            mediaResolution: LlmMediaResolution.low,
+          ),
+        ),
+        'MEDIA_RESOLUTION_LOW',
+      );
+    });
+
     test('no tools, no tool config', () {
       final body = GeminiClient.requestBody(request);
       expect(body.containsKey('tools'), isFalse);

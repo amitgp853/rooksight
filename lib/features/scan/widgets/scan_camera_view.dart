@@ -10,6 +10,7 @@ import '../../../core/motion/reduce_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/move_wise_sheet.dart';
+import '../domain/low_light.dart';
 
 /// The camera (`ScanCamera.dc.html`): a square guide frame with the rest of
 /// the preview dimmed, flash, tips, the gallery and the shutter. Always dark.
@@ -43,6 +44,15 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
 
   /// The white flash over the preview when a photo is taken.
   bool _flashOverlay = false;
+
+  /// Judges the preview's brightness, about once a second.
+  final _light = LowLightDetector();
+  DateTime _lastLightCheck = DateTime(0);
+  static const _lightCheckEvery = Duration(milliseconds: 900);
+
+  /// The preview is too dark: suggest light (unless the player closed it).
+  bool _lowLight = false;
+  bool _lowLightDismissed = false;
 
   @override
   void initState() {
@@ -87,12 +97,9 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
         (c) => c.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
-      final camera = CameraController(
-        back,
-        ResolutionPreset.high,
-        enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.jpeg,
-      );
+      // Photos come out as JPEG either way; the preview frames stay in the
+      // platform's own format (YUV / BGRA), which the light check reads.
+      final camera = CameraController(back, ResolutionPreset.high, enableAudio: false);
       await camera.initialize();
       if (!mounted) {
         await camera.dispose();
@@ -103,6 +110,7 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
         _camera = camera;
         _error = null;
       });
+      await _watchLight(camera);
     } on CameraException catch (e) {
       if (!mounted) return;
       setState(
@@ -117,6 +125,51 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
       if (mounted) {
         setState(() => _error = 'The camera couldn’t start. You can upload a photo instead.');
       }
+    }
+  }
+
+  /// Watches the preview's brightness for the low-light hint. Phones that
+  /// can't stream frames simply never show it.
+  Future<void> _watchLight(CameraController camera) async {
+    _light.reset();
+    try {
+      await camera.startImageStream(_onFrame);
+    } on Object {
+      // No hint on this phone.
+    }
+  }
+
+  void _onFrame(CameraImage image) {
+    final now = DateTime.now();
+    if (now.difference(_lastLightCheck) < _lightCheckEvery) return;
+    _lastLightCheck = now;
+    final plane = image.planes.first;
+    final luma = switch (image.format.group) {
+      ImageFormatGroup.bgra8888 => lumaOfBgra(
+        plane.bytes,
+        width: image.width,
+        height: image.height,
+        rowStride: plane.bytesPerRow,
+      ),
+      ImageFormatGroup.yuv420 || ImageFormatGroup.nv21 => lumaOfYPlane(
+        plane.bytes,
+        width: image.width,
+        height: image.height,
+        rowStride: plane.bytesPerRow,
+      ),
+      _ => null,
+    };
+    if (luma == null || !mounted) return;
+    final dark = _light.update(luma);
+    if (dark != _lowLight) setState(() => _lowLight = dark);
+  }
+
+  Future<void> _stopWatchingLight(CameraController camera) async {
+    if (!camera.value.isStreamingImages) return;
+    try {
+      await camera.stopImageStream();
+    } on Object {
+      // Already stopped.
     }
   }
 
@@ -138,6 +191,8 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
     try {
       if (!reduce) setState(() => _flashOverlay = true);
       unawaited(HapticFeedback.lightImpact());
+      // Some phones can't stream frames and take a photo at once.
+      await _stopWatchingLight(camera);
       final file = await camera.takePicture();
       final bytes = await file.readAsBytes();
       // The photo isn't kept: only the bytes in memory, until the scan ends.
@@ -149,6 +204,7 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Couldn’t take the photo. Try again.')));
+        await _watchLight(camera);
       }
     } finally {
       if (mounted) {
@@ -189,6 +245,7 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
   Widget build(BuildContext context) {
     final camera = _camera;
     final reduce = shouldReduceMotion(context, ref);
+    final showLowLight = _lowLight && !_lowLightDismissed && !_flash && _error == null;
     return ColoredBox(
       color: const Color(0xFF050709),
       child: LayoutBuilder(
@@ -217,7 +274,22 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
                   left: 24,
                   right: 24,
                   top: frameRect.top - 62,
-                  child: const Center(child: _Pill('Fit the whole board inside the frame')),
+                  // The light hint takes the guide's place while it shows,
+                  // and gives it back once the room is brighter.
+                  child: Center(
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: reduce ? 0 : 200),
+                      child: showLowLight
+                          ? _LowLightPill(
+                              key: const ValueKey('low-light'),
+                              onDismiss: () => setState(() => _lowLightDismissed = true),
+                            )
+                          : const _Pill(
+                              'Fit the whole board inside the frame',
+                              key: ValueKey('fit'),
+                            ),
+                    ),
+                  ),
                 ),
                 Positioned(
                   left: 0,
@@ -303,6 +375,7 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
                               tooltip: _flash ? 'Flash on' : 'Flash off',
                               icon: _flash ? Icons.flash_on_rounded : Icons.flash_off_rounded,
                               active: _flash,
+                              highlight: showLowLight,
                               onPressed: _toggleFlash,
                             )
                           else
@@ -469,7 +542,7 @@ class _GuidePainter extends CustomPainter {
 }
 
 class _Pill extends StatelessWidget {
-  const _Pill(this.text);
+  const _Pill(this.text, {super.key});
 
   final String text;
 
@@ -489,18 +562,67 @@ class _Pill extends StatelessWidget {
   }
 }
 
+/// "Low light": shown while the preview is dark, with a way to close it.
+class _LowLightPill extends StatelessWidget {
+  const _LowLightPill({super.key, required this.onDismiss});
+
+  final VoidCallback onDismiss;
+
+  static const _brass = Color(0xFFE3B25C);
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      liveRegion: true,
+      container: true,
+      child: Container(
+        padding: const EdgeInsets.only(left: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xD9080B0F),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: _brass.withValues(alpha: 0.6)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
+          children: [
+            const Icon(Icons.wb_incandescent_outlined, size: 18, color: _brass),
+            Flexible(
+              child: Text(
+                'Low light · tap the flash or turn on a lamp',
+                style: context.type.label.copyWith(fontSize: 14, color: const Color(0xFFF5F7FA)),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Dismiss',
+              onPressed: onDismiss,
+              icon: const Icon(Icons.close_rounded, size: 18),
+              color: const Color(0xFFC6CFDA),
+              style: IconButton.styleFrom(fixedSize: const Size.square(44)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _RoundButton extends StatelessWidget {
   const _RoundButton({
     required this.tooltip,
     required this.icon,
     required this.onPressed,
     this.active = false,
+    this.highlight = false,
   });
 
   final String tooltip;
   final IconData icon;
   final VoidCallback onPressed;
   final bool active;
+
+  /// A brass ring drawing the eye (the flash, while it's dark).
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
@@ -513,6 +635,7 @@ class _RoundButton extends StatelessWidget {
         fixedSize: const Size.square(44),
         backgroundColor: active ? const Color(0xFFE3B25C) : const Color(0x8C080B0F),
         foregroundColor: active ? const Color(0xFF1A1204) : const Color(0xFFF5F7FA),
+        side: highlight ? const BorderSide(color: Color(0xFFE3B25C), width: 2) : null,
       ),
     );
   }

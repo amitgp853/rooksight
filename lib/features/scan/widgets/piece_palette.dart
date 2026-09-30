@@ -12,9 +12,12 @@ typedef PaletteChoice = ({Piece? piece});
 class PiecePalette extends StatelessWidget {
   const PiecePalette({super.key, required this.selected, required this.onSelect});
 
-  /// Null when nothing is picked yet.
+  /// The choice shown as picked (the selected square's piece, or the eraser
+  /// for an empty square); null for none.
   final PaletteChoice? selected;
-  final ValueChanged<PaletteChoice> onSelect;
+
+  /// Null disables the palette (no square selected yet).
+  final ValueChanged<PaletteChoice>? onSelect;
 
   static const _roles = [Role.king, Role.queen, Role.rook, Role.bishop, Role.knight, Role.pawn];
 
@@ -39,15 +42,19 @@ class PiecePalette extends StatelessWidget {
     return Semantics(
       container: true,
       label: 'Piece to place',
-      child: Column(
-        spacing: 6,
-        children: [
-          for (var row = 0; row < 2; row++)
-            Row(
-              spacing: 6,
-              children: [for (var col = 0; col < 7; col++) Expanded(child: cells[row * 7 + col])],
-            ),
-        ],
+      child: AnimatedOpacity(
+        opacity: onSelect == null ? 0.45 : 1,
+        duration: const Duration(milliseconds: 150),
+        child: Column(
+          spacing: 6,
+          children: [
+            for (var row = 0; row < 2; row++)
+              Row(
+                spacing: 6,
+                children: [for (var col = 0; col < 7; col++) Expanded(child: cells[row * 7 + col])],
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -74,6 +81,7 @@ class PiecePalette extends StatelessWidget {
     return Semantics(
       label: label,
       selected: on,
+      enabled: onSelect != null,
       inMutuallyExclusiveGroup: true,
       button: true,
       excludeSemantics: true,
@@ -85,7 +93,7 @@ class PiecePalette extends StatelessWidget {
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () => onSelect(choice),
+          onTap: onSelect == null ? null : () => onSelect!(choice),
           child: SizedBox(height: 46, child: Center(child: child)),
         ),
       ),

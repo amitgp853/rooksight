@@ -10,6 +10,7 @@ import '../../core/storage/saved_position_repository.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/dialog_buttons.dart';
 import '../../core/widgets/move_wise_sheet.dart';
 import '../games/games_screen.dart' show shortDate;
 import 'domain/analysis_args.dart';
@@ -188,8 +189,6 @@ class _PositionOptions extends StatelessWidget {
     final colors = context.colors;
     final type = context.type;
     void close(_Action? action) => Navigator.of(context).pop(action);
-    final buttonShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
-    final buttonText = type.body.copyWith(fontWeight: FontWeight.w600);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -244,36 +243,12 @@ class _PositionOptions extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.s1),
-              Row(
-                spacing: AppSpacing.s2,
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => close(null),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        side: BorderSide(color: colors.border),
-                        foregroundColor: colors.textPrimary,
-                        shape: buttonShape,
-                        textStyle: buttonText,
-                      ),
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () => close(_Action.delete),
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        backgroundColor: colors.coral,
-                        foregroundColor: colors.bgBase,
-                        shape: buttonShape,
-                        textStyle: buttonText,
-                      ),
-                      child: const Text('Delete position'),
-                    ),
-                  ),
-                ],
+              ConfirmRow(
+                onCancel: () => close(null),
+                action: DestructiveButton(
+                  label: 'Delete position',
+                  onPressed: () => close(_Action.delete),
+                ),
               ),
             ],
           ),
@@ -372,11 +347,14 @@ class _PositionNameDialogState extends State<PositionNameDialog> {
             ),
         ],
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-        FilledButton(
-          onPressed: _name.text.trim().isEmpty ? null : _save,
-          child: Text(widget.action),
+        ConfirmRow(
+          onCancel: () => Navigator.of(context).pop(),
+          action: ConfirmButton(
+            label: widget.action,
+            onPressed: _name.text.trim().isEmpty ? null : _save,
+          ),
         ),
       ],
     );

@@ -19,6 +19,7 @@ import 'package:move_wise/features/scan/domain/scan_usage.dart';
 import 'package:move_wise/features/scan/domain/scan_photo.dart';
 import 'package:move_wise/features/scan/scan_check_screen.dart';
 import 'package:move_wise/features/scan/scan_screen.dart';
+import 'package:move_wise/features/scan/widgets/setup_board.dart';
 
 import '../../support/fake_llm.dart';
 
@@ -64,6 +65,14 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// The centre of the board square in column [col], row [row] (from the
+  /// top, White at the bottom).
+  Offset squareAt(WidgetTester tester, int col, int row) {
+    final board = tester.getRect(find.bySemanticsLabel('Board').first);
+    final square = board.width / 8;
+    return Offset(board.left + square * (col + 0.5), board.top + square * (row + 0.5));
+  }
+
   group('Check the position', () {
     ScanCheckArgs scanned({String? fen, Set<Square> unsure = const {Square.e1}}) => ScanCheckArgs(
       result: ScanResult(setup: BoardSetup.fromFen(fen ?? Chess.initial.fen), unsure: unsure),
@@ -89,12 +98,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Edit position'), findsOneWidget);
 
+      // g1 (the knight's square): column 6 of the bottom row. Square first,
+      // then the piece.
+      await tester.tapAt(squareAt(tester, 6, 7));
+      await tester.pumpAndSettle();
       await tester.tap(find.bySemanticsLabel('White king'));
-      await tester.pump();
-      // g1 (the knight's square): column 6 of the bottom row.
-      final board = tester.getRect(find.bySemanticsLabel('Board').first);
-      final square = board.width / 8;
-      await tester.tapAt(Offset(board.left + square * 6.5, board.top + square * 7.5));
       await tester.pumpAndSettle();
 
       expect(
@@ -110,6 +118,45 @@ void main() {
         tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Analyze')).onPressed,
         isNotNull,
       );
+    });
+
+    testWidgets('editing: tapping the board only selects; the palette sets the piece', (
+      tester,
+    ) async {
+      await pump(tester, const ScanCheckScreen()); // Empty board, editing.
+      // Nothing selected yet: the palette is off.
+      await tester.tap(find.bySemanticsLabel('White queen'));
+      await tester.pumpAndSettle();
+      expect(find.text('Tap a square first, then choose its piece.'), findsOneWidget);
+
+      // d1: select it, then choose the queen.
+      await tester.tapAt(squareAt(tester, 3, 7));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Choose the piece for d1'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('White queen'));
+      await tester.pumpAndSettle();
+
+      // e1: selecting another square puts nothing on it…
+      await tester.tapAt(squareAt(tester, 4, 7));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Choose the piece for e1'), findsOneWidget);
+      // …and choosing a piece now changes e1 only, not d1.
+      await tester.tap(find.bySemanticsLabel('White king'));
+      await tester.pumpAndSettle();
+      // Changing your mind on the same square replaces it.
+      await tester.tap(find.bySemanticsLabel('White rook'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.bySemanticsLabel('White king'));
+      await tester.pumpAndSettle();
+
+      // The board as placed: queen d1, king e1, nothing else.
+      final fen = tester.widget<SetupBoard>(find.byType(SetupBoard)).board.fen;
+      expect(fen, '8/8/8/8/8/8/8/3QK3');
+
+      // The eraser empties the selected square.
+      await tester.tap(find.bySemanticsLabel('Eraser: remove a piece'));
+      await tester.pumpAndSettle();
+      expect(tester.widget<SetupBoard>(find.byType(SetupBoard)).board.fen, '8/8/8/8/8/8/8/3Q4');
     });
 
     testWidgets('by hand: starts empty in edit mode', (tester) async {

@@ -4,6 +4,7 @@ import '../../../core/storage/game_repository.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/dialog_buttons.dart';
 import '../../../core/widgets/move_wise_sheet.dart';
 import '../games_screen.dart'
     show OutcomeBadge, endReasonLabel, movesLabel, opponentName, shortDate, timeControlLabel;
@@ -32,8 +33,6 @@ class _DeleteGameSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final type = context.type;
-    const buttonShape = RoundedRectangleBorder(borderRadius: AppRadius.smAll);
-    final buttonText = type.heading.copyWith(fontSize: 16);
     final details = [
       if (game.endReason != null) endReasonLabel(game.endReason!),
       movesLabel(game),
@@ -101,39 +100,13 @@ class _DeleteGameSheet extends StatelessWidget {
             'This can’t be undone.',
             style: type.body.copyWith(color: colors.textSecondary),
           ),
-          Row(
-            spacing: AppSpacing.s3,
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(AppSpacing.buttonHeight),
-                    shape: buttonShape,
-                    backgroundColor: colors.bgElevated,
-                    foregroundColor: colors.textPrimary,
-                    side: BorderSide(color: colors.border),
-                    textStyle: buttonText,
-                  ),
-                  child: const Text('Cancel'),
-                ),
-              ),
-              // The design system's destructive button.
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(AppSpacing.buttonHeight),
-                    shape: buttonShape,
-                    foregroundColor: colors.coral,
-                    side: BorderSide(color: colors.coral.withValues(alpha: 0.45)),
-                    textStyle: buttonText,
-                  ),
-                  icon: const Icon(Icons.delete_outline_rounded, size: 20),
-                  label: const Text('Delete game'),
-                ),
-              ),
-            ],
+          ConfirmRow(
+            onCancel: () => Navigator.of(context).pop(false),
+            action: DestructiveButton(
+              label: 'Delete game',
+              icon: Icons.delete_outline_rounded,
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
           ),
         ],
       ),

@@ -66,7 +66,9 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
   late bool _whiteAtBottom = widget.args.result?.whiteAtBottom ?? true;
   late bool _editing = widget.args.edit || widget.args.result == null;
   bool _comparing = false;
-  PaletteChoice? _choice;
+
+  /// The square being edited. Tapping the board only ever selects; the
+  /// palette then sets what's on the selected square.
   Square? _selected;
 
   Uint8List? get _photo => widget.args.photo;
@@ -90,23 +92,15 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
       _selected = square;
       return;
     }
-    final choice = _choice;
-    if (choice == null) {
-      _selected = square;
-      return;
-    }
-    final same = choice.piece != null && _setup.pieceAt(square) == choice.piece;
-    // Tapping the same piece again takes it off, like the eraser.
-    _place(square, same ? null : choice.piece);
-    _selected = square;
+    // Select, or tap the selected square again to let it go. Never changes
+    // a piece.
+    _selected = _selected == square ? null : square;
   });
 
+  /// Puts [choice] on the selected square (the eraser empties it). The
+  /// square stays selected, so another choice simply replaces it.
   void _onPick(PaletteChoice choice) => _change(() {
-    _choice = choice;
-    // A square picked first gets the piece at once.
-    if (_selected case final square?) {
-      _place(square, choice.piece);
-    }
+    if (_selected case final square?) _place(square, choice.piece);
   });
 
   void _flipSides(bool whiteAtBottom) => _change(() {
@@ -203,10 +197,19 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
                               child: Column(
                                 spacing: AppSpacing.s2,
                                 children: [
-                                  PiecePalette(selected: _choice, onSelect: _onPick),
+                                  PiecePalette(
+                                    // What the selected square holds; nothing
+                                    // to pick until a square is selected.
+                                    selected: _selected == null
+                                        ? null
+                                        : (piece: _setup.pieceAt(_selected!)),
+                                    onSelect: _selected == null ? null : _onPick,
+                                  ),
                                   Text(
-                                    'Pick a piece, then tap squares to place it. Tap a piece on '
-                                    'the board with the eraser to remove it.',
+                                    _selected == null
+                                        ? 'Tap a square first, then choose its piece.'
+                                        : 'Choose the piece for ${_selected!.name}, or the eraser to '
+                                              'empty it. Tap another square to move on.',
                                     textAlign: TextAlign.center,
                                     style: type.label.copyWith(
                                       fontSize: 12,
@@ -261,7 +264,7 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
   _BannerState _bannerState(PositionProblem? problem) {
     if (problem != null && !_setup.isEmpty) return _BannerState.problem(problem.message);
     if (_editing) {
-      return const _BannerState.editing('Editing. Pick a piece below, then tap a square.');
+      return const _BannerState.editing('Editing. Tap a square, then choose its piece below.');
     }
     final unsure = [for (final s in _unsure) s.name]..sort();
     if (_comparing) {

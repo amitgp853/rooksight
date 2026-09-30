@@ -6,6 +6,7 @@ import '../../../core/motion/reduce_motion.dart';
 import '../../../core/storage/chat_repository.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/dialog_buttons.dart';
 import '../../../core/widgets/move_wise_sheet.dart';
 import '../domain/coach_chat.dart';
 
@@ -48,8 +49,6 @@ class _ChatOptions extends StatelessWidget {
     final colors = context.colors;
     final type = context.type;
     void close(_Action? action) => Navigator.of(context).pop(action);
-    final buttonShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
-    final buttonText = type.body.copyWith(fontWeight: FontWeight.w600);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,36 +103,12 @@ class _ChatOptions extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.s1),
-              Row(
-                spacing: AppSpacing.s2,
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => close(null),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        side: BorderSide(color: colors.border),
-                        foregroundColor: colors.textPrimary,
-                        shape: buttonShape,
-                        textStyle: buttonText,
-                      ),
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () => close(_Action.delete),
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        backgroundColor: colors.coral,
-                        foregroundColor: colors.bgBase,
-                        shape: buttonShape,
-                        textStyle: buttonText,
-                      ),
-                      child: const Text('Delete chat'),
-                    ),
-                  ),
-                ],
+              ConfirmRow(
+                onCancel: () => close(null),
+                action: DestructiveButton(
+                  label: 'Delete chat',
+                  onPressed: () => close(_Action.delete),
+                ),
               ),
             ],
           ),
@@ -202,11 +177,14 @@ class _RenameDialogState extends State<_RenameDialog> {
           focusedBorder: field.copyWith(borderSide: BorderSide(color: colors.focus)),
         ),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-        FilledButton(
-          onPressed: _title.text.trim().isEmpty ? null : _save,
-          child: const Text('Save'),
+        ConfirmRow(
+          onCancel: () => Navigator.of(context).pop(),
+          action: ConfirmButton(
+            label: 'Save',
+            onPressed: _title.text.trim().isEmpty ? null : _save,
+          ),
         ),
       ],
     );

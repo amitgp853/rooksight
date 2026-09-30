@@ -9,6 +9,7 @@ import '../../core/routing/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/dialog_buttons.dart';
 import '../../engine/elo_levels.dart';
 import 'domain/game_config.dart';
 import 'domain/unfinished_game.dart';
@@ -54,19 +55,22 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
       final abandon = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
+          backgroundColor: context.colors.bgRaised,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Text('Abandon your current game?'),
           content: Text(
             'Your game vs Stockfish ${unfinished.config.level.elo} is saved on Home. '
             'Starting a new one ends it.',
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Keep it'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Start new game'),
+            ConfirmRow(
+              cancelLabel: 'Keep it',
+              onCancel: () => Navigator.of(context).pop(false),
+              action: DestructiveButton(
+                label: 'Start new game',
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
             ),
           ],
         ),

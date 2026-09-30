@@ -11,7 +11,9 @@ import '../../core/llm/gemini_client.dart';
 import '../../core/motion/reduce_motion.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/settings/display_settings.dart';
+import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/dialog_buttons.dart';
 import 'domain/board_reader.dart';
 import 'domain/photo_check.dart';
 import 'domain/scan_photo.dart';
@@ -220,14 +222,24 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
             'or scan anyway if it really is a board.',
             style: type.body.copyWith(color: colors.textSecondary),
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Adjust crop'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Scan anyway'),
+            Row(
+              spacing: AppSpacing.s3,
+              children: [
+                Expanded(
+                  child: CancelButton(
+                    label: 'Adjust crop',
+                    onPressed: () => Navigator.of(context).pop(false),
+                  ),
+                ),
+                Expanded(
+                  child: ConfirmButton(
+                    label: 'Scan anyway',
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ),
+              ],
             ),
           ],
         );

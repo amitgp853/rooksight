@@ -11,6 +11,7 @@ import '../../core/motion/reduce_motion.dart';
 import '../../core/settings/display_settings.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/dialog_buttons.dart';
 import '../../core/widgets/move_wise_sheet.dart';
 import '../play/domain/move_feedback.dart';
 import '../play/widgets/clock_view.dart';
@@ -731,20 +732,13 @@ Future<bool> _confirm(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(title, style: type.heading),
         content: Text(body, style: type.body.copyWith(color: colors.textSecondary)),
+        actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: danger
-                ? FilledButton.styleFrom(
-                    backgroundColor: colors.coral,
-                    foregroundColor: colors.bgBase,
-                  )
-                : null,
-            child: Text(action),
+          ConfirmRow(
+            onCancel: () => Navigator.of(context).pop(false),
+            action: danger
+                ? DestructiveButton(label: action, onPressed: () => Navigator.of(context).pop(true))
+                : ConfirmButton(label: action, onPressed: () => Navigator.of(context).pop(true)),
           ),
         ],
       );

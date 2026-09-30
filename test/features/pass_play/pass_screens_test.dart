@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:move_wise/core/widgets/dialog_buttons.dart';
 import 'package:move_wise/core/feedback/sound_player.dart';
 import 'package:move_wise/core/storage/game_repository.dart';
 import 'package:move_wise/core/storage/settings_store.dart';
@@ -207,7 +208,7 @@ void main() {
 
       await tester.tap(find.text('Resign'));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, 'Resign'));
+      await tester.tap(find.widgetWithText(DestructiveButton, 'Resign'));
       await tester.pump(const Duration(milliseconds: 600));
       await tester.pumpAndSettle();
       expect(container.read(passControllerProvider).game.isOver, isTrue);

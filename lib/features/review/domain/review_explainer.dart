@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../../../core/chess/move_check.dart';
 import '../../../core/llm/llm_client.dart';
 import '../../../core/storage/game_repository.dart';
+import '../../stats/domain/player_stats.dart' show namedOpening;
 import 'game_analysis.dart';
 import 'moment_facts.dart';
 import 'move_review.dart';
@@ -86,10 +87,13 @@ class ReviewExplainer {
   static const system = '''
 You are a friendly, precise chess coach going over a game with the player who
 played it. You get the game's key moments with facts computed by Stockfish:
-evaluations (in pawns, from the side that moved), Stockfish's best move and
-line, what the actual move allowed ("what_the_move_allowed": the opponent's
-best reply line), material changes along those lines, pieces left hanging, and
-forced mates.
+- "eval_before", "eval_after": evaluations in pawns, from the side that moved.
+- "best_move", "best_line": Stockfish's choice instead. No "best_line" means
+  the move played was Stockfish's choice.
+- "what_the_move_allowed": the opponent's best reply line after the move.
+- "best_line_material", "allowed_material": the mover's material change in
+  pawns at the end of each line; left out when nothing changes.
+- "pieces_left_hanging", and forced mates ("mate_in_…") when there are any.
 
 For each moment write:
 - "title": a headline of at most 60 characters. It must match the verdict:
@@ -111,6 +115,10 @@ Rules:
 - Only say "mate" if the facts show a forced mate or a mating move.
 - Only say a piece is won, lost or hanging if the material facts show it.
 - Plain, encouraging language; no engine jargon beyond the numbers given.
+- Match the player's level ("player_rating", else the opponent's rating):
+  below about 1200, stick to basics (loose pieces, checks, captures, threats);
+  from about 1800, you can talk about plans and structure. You may name the
+  "opening" in the summary.
 Reply with JSON only.''';
 
   static const schema = <String, Object?>{
@@ -146,21 +154,30 @@ Reply with JSON only.''';
     List<MoveReview> moments,
   ) async {
     final facts = [for (final m in moments) factsFor(analysis, m, player: record.playerSide)];
-    final reply = await _llm.generate(
+    final reply = await _llm.respond(
       LlmRequest(
         system: system,
-        messages: [LlmMessage.user(prompt(record, facts))],
+        messages: [
+          LlmMessage.user(prompt(record, facts, opening: namedOpening(record, analysis.game))),
+        ],
         jsonSchema: schema,
       ),
     );
-    return checked(reply, facts);
+    if (reply.usage case final usage?) {
+      debugPrint('Review (${facts.length} moments, ${_llm.model}): $usage');
+    }
+    if (reply.text.isEmpty) throw const LlmUnavailable('empty reply');
+    return checked(reply.text, facts);
   }
 
   /// The facts sent to the model: only the key moments, compactly.
-  static String prompt(GameRecord record, List<MomentFacts> facts) {
+  static String prompt(GameRecord record, List<MomentFacts> facts, {String? opening}) {
     final data = {
       'player_colour': record.playerSide.name,
+      'player_rating': ?record.playerRating,
       'opponent': record.opponentName ?? (record.engineElo != null ? 'Stockfish' : 'Opponent'),
+      'opponent_rating': ?(record.opponentRating ?? record.engineElo),
+      'opening': ?opening,
       'result': record.result,
       'ending': ?record.endReason,
       'moments': [for (final f in facts) f.toJson()],

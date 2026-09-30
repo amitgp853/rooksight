@@ -197,6 +197,13 @@ String openingName(GameRecord record, GameState game) {
   return sans.length == 1 ? '1. ${sans[0]}' : '1. ${sans[0]} ${sans[1]}';
 }
 
+/// The opening's name from the PGN, or null when it has none: the first
+/// moves [openingName] falls back to aren't a name to give the AI coach.
+String? namedOpening(GameRecord record, GameState game) {
+  final name = openingName(record, game);
+  return name.startsWith('1.') || name == 'No moves' ? null : name;
+}
+
 /// `…/openings/Sicilian-Defense-Alapin-Variation-2...Nf6` → `Sicilian Defense`.
 String? _fromEcoUrl(String? url) {
   if (url == null) return null;

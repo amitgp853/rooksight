@@ -104,6 +104,57 @@ void main() {
     });
   });
 
+  group('facts send only what adds something', () {
+    MomentFacts moment({required String move, List<String> best = const ['Nf3', 'Nc6']}) =>
+        MomentFacts(
+          index: 6,
+          move: move,
+          byPlayer: true,
+          quality: MoveQuality.best,
+          evalBefore: 0.3,
+          evalAfter: 0.3,
+          bestMove: null,
+          bestLine: best,
+          replyLine: const ['Nc6'],
+          materialAfterBestLine: 0,
+          materialAfterReplyLine: 0,
+          hanging: const [],
+          mateAvailable: null,
+          mateAllowed: null,
+          phase: 'opening',
+          allowedMoves: const {},
+        );
+
+    test('Stockfish\'s own move: no best line, it would only repeat the move', () {
+      expect(moment(move: '4. Nf3').playedBest, isTrue);
+      expect(moment(move: '4. Nf3').toJson().containsKey('best_line'), isFalse);
+      expect(moment(move: '4. Nf3').toJson()['what_the_move_allowed'], 'Nc6');
+    });
+
+    test('another move keeps the best line; "Nxf3" is not "f3"', () {
+      expect(moment(move: '4. Bc4').toJson()['best_line'], 'Nf3 Nc6');
+      expect(moment(move: '4. Nxf3', best: const ['f3']).playedBest, isFalse);
+      expect(moment(move: '4…Nf6', best: const ['Nf6']).playedBest, isTrue);
+    });
+
+    test('no material change is left out', () {
+      final json = moment(move: '4. Bc4').toJson();
+      expect(json.containsKey('best_line_material'), isFalse);
+      expect(json.containsKey('allowed_material'), isFalse);
+      expect(madeUp(replyMaterial: -3).toJson()['allowed_material'], -3);
+    });
+  });
+
+  test('the prompt gives the ratings, and the opening only when it has a name', () {
+    final data = ReviewExplainer.prompt(record, facts);
+    expect(data, contains('"opponent_rating":1600'));
+    expect(data, isNot(contains('"opening":')));
+    expect(
+      ReviewExplainer.prompt(record, facts, opening: 'Sicilian Defense'),
+      contains('"opening":"Sicilian Defense"'),
+    );
+  });
+
   test('one request, with the facts and the richer schema', () async {
     final llm = FakeLlm(reply: reply(moments: []));
     await ReviewExplainer(llm).explain(analysis, record, moments);

@@ -6,9 +6,13 @@ import 'package:move_wise/core/llm/llm_client.dart';
 /// For tool calling, queue turns in [turns]: each [respond] takes the next
 /// one, and falls back to [reply] as the answer once they run out.
 class FakeLlm implements LlmClient {
-  FakeLlm({this.reply = '{}', this.failure, List<LlmReply>? turns}) : turns = turns ?? [];
+  FakeLlm({this.reply = '{}', this.failure, this.usage, List<LlmReply>? turns})
+    : turns = turns ?? [];
 
   String reply;
+
+  /// Tokens reported with [reply].
+  LlmUsage? usage;
   LlmFailure? failure;
   final List<LlmReply> turns;
   final requests = <LlmRequest>[];
@@ -24,7 +28,7 @@ class FakeLlm implements LlmClient {
     requests.add(request);
     if (failure != null) throw failure!;
     if (turns.isNotEmpty) return turns.removeAt(0);
-    return LlmReply(message: LlmMessage.model(reply));
+    return LlmReply(message: LlmMessage.model(reply), usage: usage);
   }
 }
 

@@ -17,12 +17,13 @@ class CoachAnswer {
     this.move,
     this.llmCalls = 0,
     this.toolCalls = 0,
+    this.usage = LlmUsage.zero,
     this.offTopic = false,
   });
 
   /// The reply to a question that isn't about chess: always this text, never
   /// the model's, so nothing off-topic reaches the screen.
-  const CoachAnswer.offTopic({this.llmCalls = 0, this.toolCalls = 0})
+  const CoachAnswer.offTopic({this.llmCalls = 0, this.toolCalls = 0, this.usage = LlmUsage.zero})
     : headline = 'I can only help with chess',
       body =
           'Ask me about your games, openings, tactics or how to improve, '
@@ -46,6 +47,9 @@ class CoachAnswer {
   final int llmCalls;
   final int toolCalls;
 
+  /// Tokens across all [llmCalls], as far as the provider reported them.
+  final LlmUsage usage;
+
   /// The question wasn't about chess, so it wasn't answered.
   final bool offTopic;
 
@@ -62,6 +66,10 @@ typedef OnStep = void Function(int index, AgentStep step);
 ///
 /// At most [maxToolCalls] tools run per question. After that the model has
 /// to answer, so a question costs at most `maxToolCalls + 1` model calls.
+///
+/// A question about one game (attached, or asked from its review) always
+/// needs that game's mistakes, so they're looked up before the first model
+/// call: the model starts from the facts, and a round trip is saved.
 class CoachAgent {
   CoachAgent(this._llm, this.tools);
 
@@ -78,8 +86,10 @@ Answer from facts, not guesses. Your tools:
 - get_game_mistakes(game_id): the player's mistakes in one reviewed game, with
   Stockfish's facts and the position before each move.
 - analyze_position(fen): Stockfish's evaluation and best line for a position.
-Each question lists the player's recent games with their ids. Call only the
-tools you need (at most 5; fewer is better), then answer.
+Each question lists the player's recent games with their ids. A question
+about one game comes with that game's mistakes already looked up; don't
+fetch them again. Call only the tools you need (at most 5; fewer is better),
+and ask for tools that don't depend on each other in the same turn.
 
 Scope: you only help with chess: the player's games and stats, openings,
 tactics, strategy, endgames, the rules, and how to train and improve. For
@@ -95,6 +105,9 @@ Rules:
   game mistakes); "mate_in" is a forced mate.
 - If a game isn't reviewed, say so and suggest opening its review.
 - Speak to the player as "you": plain, specific and encouraging, no jargon.
+- Match the player's level when a rating is known ("your_rating", else the
+  opponent's): below about 1200, stick to basics (loose pieces, checks,
+  captures, threats); from about 1800, talk about plans and structure.
 
 Reply with JSON only:
 - "headline": the main point in one sentence (at most 80 characters).
@@ -130,13 +143,24 @@ Reply with JSON only:
     List<LlmMessage> history = const [],
     required OnStep onStep,
   }) async {
-    final messages = [
-      ...history,
-      LlmMessage.user('${await tools.context()}\n\nQuestion: $question'),
-    ];
     var steps = 0;
     var toolCalls = 0;
     var llmCalls = 0;
+    var usage = LlmUsage.zero;
+
+    final prompt = StringBuffer(await tools.context());
+    if (tools.focus case final focus?) {
+      final call = LlmToolCall(name: CoachTools.getGameMistakes, args: {'game_id': focus.gameId});
+      final index = steps++;
+      toolCalls++;
+      final outcome = await tools.run(call, onStart: (label) => onStep(index, AgentStep(label)));
+      onStep(index, outcome.step);
+      prompt.write(
+        '\n\nAlready looked up, ${call.name}(${focus.gameId}): ${jsonEncode(outcome.result)}',
+      );
+    }
+    prompt.write('\n\nQuestion: $question');
+    final messages = [...history, LlmMessage.user(prompt.toString())];
 
     while (true) {
       // A running step while the model thinks; replaced by the tools it asks
@@ -154,11 +178,13 @@ Reply with JSON only:
         ),
       );
       llmCalls++;
+      usage += reply.usage ?? LlmUsage.zero;
       messages.add(reply.message);
 
       if (reply.toolCalls.isEmpty) {
         onStep(thinking, const AgentStep('Writing your answer', detail: 'Ready', done: true));
-        return checked(reply.text, tools, llmCalls: llmCalls, toolCalls: toolCalls);
+        debugPrint('Coach ($llmCalls calls, $toolCalls tools, ${_llm.model}): $usage');
+        return checked(reply.text, tools, llmCalls: llmCalls, toolCalls: toolCalls, usage: usage);
       }
       if (mustAnswer) throw const LlmUnavailable('asked for tools after the limit');
 
@@ -192,6 +218,7 @@ Reply with JSON only:
     CoachTools tools, {
     int llmCalls = 0,
     int toolCalls = 0,
+    LlmUsage usage = LlmUsage.zero,
   }) {
     final Map<String, Object?> json;
     try {
@@ -202,12 +229,13 @@ Reply with JSON only:
         body: _orFallback(MoveCheck.keepChecked(reply, tools.moves)),
         llmCalls: llmCalls,
         toolCalls: toolCalls,
+        usage: usage,
       );
     }
 
     // Not about chess: the fixed reply, whatever else the model wrote.
     if (json['off_topic'] == true) {
-      return CoachAnswer.offTopic(llmCalls: llmCalls, toolCalls: toolCalls);
+      return CoachAnswer.offTopic(llmCalls: llmCalls, toolCalls: toolCalls, usage: usage);
     }
 
     String? text(String key) {
@@ -228,6 +256,7 @@ Reply with JSON only:
       move: ref,
       llmCalls: llmCalls,
       toolCalls: toolCalls,
+      usage: usage,
     );
   }
 

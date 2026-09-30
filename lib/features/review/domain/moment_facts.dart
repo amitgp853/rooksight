@@ -90,6 +90,14 @@ class MomentFacts {
     ...hanging.map((h) => pieceValue(_roleNamed(h.split(' ').first))),
   ].fold(0, math.max);
 
+  /// Whether the move played was Stockfish's first choice.
+  bool get playedBest =>
+      bestLine.isNotEmpty && move.replaceFirst(RegExp(r'^\d+(?:\.\s*|…)'), '') == bestLine.first;
+
+  /// The facts as the model gets them. Only what adds something goes in:
+  /// when the move was Stockfish's choice, its best line is just the move
+  /// plus [replyLine], and a material change of zero is left out (the
+  /// prompts say so), as are empty lists and absent mates.
   Map<String, Object?> toJson() => {
     'id': index,
     'move': move,
@@ -99,10 +107,10 @@ class MomentFacts {
     'eval_before': _round(evalBefore),
     'eval_after': _round(evalAfter),
     'best_move': ?bestMove,
-    if (bestLine.isNotEmpty) 'best_line': bestLine.join(' '),
+    if (bestLine.isNotEmpty && !playedBest) 'best_line': bestLine.join(' '),
     if (replyLine.isNotEmpty) 'what_the_move_allowed': replyLine.join(' '),
-    'material_change_if_best_line': materialAfterBestLine,
-    'material_change_after_move_and_reply_line': materialAfterReplyLine,
+    if (materialAfterBestLine != 0 && !playedBest) 'best_line_material': materialAfterBestLine,
+    if (materialAfterReplyLine != 0) 'allowed_material': materialAfterReplyLine,
     if (hanging.isNotEmpty) 'pieces_left_hanging': hanging,
     'mate_in_available': ?mateAvailable,
     'mate_in_allowed_for_opponent': ?mateAllowed,

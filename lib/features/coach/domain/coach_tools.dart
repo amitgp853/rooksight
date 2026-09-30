@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/foundation.dart';
 
@@ -109,7 +107,9 @@ class CoachTools {
       description:
           'The player\'s mistakes in one reviewed game: each move, the evaluation '
           'before and after, Stockfish\'s best move and line, what the move '
-          'allowed, and the position before it (FEN).',
+          'allowed, and the position before it (FEN). "best_line_material" and '
+          '"allowed_material" are the mover\'s material change in pawns at the '
+          'end of each line, left out when nothing changes.',
       parameters: {
         'type': 'object',
         'properties': {
@@ -162,19 +162,21 @@ class CoachTools {
   /// A short list of the player's recent games for the question, so the
   /// model can pick game ids, and the move asked about, if any.
   Future<String> context() async {
+    // One row per game under a header, rather than JSON repeating every key:
+    // the same facts in about a third of the tokens, sent with every call.
     final saved = (await _games.watchAll().first).take(recentGames).toList();
-    final list = [
-      for (final s in saved)
-        {
-          'game_id': s.id,
-          'date': _date(s.record.endedAt),
-          'vs': _opponent(s.record),
-          'you_played': s.record.playerSide.name,
-          'result': s.record.outcome.name,
-          'reviewed': (await _analyses.analysis(s.id))?.complete ?? false,
-        },
-    ];
-    final buffer = StringBuffer('The player\'s recent games, newest first: ${jsonEncode(list)}');
+    final buffer = StringBuffer(
+      'The player\'s recent games, newest first '
+      '(game_id | date | vs | you_played | result | reviewed):',
+    );
+    for (final s in saved) {
+      final reviewed = (await _analyses.analysis(s.id))?.complete ?? false;
+      buffer.write(
+        '\n${s.id} | ${_date(s.record.endedAt)} | ${_opponent(s.record)} | '
+        '${s.record.playerSide.name} | ${s.record.outcome.name} | ${reviewed ? 'yes' : 'no'}',
+      );
+    }
+    if (saved.isEmpty) buffer.write('\nnone yet');
     if (focus case final focus?) {
       final saved = await _games.byId(focus.gameId);
       if (saved != null) {
@@ -309,6 +311,9 @@ class CoachTools {
         'vs': _opponent(record),
         'date': _date(record.endedAt),
         'you_played': side.name,
+        'your_rating': ?record.playerRating,
+        'opponent_rating': ?(record.opponentRating ?? record.engineElo),
+        'opening': ?namedOpening(record, game),
         'result': record.outcome.name,
         'ending': ?record.endReason,
         if (accuracy != null) 'accuracy': accuracy.round(),

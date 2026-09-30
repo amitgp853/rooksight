@@ -115,6 +115,28 @@ class LlmUsage {
   /// Reasoning before the reply, billed as output.
   final int thinking;
 
+  /// No tokens: the start of a total.
+  static const zero = LlmUsage();
+
+  /// Both requests together, e.g. every step of a coach answer.
+  LlmUsage operator +(LlmUsage other) => LlmUsage(
+    input: input + other.input,
+    cached: cached + other.cached,
+    output: output + other.output,
+    thinking: thinking + other.thinking,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is LlmUsage &&
+      other.input == input &&
+      other.cached == cached &&
+      other.output == output &&
+      other.thinking == thinking;
+
+  @override
+  int get hashCode => Object.hash(input, cached, output, thinking);
+
   @override
   String toString() => 'in $input (cached $cached), out $output, thinking $thinking';
 }

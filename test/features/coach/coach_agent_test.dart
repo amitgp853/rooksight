@@ -125,8 +125,8 @@ void main() {
     test('the context lists recent games and the move asked about', () async {
       tools.focus = CoachFocus(gameId: mateId, index: 2, label: '2. g4');
       final context = await tools.context();
-      expect(context, contains('"game_id":$mateId'));
-      expect(context, contains('"reviewed":true'));
+      expect(context, contains('\n$mateId | '));
+      expect(context, contains('| Stockfish 1600 | white | loss | yes'));
       expect(context, contains('move_id 2 (2. g4)'));
     });
 
@@ -191,6 +191,38 @@ void main() {
       expect(llm.requests.take(5).map((r) => r.toolMode), everyElement(LlmToolMode.auto));
       expect(llm.requests.last.toolMode, LlmToolMode.none);
       expect((result.llmCalls, result.toolCalls), (6, 5));
+    });
+
+    test('a question about one game starts with its mistakes: no tool round trip', () async {
+      tools.focus = CoachFocus(gameId: mateId, index: 2, label: '2. g4');
+      final llm = FakeLlm(reply: answer(body: '2. g4 allowed Qh4#. 2. d4 kept it closed.'));
+      final steps = <int, AgentStep>{};
+      final result = await CoachAgent(llm, tools).ask('Why?', onStep: (i, s) => steps[i] = s);
+
+      expect(llm.requests, hasLength(1));
+      final prompt = llm.requests.single.messages.last.text;
+      expect(prompt, contains('Already looked up, get_game_mistakes($mateId)'));
+      expect(prompt, contains('"what_the_move_allowed":"Qh4#"'));
+      expect(prompt, endsWith('Question: Why?'));
+      expect(steps[0]!.label, 'Your game vs Stockfish 1600');
+      expect(result.body, '2. g4 allowed Qh4#. 2. d4 kept it closed.');
+      expect((result.llmCalls, result.toolCalls), (1, 1));
+    });
+
+    test('adds up the tokens of every call', () async {
+      final llm = FakeLlm(
+        turns: [
+          LlmReply(
+            message: toolCall(CoachTools.getMyStats).message,
+            usage: const LlmUsage(input: 1000, cached: 200, output: 20, thinking: 100),
+          ),
+        ],
+        reply: answer(body: 'Done.'),
+        usage: const LlmUsage(input: 1500, cached: 900, output: 80, thinking: 300),
+      );
+      final result = await CoachAgent(llm, tools).ask('?', onStep: (_, _) {});
+
+      expect(result.usage, const LlmUsage(input: 2500, cached: 1100, output: 100, thinking: 400));
     });
 
     test('calls beyond the limit in one turn don\'t run but still get a result', () async {

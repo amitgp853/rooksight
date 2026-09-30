@@ -8,133 +8,240 @@
 <body>
 <x-dc>
 <helmet>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Symbols+2&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-body{margin:0;background:#0E1217;color:#E9EDF2;font-family:'Instrument Sans',system-ui,sans-serif}
+body{margin:0;font-family:'Instrument Sans',system-ui,sans-serif}
 button{font-family:inherit;cursor:pointer}
-a{color:#86A8FF;text-decoration:none}a:hover{color:#A9C0FF}
+a{text-decoration:none}
+@keyframes mw-rv-spin{to{transform:rotate(360deg)}}
+@keyframes mw-rv-shimmer{0%,100%{opacity:.55}50%{opacity:1}}
 </style>
 </helmet>
-<div style="width: 390px; height: 1840px; box-sizing: border-box; background: #0E1217; color: #E9EDF2; display: flex; flex-direction: column">
+<div style="width: 390px; height: {{h}}px; box-sizing: border-box; background: #0E1217; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column">
 
-<header style="height: 56px; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 4px">
-<a href="Home.dc.html" aria-label="Back to home" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
+<header style="height: 56px; flex-shrink: 0; padding: 0 4px 0 8px; display: flex; align-items: center; gap: 2px">
+<a href="Games.dc.html" aria-label="Back to games" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
-<h1 style="margin: 0; flex-grow: 1; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Game review</h1>
+<h1 style="margin: 0; flex-grow: 1; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Game Review</h1>
+<a href="CoachEmptyGame.dc.html" aria-label="Ask AI Coach about this game" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E3B25C">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg></a>
 <a href="ShareReport.dc.html" aria-label="Share report card" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8h16v-8M12 3v13M7 8l5-5 5 5"></path></svg></a>
+<a href="GamesDelete.dc.html" aria-label="Delete game" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #A3AFBD">
+<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"></path></svg></a>
 </header>
 
 <div style="padding: 4px 16px 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
 <div style="display: flex; flex-direction: column; gap: 2px">
 <span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Loss · 0–1</span>
-<span style="font-size: 13px; color: #A3AFBD">vs Stockfish 1600 · 41 moves</span>
+<span style="font-size: 13px; color: #A3AFBD">vs Stockfish 1000 · Blitz 5+0 · 41 moves</span>
 </div>
 <div style="display: flex; gap: 8px">
 <div style="padding: 6px 10px; border-radius: 10px; background: #151B22; display: flex; flex-direction: column; align-items: flex-end">
 <span style="font-size: 11px; color: #A3AFBD">You</span>
-<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px; color: #A9C0FF">78.4</span>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px; color: #A9C0FF">{{acc.you}}</span>
 </div>
 <div style="padding: 6px 10px; border-radius: 10px; background: #151B22; display: flex; flex-direction: column; align-items: flex-end">
 <span style="font-size: 11px; color: #A3AFBD">Stockfish</span>
-<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">94.1</span>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">{{acc.opp}}</span>
 </div>
 </div>
 </div>
 
-<dc-import name="Board" size="390" fen="2r2rk1/pp2qppp/2n1bn2/3N4/3P4/4PN2/PP2QPPP/R5K1" last-from="c3" last-to="d5" mark-sq="d5" mark-kind="blunder" hint-size="390px,390px"></dc-import>
+<dc-import name="EvalBar" cp="{{ev.cp}}" analysed="{{ev.analysed}}" player="white" theme="dark" hint-size="390px,38px"></dc-import>
 
-<div style="height: 60px; flex-shrink: 0; padding: 0 12px; display: flex; align-items: center; gap: 4px">
+<dc-import name="Board" size="390" fen="{{bd.fen}}" last-from="{{bd.from}}" last-to="{{bd.to}}" mark-sq="{{bd.mark}}" mark-kind="{{bd.kind}}" tip-from="{{bd.tipFrom}}" tip-to="{{bd.tipTo}}" hint-size="390px,390px"></dc-import>
+
+<div style="padding: 10px 12px 4px; display: flex; flex-direction: column; gap: 8px">
+<sc-if value="{{mode.line}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px">
+<span style="height: 30px; padding: 0 12px; border-radius: 15px; background: rgba(134,168,255,0.14); color: #C9D7FF; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600"><span style="width: 8px; height: 8px; border-radius: 4px; background: #86A8FF"></span>Stockfish's line · 2 of 5</span>
+<button type="button" style="height: 36px; padding: 0 8px; border: none; background: transparent; color: #86A8FF; font-size: 14px; font-weight: 600">Back to the game</button>
+</div>
+</sc-if>
+<sc-if value="{{mode.your}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px">
+<div style="display: flex; flex-direction: column; gap: 3px">
+<span style="align-self: flex-start; height: 28px; padding: 0 12px; border-radius: 14px; border: 1px solid rgba(227,178,92,0.6); color: #E3B25C; display: flex; align-items: center; font-size: 13px; font-weight: 600">Your line</span>
+<span style="font-size: 12px; color: #A3AFBD">Move a piece to try your own line</span>
+</div>
+<button type="button" style="height: 36px; padding: 0 8px; border: none; background: transparent; color: #86A8FF; font-size: 14px; font-weight: 600">Back to key moments</button>
+</div>
+</sc-if>
+<div style="height: 52px; display: flex; align-items: center; gap: 4px">
 <button type="button" aria-label="First move" style="width: 44px; height: 44px; border-radius: 12px; border: none; background: transparent; color: #A3AFBD; display: flex; align-items: center; justify-content: center">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 5l-7 7 7 7M7 5v14"></path></svg></button>
 <button type="button" aria-label="Previous move" style="width: 44px; height: 44px; border-radius: 12px; border: none; background: #151B22; color: #E9EDF2; display: flex; align-items: center; justify-content: center">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
 <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center">
-<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 15px">23. Nxd5??</span>
-<span style="font-size: 12px; color: #7C8898">move 23 of 41</span>
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 15px">{{mode.move}}</span>
+<span style="font-size: 12px; color: #7C8898">{{mode.count}}</span>
 </div>
 <button type="button" aria-label="Next move" style="width: 44px; height: 44px; border-radius: 12px; border: none; background: #151B22; color: #E9EDF2; display: flex; align-items: center; justify-content: center">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
 <button type="button" aria-label="Last move" style="width: 44px; height: 44px; border-radius: 12px; border: none; background: transparent; color: #A3AFBD; display: flex; align-items: center; justify-content: center">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5l7 7-7 7M17 5v14"></path></svg></button>
 </div>
+<a href="Analysis.dc.html" style="height: 44px; border-radius: 12px; border: 1px solid #2A3441; background: #151B22; color: #E9EDF2; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 600">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#86A8FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"></path></svg>Analyze this position</a>
+</div>
 
-<div style="padding: 8px 16px 0; display: flex; flex-direction: column; gap: 24px">
+<div style="padding: 12px 16px 32px; display: flex; flex-direction: column; gap: 24px">
 
+<sc-if value="{{st.progress}}" hint-placeholder-val="{{false}}">
+<section aria-live="polite" style="border-radius: 16px; background: #151B22; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 20px; height: 20px; box-sizing: border-box; border-radius: 10px; border: 2.5px solid #86A8FF; border-right-color: transparent; animation: mw-rv-spin 0.8s linear infinite"></span>
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">Analysing with Stockfish</span>
+</div>
+<div role="progressbar" aria-valuemin="0" aria-valuemax="41" aria-valuenow="12" aria-label="Analysis progress" style="height: 6px; border-radius: 3px; background: #222B36; overflow: hidden"><div style="width: 29%; height: 6px; border-radius: 3px; background: #86A8FF"></div></div>
+<span style="font-size: 13px; color: #A3AFBD">Move 12 of 41 · you can look around meanwhile</span>
+</section>
+</sc-if>
+
+<sc-if value="{{st.error}}" hint-placeholder-val="{{false}}">
+<section role="alert" style="border-radius: 16px; background: rgba(242,103,122,0.08); border: 1px solid rgba(242,103,122,0.45); padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: flex-start; gap: 12px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F2677A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5M12 16.5v.01"></path></svg>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 15px; font-weight: 600; color: #F6A3AF">Stockfish couldn't finish the analysis.</span>
+<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">It stopped at move 12 of 41. The game itself is saved.</span>
+</div>
+</div>
+<button type="button" style="align-self: flex-start; height: 44px; padding: 0 18px; border-radius: 12px; border: none; background: #86A8FF; color: #0B1224; font-family: Sora, sans-serif; font-weight: 600; font-size: 14px">Try again</button>
+</section>
+</sc-if>
+
+<sc-if value="{{st.graph}}" hint-placeholder-val="{{true}}">
 <section aria-labelledby="eval-h" style="background: #151B22; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
 <div style="display: flex; justify-content: space-between; align-items: baseline">
 <h2 id="eval-h" style="margin: 0; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">Evaluation</h2>
 <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #F2677A">+0.4 → −2.9</span>
 </div>
-<svg width="326" height="112" viewBox="0 0 358 120" role="img" aria-label="Evaluation graph: level until move 22, drops sharply at move 23, worsens after move 31" style="display: block; border-radius: 8px">
+<svg width="326" height="104" viewBox="0 0 358 120" role="img" aria-label="Evaluation graph: level until move 22, drops at move 23, recovers slightly at 27, worsens after 31" style="display: block; border-radius: 8px">
 <rect x="0" y="0" width="358" height="120" fill="#0E1217"></rect>
-<path d="M0,120 L0,60 L18,58 L36,57 L54,56 L63,52 L72,53 L90,51 L107,50 L125,52 L143,49 L161,48 L179,47 L197,50 L205,92 L215,95 L233,98 L251,97 L269,99 L278,107 L296,110 L314,112 L332,114 L358,116 L358,120 Z" fill="#C9D1DC" fill-opacity="0.9"></path>
+<path d="M0,120 L0,60 L18,58 L36,57 L54,56 L63,52 L72,53 L90,51 L107,50 L125,52 L143,49 L161,48 L179,47 L197,50 L205,92 L215,95 L233,86 L242,80 L251,90 L269,99 L278,107 L296,110 L314,112 L332,114 L358,116 L358,120 Z" fill="#C9D1DC" fill-opacity="0.9"></path>
 <line x1="0" y1="60" x2="358" y2="60" stroke="#7C8898" stroke-width="1" stroke-dasharray="3 4"></line>
 <line x1="205" y1="0" x2="205" y2="120" stroke="#86A8FF" stroke-width="1.5"></line>
 <circle cx="63" cy="52" r="6" fill="#86A8FF" stroke="#0E1217" stroke-width="2"></circle>
 <circle cx="205" cy="92" r="7" fill="#F2677A" stroke="#0E1217" stroke-width="2"></circle>
-<circle cx="278" cy="107" r="6" fill="#F09A55" stroke="#0E1217" stroke-width="2"></circle>
+<circle cx="242" cy="80" r="6" fill="#F2677A" stroke="#E9EDF2" stroke-width="2"></circle>
 </svg>
-<div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #7C8898">
-<span>1</span><span>10</span><span>20</span><span>30</span><span>41</span>
+</section>
+</sc-if>
+
+<sc-if value="{{ai.ask}}" hint-placeholder-val="{{false}}">
+<section style="border-radius: 16px; background: #151B22; border: 1px dashed #34466F; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">Want these explained in plain words?</span>
+<button type="button" style="height: 48px; border-radius: 12px; border: none; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2 7 7 3-7 3-2 7-2-7-7-3 7-3z"></path></svg>Explain key moments</button>
+<span style="font-size: 12px; color: #7C8898; text-align: center">Every move the AI mentions is checked.</span>
+</section>
+</sc-if>
+
+<sc-if value="{{ai.loading}}" hint-placeholder-val="{{false}}">
+<section aria-live="polite" style="border-radius: 16px; background: #151B22; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 18px; height: 18px; box-sizing: border-box; border-radius: 9px; border: 2.5px solid #E3B25C; border-right-color: transparent; animation: mw-rv-spin 0.8s linear infinite"></span>
+<span style="font-size: 15px; font-weight: 600">Asking AI about 3 moments…</span>
+</div>
+<span aria-hidden="true" style="height: 10px; width: 92%; border-radius: 5px; background: #222B36; animation: mw-rv-shimmer 1.4s ease-in-out infinite"></span>
+<span aria-hidden="true" style="height: 10px; width: 78%; border-radius: 5px; background: #222B36; animation: mw-rv-shimmer 1.4s ease-in-out 0.2s infinite"></span>
+<span aria-hidden="true" style="height: 10px; width: 64%; border-radius: 5px; background: #222B36; animation: mw-rv-shimmer 1.4s ease-in-out 0.4s infinite"></span>
+</section>
+</sc-if>
+
+<sc-if value="{{ai.done}}" hint-placeholder-val="{{true}}">
+<section aria-label="AI summary" style="border-radius: 16px; background: #151B22; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">Summary</span>
+<p style="margin: 0; font-size: 15px; line-height: 23px; color: #D3D9E1">You held a level game for 22 moves, then gave a knight away on d5. Stockfish returned the favour at move 27, but a loose back rank decided it.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #E3B25C">Work on</span>
+<div style="display: flex; gap: 10px; font-size: 15px; line-height: 22px"><span style="color: #E3B25C">1</span><span>Counting attackers and defenders before central captures.</span></div>
+<div style="display: flex; gap: 10px; font-size: 15px; line-height: 22px"><span style="color: #E3B25C">2</span><span>Giving your king an escape square before move 30.</span></div>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 1px solid #222B36">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #7C8898">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="#7C8898" aria-hidden="true"><path d="M12 2l2 7 7 3-7 3-2 7-2-7-7-3 7-3z"></path></svg>Explained by AI · moves and claims checked</span>
+<button type="button" style="height: 36px; padding: 0 8px; border: none; background: transparent; color: #86A8FF; font-size: 13px; font-weight: 600">Explain again</button>
 </div>
 </section>
+</sc-if>
 
 <section aria-labelledby="km-h" style="display: flex; flex-direction: column; gap: 12px">
 <div style="display: flex; justify-content: space-between; align-items: baseline">
 <h2 id="km-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Key moments</h2>
-<span style="font-size: 13px; color: #A3AFBD">3 of 41 moves</span>
+<span style="font-size: 13px; color: #A3AFBD">{{kmCount}}</span>
 </div>
 
-<article style="background: #151B22; border: 1px solid #34466F; border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
-<div style="display: flex; align-items: center; justify-content: space-between">
-<span style="height: 28px; padding: 0 10px 0 4px; border-radius: 6px; background: rgba(242,103,122,0.14); color: #F2677A; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600"><span style="min-width: 20px; height: 20px; border-radius: 10px; background: #F2677A; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-size: 10px; font-weight: 700">??</span>Blunder</span>
-<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A3AFBD">+0.4 → −2.9</span>
+<sc-if value="{{st.empty}}" hint-placeholder-val="{{false}}">
+<div style="border-radius: 16px; background: #151B22; padding: 22px 18px; display: flex; align-items: center; gap: 14px">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#86A8FF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M4 12l5 5L20 6"></path></svg>
+<span style="font-size: 15px; line-height: 22px; color: #D3D9E1">No big mistakes and no standout finds: a steady game.</span>
 </div>
-<h3 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 18px; line-height: 24px">23. Nxd5 gave away a knight</h3>
-<p style="margin: 0; font-size: 15px; line-height: 22px; color: #C4CCD6">d5 was defended twice — by the knight on f6 and the bishop on e6. After 23…Nxd5 you’ve traded a knight for a pawn, and nothing of yours can recapture.</p>
-<div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; border-radius: 12px; background: #1C242E">
-<span style="flex-shrink: 0; width: 22px; height: 22px; border-radius: 11px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center; margin-top: 1px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>
+</sc-if>
+
+<sc-if value="{{st.moments}}" hint-placeholder-val="{{true}}">
+<article style="background: #151B22; border: 1px solid #34466F; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px">
+<span style="height: 26px; padding: 0 9px 0 3px; border-radius: 6px; background: rgba(242,103,122,0.14); color: #F2677A; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600"><span style="min-width: 20px; height: 20px; border-radius: 10px; background: #F2677A; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-size: 10px; font-weight: 700">??</span>Blunder</span>
+<span style="height: 26px; padding: 0 9px; border-radius: 13px; background: #1C242E; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600"><span aria-hidden="true" style="width: 10px; height: 10px; box-sizing: border-box; border-radius: 5px; border: 1.5px solid #E9EDF2"></span>You</span>
+<span style="margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A3AFBD">+0.4 → −2.9</span>
+</div>
+<sc-if value="{{ai.done}}" hint-placeholder-val="{{true}}">
+<h3 style="margin: 0; display: flex; align-items: flex-start; gap: 8px; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px; line-height: 23px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#E3B25C" aria-hidden="true" style="flex-shrink: 0; margin-top: 3px"><path d="M12 2l2 7 7 3-7 3-2 7-2-7-7-3 7-3z"></path></svg>Trading a knight for a pawn on d5</h3>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: #C4CCD6">23. Nxd5 grabs a pawn, but d5 was defended twice, by the knight on f6 and the bishop on e6. After 23…Nxd5 you're a piece down. Rd1 kept everything defended.</p>
+<div style="display: flex; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(227,178,92,0.55); background: rgba(227,178,92,0.06)">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E3B25C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0; margin-top: 1px"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"></path></svg>
 <div style="display: flex; flex-direction: column; gap: 2px">
-<span style="font-size: 14px; color: #E9EDF2">Best was <span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; color: #A9C0FF">23. Rd1</span></span>
-<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">Adds a defender to d4 and keeps the pressure on d5 without committing. Verified by Stockfish, depth 22.</span>
+<span style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #E3B25C">Lesson</span>
+<span style="font-size: 14px; line-height: 20px; color: #EBD7B0">Before any capture in the centre, count attackers and defenders on that square.</span>
 </div>
 </div>
-<div style="display: flex; flex-direction: column; gap: 8px; padding-top: 4px">
-<a href="Coach.dc.html" style="height: 48px; border-radius: 12px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg>Ask coach about this move</a>
-<button type="button" style="height: 44px; border-radius: 12px; border: none; background: transparent; color: #86A8FF; font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">Play the best line</button>
+</sc-if>
+<sc-if value="{{ai.notDone}}" hint-placeholder-val="{{false}}">
+<h3 style="margin: 0; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 16px">23. Nxd5?? <span style="color: #7C8898">· best was</span> <span style="color: #A9C0FF">23. Rd1</span></h3>
+<p style="margin: 0; font-size: 14px; line-height: 21px; color: #A3AFBD">Loses 3.3 pawns of evaluation. Stockfish's line keeps the knight on c3.</p>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 2px">
+<a href="CoachEmptyGame.dc.html" style="height: 46px; border-radius: 12px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg>Ask AI Coach about this move</a>
+<button type="button" style="height: 42px; border-radius: 12px; border: none; background: transparent; color: #86A8FF; font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">Play the best move</button>
 </div>
 </article>
 
-<article style="background: #151B22; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
-<div style="display: flex; align-items: center; justify-content: space-between">
-<span style="height: 28px; padding: 0 10px 0 4px; border-radius: 6px; background: rgba(134,168,255,0.14); color: #A9C0FF; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600"><span style="min-width: 20px; height: 20px; border-radius: 10px; background: #86A8FF; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-size: 10px; font-weight: 700">!</span>Best move</span>
-<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A3AFBD">move 7</span>
+<sc-for list="{{collapsed}}" as="k" hint-placeholder-count="2">
+<article style="background: #151B22; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 8px">
+<span style="height: 26px; padding: 0 9px 0 3px; border-radius: 6px; background: {{k.qBg}}; color: {{k.qFg}}; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600"><span style="min-width: 20px; height: 20px; border-radius: 10px; background: {{k.qDot}}; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-size: 10px; font-weight: 700">{{k.sym}}</span>{{k.q}}</span>
+<span style="height: 26px; padding: 0 9px; border-radius: 13px; background: #1C242E; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600"><span aria-hidden="true" style="width: 10px; height: 10px; box-sizing: border-box; border-radius: 5px; background: {{k.discBg}}; border: 1.5px solid #E9EDF2"></span>{{k.who}}</span>
+<span style="margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A3AFBD">{{k.eval}}</span>
 </div>
-<h3 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">7. Bg5 — the pin that set up your game</h3>
-<p style="margin: 0; font-size: 14px; line-height: 21px; color: #A3AFBD">Pinning the f6 knight to the queen left Black passive for ten moves.</p>
-</article>
-
-<article style="background: #151B22; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
-<div style="display: flex; align-items: center; justify-content: space-between">
-<span style="height: 28px; padding: 0 10px 0 4px; border-radius: 6px; background: rgba(240,154,85,0.14); color: #F09A55; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600"><span style="min-width: 20px; height: 20px; border-radius: 10px; background: #F09A55; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-size: 10px; font-weight: 700">?</span>Mistake</span>
-<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #A3AFBD">−2.9 → −4.1</span>
+<sc-if value="{{k.ai}}" hint-placeholder-val="{{true}}">
+<h3 style="margin: 0; display: flex; align-items: flex-start; gap: 8px; font-family: Sora, sans-serif; font-weight: 600; font-size: 16px; line-height: 22px"><svg width="15" height="15" viewBox="0 0 24 24" fill="#E3B25C" aria-hidden="true" style="flex-shrink: 0; margin-top: 3px"><path d="M12 2l2 7 7 3-7 3-2 7-2-7-7-3 7-3z"></path></svg>{{k.head}}</h3>
+<p style="margin: 0; font-size: 14px; line-height: 21px; color: #A3AFBD; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden">{{k.body}}</p>
+</sc-if>
+<sc-if value="{{k.loading}}" hint-placeholder-val="{{false}}">
+<span aria-hidden="true" style="height: 12px; width: 70%; border-radius: 6px; background: #222B36; animation: mw-rv-shimmer 1.4s ease-in-out infinite"></span>
+<span aria-hidden="true" style="height: 10px; width: 90%; border-radius: 5px; background: #222B36; animation: mw-rv-shimmer 1.4s ease-in-out 0.2s infinite"></span>
+</sc-if>
+<sc-if value="{{k.engine}}" hint-placeholder-val="{{false}}">
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 15px">{{k.move}} <span style="color: #7C8898">· best</span> <span style="color: #A9C0FF">{{k.best}}</span></span>
+</sc-if>
+<div style="display: flex; gap: 16px">
+<button type="button" style="height: 36px; padding: 0; border: none; background: transparent; color: #86A8FF; font-size: 14px; font-weight: 600">Read more</button>
+<button type="button" style="height: 36px; padding: 0; border: none; background: transparent; color: #86A8FF; font-size: 14px; font-weight: 600">Show best move</button>
 </div>
-<h3 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 16px">31. Kh1 left the back rank bare</h3>
-<p style="margin: 0; font-size: 14px; line-height: 21px; color: #A3AFBD">Down material, you needed activity. 31. Qd2 kept the rook covered.</p>
 </article>
+</sc-for>
+</sc-if>
 </section>
 
+<sc-if value="{{st.graph}}" hint-placeholder-val="{{true}}">
 <section aria-labelledby="ml-h" style="display: flex; flex-direction: column; gap: 12px">
 <h2 id="ml-h" style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Moves</h2>
-<div style="display: flex; gap: 8px; overflow: hidden">
-<button type="button" aria-pressed="true" style="height: 36px; flex-shrink: 0; padding: 0 14px; border: 1px solid #86A8FF; border-radius: 18px; background: rgba(134,168,255,0.14); color: #C9D7FF; font-size: 14px; font-weight: 500">All</button>
-<button type="button" aria-pressed="false" style="height: 36px; flex-shrink: 0; padding: 0 14px; border: 1px solid #2A3441; border-radius: 18px; background: transparent; color: #E9EDF2; font-size: 14px; font-weight: 500">?? 1</button>
-<button type="button" aria-pressed="false" style="height: 36px; flex-shrink: 0; padding: 0 14px; border: 1px solid #2A3441; border-radius: 18px; background: transparent; color: #E9EDF2; font-size: 14px; font-weight: 500">? 2</button>
-<button type="button" aria-pressed="false" style="height: 36px; flex-shrink: 0; padding: 0 14px; border: 1px solid #2A3441; border-radius: 18px; background: transparent; color: #E9EDF2; font-size: 14px; font-weight: 500">?! 3</button>
-<button type="button" aria-pressed="false" style="height: 36px; flex-shrink: 0; padding: 0 14px; border: 1px solid #2A3441; border-radius: 18px; background: transparent; color: #E9EDF2; font-size: 14px; font-weight: 500">! 6</button>
-</div>
 <ol aria-label="Moves 21 to 26" style="margin: 0; padding: 0; list-style: none; border-radius: 16px; background: #151B22; overflow: hidden; font-family: 'JetBrains Mono', monospace; font-size: 15px">
 <sc-for list="{{moves}}" as="m" hint-placeholder-count="6">
 <li style="height: 48px; display: grid; grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr); align-items: center; padding: 0 12px; border-top: 1px solid #1C242E; background: {{m.rowBg}}">
@@ -142,40 +249,73 @@ a{color:#86A8FF;text-decoration:none}a:hover{color:#A9C0FF}
 <span style="display: flex; align-items: center; gap: 8px; color: #E9EDF2">{{m.w}}
 <sc-if value="{{m.wq}}" hint-placeholder-val="{{false}}"><span style="min-width: 22px; height: 20px; padding: 0 4px; box-sizing: border-box; border-radius: 10px; background: {{m.wqBg}}; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-size: 10px; font-weight: 700">{{m.wqT}}</span></sc-if>
 </span>
-<span style="display: flex; align-items: center; gap: 8px; color: #A3AFBD">{{m.b}}</span>
+<span style="display: flex; align-items: center; gap: 8px; color: #A3AFBD">{{m.b}}
+<sc-if value="{{m.bq}}" hint-placeholder-val="{{false}}"><span style="min-width: 22px; height: 20px; padding: 0 4px; box-sizing: border-box; border-radius: 10px; background: {{m.bqBg}}; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-size: 10px; font-weight: 700">{{m.bqT}}</span></sc-if>
+</span>
 </li>
 </sc-for>
 </ol>
 </section>
+</sc-if>
 
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1840}}'>
+<script type="text/x-dc" data-dc-script data-props='{"stage":{"editor":"enum","options":["done","ask","loading","progress","error","empty"],"default":"done"},"$preview":{"width":390,"height":2490}}'>
 class Component extends DCLogic {
   renderVals() {
+    var stage = this.props.stage || 'done';
+    var H = { done: 2490, ask: 2280, loading: 2250, progress: 1010, error: 1010, empty: 1570 };
+    var analysed = stage !== 'progress' && stage !== 'error';
     var q = {
-      blunder: { bg: '#F2677A', t: '??' },
-      mistake: { bg: '#F09A55', t: '?' },
-      inaccuracy: { bg: '#E3C65C', t: '?!' },
-      best: { bg: '#86A8FF', t: '!' }
+      blunder: { bg: '#F2677A', t: '??', chipBg: 'rgba(242,103,122,0.14)', name: 'Blunder' },
+      mistake: { bg: '#F09A55', t: '?', chipBg: 'rgba(240,154,85,0.14)', name: 'Mistake' },
+      inaccuracy: { bg: '#E3C65C', t: '?!', chipBg: 'rgba(227,198,92,0.14)', name: 'Inaccuracy' },
+      best: { bg: '#86A8FF', t: '!', chipBg: 'rgba(134,168,255,0.14)', name: 'Best' }
     };
+    var ai = { done: stage === 'done', ask: stage === 'ask', loading: stage === 'loading' };
+    ai.notDone = !ai.done;
+    var moments = [
+      { kind: 'blunder', who: 'Stockfish', opp: true, eval: '−4.1 → −1.5', head: 'Missing a better continuation', body: 'Stockfish 1000 played 27…Qe5?? and left the c8 rook loose. 28. Qxc8 would have won it back and levelled the game.', move: '27…Qe5??', best: '27…Rc7' },
+      { kind: 'best', who: 'You', opp: false, eval: '+0.3 → +0.6', head: 'Pinning the knight to the queen', body: '7. Bg5 pinned the f6 knight and kept Black passive for ten moves. This was the engine\'s top choice.', move: '7. Bg5!', best: '7. Bg5' }
+    ].map(function (m) {
+      var k = q[m.kind];
+      return {
+        q: k.name, sym: k.t, qBg: k.chipBg, qFg: k.bg, qDot: k.bg, who: m.who, discBg: m.opp ? '#E9EDF2' : 'transparent', eval: m.eval,
+        head: m.head, body: m.body, move: m.move, best: m.best,
+        ai: ai.done, loading: ai.loading, engine: ai.ask
+      };
+    });
     var rows = [
       { n: 21, w: 'Qe2', b: 'Rac8' },
       { n: 22, w: 'Nc3', wk: 'inaccuracy', b: 'Be6' },
       { n: 23, w: 'Nxd5', wk: 'blunder', b: 'Nxd5', sel: true },
       { n: 24, w: 'Qd3', b: 'Nf6' },
       { n: 25, w: 'Rc1', wk: 'best', b: 'Rxc1+' },
-      { n: 26, w: 'Qxc1', b: 'Rc8' }
+      { n: 26, w: 'Qxc1', b: 'Qe5', bk: 'blunder' }
     ];
+    var line = stage === 'done', your = stage === 'ask';
     return {
+      h: H[stage] || 2490,
+      ev: !analysed ? { cp: 0, analysed: 'false' } : (line ? { cp: 40, analysed: 'true' } : (your ? { cp: 30, analysed: 'true' } : { cp: -290, analysed: 'true' })),
+      st: { progress: stage === 'progress', error: stage === 'error', graph: analysed, empty: stage === 'empty', moments: analysed && stage !== 'empty' },
+      ai: { done: ai.done, ask: ai.ask, loading: ai.loading, notDone: ai.notDone },
+      acc: analysed ? { you: '78.4', opp: '91.2' } : { you: '—', opp: '—' },
+      kmCount: stage === 'empty' ? 'none this game' : '3 of 41 moves',
+      mode: {
+        line: line, your: your,
+        move: line ? '24…a6' : (your ? '23. Rd1' : '23. Nxd5??'),
+        count: line ? 'after 23. Rd1' : (your ? 'your try' : 'move 23 of 41')
+      },
+      bd: line
+        ? { fen: '2r2rk1/1p2qppp/p1n1bn2/3p4/3P4/2N1PN2/PP2QPPP/3R2K1', from: 'a7', to: 'a6', mark: '', kind: '', tipFrom: '', tipTo: '' }
+        : (your
+          ? { fen: '2r2rk1/pp2qppp/2n1bn2/3p4/3P4/2N1PN2/PP2QPPP/3R2K1', from: 'a1', to: 'd1', mark: 'd1', kind: 'best', tipFrom: '', tipTo: '' }
+          : { fen: '2r2rk1/pp2qppp/2n1bn2/3N4/3P4/4PN2/PP2QPPP/R5K1', from: 'c3', to: 'd5', mark: analysed ? 'd5' : '', kind: analysed ? 'blunder' : '', tipFrom: '', tipTo: '' }),
+      collapsed: moments,
       moves: rows.map(function (r) {
-        var k = q[r.wk];
-        return {
-          n: r.n, w: r.w, b: r.b,
-          wq: !!k, wqBg: k ? k.bg : '', wqT: k ? k.t : '',
-          rowBg: r.sel ? 'rgba(134,168,255,0.12)' : 'transparent'
-        };
+        var a = q[r.wk], b = q[r.bk];
+        return { n: r.n, w: r.w, b: r.b, wq: !!a, wqBg: a ? a.bg : '', wqT: a ? a.t : '', bq: !!b, bqBg: b ? b.bg : '', bqT: b ? b.t : '', rowBg: r.sel ? 'rgba(134,168,255,0.12)' : 'transparent' };
       })
     };
   }

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 /// One turn of a conversation with a language model.
 @immutable
 class LlmMessage {
-  const LlmMessage.user(this.text)
+  const LlmMessage.user(this.text, {this.images = const []})
     : role = LlmRole.user,
       toolCalls = const [],
       toolResults = const [],
@@ -11,17 +11,22 @@ class LlmMessage {
 
   const LlmMessage.model(this.text, {this.toolCalls = const [], this.raw})
     : role = LlmRole.model,
-      toolResults = const [];
+      toolResults = const [],
+      images = const [];
 
   /// The results of the tools the model asked for in its previous turn.
   const LlmMessage.toolResults(this.toolResults)
     : role = LlmRole.user,
       text = '',
       toolCalls = const [],
+      images = const [],
       raw = null;
 
   final LlmRole role;
   final String text;
+
+  /// Pictures sent with the text (user turns only), e.g. a board photo.
+  final List<LlmImage> images;
 
   /// Tools the model asked to run (model turns only).
   final List<LlmToolCall> toolCalls;
@@ -34,6 +39,20 @@ class LlmMessage {
 }
 
 enum LlmRole { user, model }
+
+/// Image detail. On Gemini 3 an image costs a fixed number of tokens set by
+/// this, whatever its pixel size: low 280, medium 560, high (the default)
+/// 1120.
+enum LlmMediaResolution { low, medium, high }
+
+/// An image in a user turn: encoded bytes and their media type.
+@immutable
+class LlmImage {
+  const LlmImage(this.bytes, {this.mimeType = 'image/jpeg'});
+
+  final Uint8List bytes;
+  final String mimeType;
+}
 
 /// A tool the model may call: a name, what it does, and a JSON Schema for
 /// its arguments (null when it takes none).
@@ -86,7 +105,12 @@ class LlmRequest {
     this.temperature = 0.4,
     this.tools = const [],
     this.toolMode = LlmToolMode.auto,
+    this.mediaResolution,
   });
+
+  /// How much detail (and how many tokens) each image gets; the model's
+  /// default when null.
+  final LlmMediaResolution? mediaResolution;
 
   final String? system;
   final List<LlmMessage> messages;

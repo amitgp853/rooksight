@@ -56,11 +56,22 @@ class StockfishEngine implements ChessEngine {
   Future<void> _queue = Future.value();
 
   /// A command whose reply takes longer than this is treated as failed. The
-  /// slowest search (1.5s move time) answers well within it.
+  /// slowest timed search (1.5s move time) answers well within it.
   static const _timeout = Duration(seconds: 10);
+
+  /// Deep analysis (depth 24, several lines) can take a while on a phone.
+  static const _depthTimeout = Duration(seconds: 90);
+
+  /// A stoppable `go` is running, so `stop` has something to end.
+  bool _searching = false;
 
   @override
   Future<void> warmUp() => _ensureStarted();
+
+  @override
+  void stop() {
+    if (_searching) _process.send('stop');
+  }
 
   @override
   Future<List<EngineLine>> search(String fen, SearchLimits limits) {
@@ -87,16 +98,22 @@ class StockfishEngine implements ChessEngine {
 
     final lines = <int, EngineLine>{};
     String? bestMove;
-    await _command(
-      _goCommand(limits),
-      until: (line) {
-        final info = UciParser.parseInfo(line);
-        if (info != null) lines[info.rank] = info; // Deeper lines replace shallower.
-        if (!line.startsWith('bestmove')) return false;
-        bestMove = UciParser.parseBestMove(line);
-        return true;
-      },
-    );
+    _searching = limits.stoppable;
+    try {
+      await _command(
+        _goCommand(limits),
+        timeout: limits.moveTime == null ? _depthTimeout : _timeout,
+        until: (line) {
+          final info = UciParser.parseInfo(line);
+          if (info != null) lines[info.rank] = info; // Deeper lines replace shallower.
+          if (!line.startsWith('bestmove')) return false;
+          bestMove = UciParser.parseBestMove(line);
+          return true;
+        },
+      );
+    } finally {
+      _searching = false;
+    }
 
     if (bestMove == null) return const []; // No legal moves.
     final ranked = lines.values.toList()..sort((a, b) => a.rank.compareTo(b.rank));
@@ -125,16 +142,22 @@ class StockfishEngine implements ChessEngine {
   Future<void> _start() async {
     _subscription = _process.output.listen((line) => _onLine?.call(line));
     await _process.start();
+    // Win/draw/loss chances with each score, for the analysis board.
+    _setOption('UCI_ShowWDL', true);
   }
 
   /// Sends [command] and completes once an output line satisfies [until].
-  Future<void> _command(String command, {required bool Function(String line) until}) {
+  Future<void> _command(
+    String command, {
+    required bool Function(String line) until,
+    Duration timeout = _timeout,
+  }) {
     final done = Completer<void>();
     _onLine = (line) {
       if (!done.isCompleted && until(line)) done.complete();
     };
     _process.send(command);
-    return done.future.timeout(_timeout).whenComplete(() => _onLine = null);
+    return done.future.timeout(timeout).whenComplete(() => _onLine = null);
   }
 
   @override

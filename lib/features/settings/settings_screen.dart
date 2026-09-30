@@ -18,6 +18,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/theme/board_themes.dart';
 import '../../core/widgets/segmented_switch.dart';
 import '../import/domain/importer.dart' show ImportPlatform;
+import '../scan/domain/scan_usage.dart';
 import '../import/import_controller.dart';
 
 /// Settings (`design/source/Settings.dc.html`). Sound, reduced motion and
@@ -432,6 +433,10 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
           Text(
             'Stored only on this phone. The AI Coach runs only when you tap a button '
             'that asks for it.',
+            style: _help(context),
+          ),
+          Text(
+            'Board scans today: ${ref.watch(scanUsageProvider)} of ${ScanUsage.dailyLimit}.',
             style: _help(context),
           ),
           Row(

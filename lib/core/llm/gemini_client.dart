@@ -85,7 +85,10 @@ class GeminiClient implements LlmClient {
 
     final models = [_primary, ...fallbackModels];
     for (final (i, candidate) in models.indexed) {
-      final body = requestBody(request, thinkingLevel: candidate == _primary ? thinkingLevel : null);
+      final body = requestBody(
+        request,
+        thinkingLevel: candidate == _primary ? thinkingLevel : null,
+      );
       try {
         final reply = await _withRetries(candidate, jsonEncode(body));
         model = candidate;
@@ -131,6 +134,8 @@ class GeminiClient implements LlmClient {
     },
     'generationConfig': {
       'temperature': request.temperature,
+      if (request.mediaResolution case final resolution?)
+        'mediaResolution': 'MEDIA_RESOLUTION_${resolution.name.toUpperCase()}',
       if (thinkingLevel != null && thinkingLevel.isNotEmpty)
         'thinkingConfig': {'thinkingLevel': thinkingLevel},
       if (request.jsonSchema != null) ...{
@@ -146,6 +151,10 @@ class GeminiClient implements LlmClient {
     return {
       'role': message.role == LlmRole.user ? 'user' : 'model',
       'parts': [
+        for (final image in message.images)
+          {
+            'inlineData': {'mimeType': image.mimeType, 'data': base64Encode(image.bytes)},
+          },
         if (message.text.isNotEmpty) {'text': message.text},
         for (final call in message.toolCalls)
           {

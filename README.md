@@ -41,6 +41,8 @@ Flutter · Android and iOS · no login, no backend, free to run.
 | **Play** | Stockfish from 400 to 3000 Elo (step 200), your colour and time control. Only you are timed; Stockfish plays without a clock. Hints, take-backs in practice mode, draw offers, every rule (castling, en passant, promotion, repetition, 50-move rule, insufficient material). An unfinished game waits on Home. |
 | **Pass & Play** | Two players on one phone, fully offline, both clocks running. The board turns for the player to move, or a face-to-face layout lets the phone lie flat between you (pieces turn to face whoever's move it is). Takebacks and draw offers need the other player's OK. Pause hides the board; "Save and finish later" keeps the game on Home. Finished games are saved from the first player's side and count in their stats. |
 | **Import** | Your public Chess.com and Lichess games by username (one per site, kept on the phone). No login; requests are one at a time, and later imports fetch only new games. When a site asks to slow down, the import pauses with a live countdown (or "Try now") and carries on by itself. |
+| **Scan a board** | Photograph a real board or a book diagram (or pick a photo), crop it to the 64 squares, and Gemini reads the position with your own key while you watch each step. If something doesn't add up (two white kings, a pawn on the back rank) it takes a second look at just those squares. Then check it: doubtful squares are marked, a side-by-side view compares with your photo, a piece palette fixes any square, and you set side to move and castling. Analyze stays off until the position is legal. Without a key, offline or out of quota, the same editor sets a position up by hand. The photo is never saved. |
+| **Analysis board** | Any position from a scan, by hand, or "Analyze this position" in a review: Stockfish's eval (signed), win/draw/loss chances, its top 3 lines deepening live to depth 24, the best-move arrow, and a Threat arrow for what the other side wants. Play any move for either side; moves off the line become variations (long-press to promote, copy or delete), each marked `?!` `?` `??` against Stockfish's best, with Take back. Flip, copy FEN, share an image, play on from here vs Stockfish, or ask the AI Coach. Save a position (bookmark) to come back to it from Home: the moves you explore are kept as you go. |
 | **Review** | Stockfish checks every move on the phone: accuracy, an evaluation graph and bar, moves marked `!!` `!` `?!` `?` `??`, and the key moments. One optional AI request explains them. |
 | **AI Coach** | Ask anything about your games. A tool-calling agent looks at your games and asks Stockfish, and you watch each step as it happens. Chats are saved on the phone: search them, rename or delete them, and reopen one to carry on (opening a chat never runs the AI). |
 | **Stats** | Your top 3 weaknesses, when in a game things go wrong, blunders by phase, results by opening, personal bests. All computed on the phone. |
@@ -57,6 +59,7 @@ flowchart TB
     play[play] --- pass[pass_play] --- review[review] --- coach[coach]
     import[import] --- stats[stats] --- report[report_card]
     games[games] --- settings[settings] --- splash[splash]
+    scan[scan] --- analysis[analysis]
   end
 
   subgraph core["core/ + engine/"]
@@ -75,6 +78,8 @@ flowchart TB
   import --> chesscom & repo
   stats --> repo
   report --> repo & board
+  scan --> llm & rules & board
+  analysis --> engine & rules & board
 ```
 
 ```

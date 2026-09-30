@@ -7,6 +7,7 @@ import 'package:move_wise/core/storage/analysis_repository.dart';
 import 'package:move_wise/core/storage/database.dart';
 import 'package:move_wise/core/storage/game_repository.dart';
 import 'package:move_wise/core/storage/import_log.dart';
+import 'package:move_wise/core/storage/saved_position_repository.dart';
 import 'package:move_wise/core/storage/settings_store.dart';
 
 GameRecord record({
@@ -114,7 +115,7 @@ void main() {
   });
 
   test('the current schema creates every table', () async {
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 5);
     final tables = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'table'")
         .map((row) => row.read<String>('name'))
@@ -129,6 +130,7 @@ void main() {
         'game_reviews',
         'coach_chats',
         'coach_messages',
+        'saved_positions',
       ]),
     );
   });
@@ -292,6 +294,91 @@ void main() {
 
       await analyses.saveReview(id, const StoredReview(model: 'm', json: {'verdict': 'ok'}));
       expect((await analyses.review(id))!.json['verdict'], 'ok');
+    });
+  });
+
+  group('saved positions', () {
+    const draft = (
+      title: 'Scanned position · 30 Sep',
+      fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',
+      moves: [
+        {
+          'm': 'f1b5',
+          'c': [
+            {'m': 'a7a6'},
+          ],
+        },
+        {'m': 'f1c4'},
+      ],
+      path: [0, 0],
+      source: 'scan',
+      orientation: 'white',
+    );
+
+    test('round-trip, update, rename and delete', () async {
+      final positions = DriftSavedPositionRepository(db);
+      final id = await positions.create(draft, DateTime(2026, 9, 30, 10));
+
+      final saved = (await positions.byId(id))!;
+      expect(saved.title, draft.title);
+      expect(saved.fen, draft.fen);
+      expect(saved.moves, draft.moves);
+      expect(saved.path, [0, 0]);
+      expect(saved.moveCount, 3);
+
+      await positions.updateMoves(
+        id,
+        moves: const [
+          {'m': 'f1c4'},
+        ],
+        path: const [0],
+        now: DateTime(2026, 9, 30, 11),
+      );
+      await positions.rename(id, 'Italian');
+      final updated = (await positions.watchAll().first).single;
+      expect(updated.title, 'Italian');
+      expect(updated.moveCount, 1);
+      expect(updated.path, [0]);
+      expect(updated.updatedAt, DateTime(2026, 9, 30, 11));
+
+      await positions.delete(id);
+      expect(await positions.watchAll().first, isEmpty);
+    });
+
+    test('newest change first', () async {
+      final positions = DriftSavedPositionRepository(db);
+      final older = await positions.create(draft, DateTime(2026, 9, 1));
+      final newer = await positions.create(draft, DateTime(2026, 9, 2));
+      expect((await positions.watchAll().first).map((p) => p.id), [newer, older]);
+      await positions.updateMoves(
+        older,
+        moves: const [],
+        path: const [],
+        now: DateTime(2026, 9, 3),
+      );
+      expect((await positions.watchAll().first).map((p) => p.id), [older, newer]);
+    });
+
+    test('v3 → v5 adds the table and keeps games', () async {
+      final v3Schema = io.File('test/core/storage/schema_v3.sql').readAsStringSync();
+      final upgraded = AppDatabase(
+        NativeDatabase.memory(
+          setup: (raw) {
+            raw.execute(v3Schema);
+            raw.execute(
+              'INSERT INTO games (source, pgn, player_side, result, ply_count, '
+              "started_at, ended_at) VALUES ('chesscom', '1. e4 *', 'white', '1-0', 1, 0, 0)",
+            );
+            raw.execute('PRAGMA user_version = 3');
+          },
+        ),
+      );
+      addTearDown(upgraded.close);
+
+      expect(await DriftGameRepository(upgraded).watchAll().first, hasLength(1));
+      final positions = DriftSavedPositionRepository(upgraded);
+      final id = await positions.create(draft, DateTime(2026, 9, 30));
+      expect((await positions.byId(id))!.title, draft.title);
     });
   });
 }

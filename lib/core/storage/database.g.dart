@@ -17,9 +17,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
+    defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'),
   );
   static const VerificationMeta _sourceMeta = const VerificationMeta('source');
   @override
@@ -30,9 +28,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _externalIdMeta = const VerificationMeta(
-    'externalId',
-  );
+  static const VerificationMeta _externalIdMeta = const VerificationMeta('externalId');
   @override
   late final GeneratedColumn<String> externalId = GeneratedColumn<String>(
     'external_id',
@@ -51,9 +47,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _playerSideMeta = const VerificationMeta(
-    'playerSide',
-  );
+  static const VerificationMeta _playerSideMeta = const VerificationMeta('playerSide');
   @override
   late final GeneratedColumn<String> playerSide = GeneratedColumn<String>(
     'player_side',
@@ -71,9 +65,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _endReasonMeta = const VerificationMeta(
-    'endReason',
-  );
+  static const VerificationMeta _endReasonMeta = const VerificationMeta('endReason');
   @override
   late final GeneratedColumn<String> endReason = GeneratedColumn<String>(
     'end_reason',
@@ -82,9 +74,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _engineEloMeta = const VerificationMeta(
-    'engineElo',
-  );
+  static const VerificationMeta _engineEloMeta = const VerificationMeta('engineElo');
   @override
   late final GeneratedColumn<int> engineElo = GeneratedColumn<int>(
     'engine_elo',
@@ -93,9 +83,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _opponentNameMeta = const VerificationMeta(
-    'opponentName',
-  );
+  static const VerificationMeta _opponentNameMeta = const VerificationMeta('opponentName');
   @override
   late final GeneratedColumn<String> opponentName = GeneratedColumn<String>(
     'opponent_name',
@@ -104,9 +92,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _opponentRatingMeta = const VerificationMeta(
-    'opponentRating',
-  );
+  static const VerificationMeta _opponentRatingMeta = const VerificationMeta('opponentRating');
   @override
   late final GeneratedColumn<int> opponentRating = GeneratedColumn<int>(
     'opponent_rating',
@@ -115,9 +101,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _playerRatingMeta = const VerificationMeta(
-    'playerRating',
-  );
+  static const VerificationMeta _playerRatingMeta = const VerificationMeta('playerRating');
   @override
   late final GeneratedColumn<int> playerRating = GeneratedColumn<int>(
     'player_rating',
@@ -126,9 +110,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _timeClassMeta = const VerificationMeta(
-    'timeClass',
-  );
+  static const VerificationMeta _timeClassMeta = const VerificationMeta('timeClass');
   @override
   late final GeneratedColumn<String> timeClass = GeneratedColumn<String>(
     'time_class',
@@ -137,9 +119,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _timeControlMeta = const VerificationMeta(
-    'timeControl',
-  );
+  static const VerificationMeta _timeControlMeta = const VerificationMeta('timeControl');
   @override
   late final GeneratedColumn<String> timeControl = GeneratedColumn<String>(
     'time_control',
@@ -148,9 +128,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _practiceMeta = const VerificationMeta(
-    'practice',
-  );
+  static const VerificationMeta _practiceMeta = const VerificationMeta('practice');
   @override
   late final GeneratedColumn<bool> practice = GeneratedColumn<bool>(
     'practice',
@@ -158,14 +136,10 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("practice" IN (0, 1))',
-    ),
+    defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("practice" IN (0, 1))'),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _hintsUsedMeta = const VerificationMeta(
-    'hintsUsed',
-  );
+  static const VerificationMeta _hintsUsedMeta = const VerificationMeta('hintsUsed');
   @override
   late final GeneratedColumn<int> hintsUsed = GeneratedColumn<int>(
     'hints_used',
@@ -175,9 +149,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
-  static const VerificationMeta _plyCountMeta = const VerificationMeta(
-    'plyCount',
-  );
+  static const VerificationMeta _plyCountMeta = const VerificationMeta('plyCount');
   @override
   late final GeneratedColumn<int> plyCount = GeneratedColumn<int>(
     'ply_count',
@@ -186,9 +158,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _startedAtMeta = const VerificationMeta(
-    'startedAt',
-  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta('startedAt');
   @override
   late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
     'started_at',
@@ -197,9 +167,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _endedAtMeta = const VerificationMeta(
-    'endedAt',
-  );
+  static const VerificationMeta _endedAtMeta = const VerificationMeta('endedAt');
   @override
   late final GeneratedColumn<DateTime> endedAt = GeneratedColumn<DateTime>(
     'ended_at',
@@ -235,20 +203,14 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
   String get actualTableName => $name;
   static const String $name = 'games';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<GameRow> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<GameRow> instance, {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('source')) {
-      context.handle(
-        _sourceMeta,
-        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
-      );
+      context.handle(_sourceMeta, source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
     } else if (isInserting) {
       context.missing(_sourceMeta);
     }
@@ -259,10 +221,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
       );
     }
     if (data.containsKey('pgn')) {
-      context.handle(
-        _pgnMeta,
-        pgn.isAcceptableOrUnknown(data['pgn']!, _pgnMeta),
-      );
+      context.handle(_pgnMeta, pgn.isAcceptableOrUnknown(data['pgn']!, _pgnMeta));
     } else if (isInserting) {
       context.missing(_pgnMeta);
     }
@@ -275,10 +234,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
       context.missing(_playerSideMeta);
     }
     if (data.containsKey('result')) {
-      context.handle(
-        _resultMeta,
-        result.isAcceptableOrUnknown(data['result']!, _resultMeta),
-      );
+      context.handle(_resultMeta, result.isAcceptableOrUnknown(data['result']!, _resultMeta));
     } else if (isInserting) {
       context.missing(_resultMeta);
     }
@@ -297,28 +253,19 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     if (data.containsKey('opponent_name')) {
       context.handle(
         _opponentNameMeta,
-        opponentName.isAcceptableOrUnknown(
-          data['opponent_name']!,
-          _opponentNameMeta,
-        ),
+        opponentName.isAcceptableOrUnknown(data['opponent_name']!, _opponentNameMeta),
       );
     }
     if (data.containsKey('opponent_rating')) {
       context.handle(
         _opponentRatingMeta,
-        opponentRating.isAcceptableOrUnknown(
-          data['opponent_rating']!,
-          _opponentRatingMeta,
-        ),
+        opponentRating.isAcceptableOrUnknown(data['opponent_rating']!, _opponentRatingMeta),
       );
     }
     if (data.containsKey('player_rating')) {
       context.handle(
         _playerRatingMeta,
-        playerRating.isAcceptableOrUnknown(
-          data['player_rating']!,
-          _playerRatingMeta,
-        ),
+        playerRating.isAcceptableOrUnknown(data['player_rating']!, _playerRatingMeta),
       );
     }
     if (data.containsKey('time_class')) {
@@ -330,10 +277,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
     if (data.containsKey('time_control')) {
       context.handle(
         _timeControlMeta,
-        timeControl.isAcceptableOrUnknown(
-          data['time_control']!,
-          _timeControlMeta,
-        ),
+        timeControl.isAcceptableOrUnknown(data['time_control']!, _timeControlMeta),
       );
     }
     if (data.containsKey('practice')) {
@@ -365,10 +309,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
       context.missing(_startedAtMeta);
     }
     if (data.containsKey('ended_at')) {
-      context.handle(
-        _endedAtMeta,
-        endedAt.isAcceptableOrUnknown(data['ended_at']!, _endedAtMeta),
-      );
+      context.handle(_endedAtMeta, endedAt.isAcceptableOrUnknown(data['ended_at']!, _endedAtMeta));
     } else if (isInserting) {
       context.missing(_endedAtMeta);
     }
@@ -381,10 +322,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
   GameRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return GameRow(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       source: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}source'],
@@ -393,10 +331,7 @@ class $GamesTable extends Games with TableInfo<$GamesTable, GameRow> {
         DriftSqlType.string,
         data['${effectivePrefix}external_id'],
       ),
-      pgn: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}pgn'],
-      )!,
+      pgn: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}pgn'])!,
       playerSide: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}player_side'],
@@ -563,18 +498,12 @@ class GameRow extends DataClass implements Insertable<GameRow> {
     return GamesCompanion(
       id: Value(id),
       source: Value(source),
-      externalId: externalId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalId),
+      externalId: externalId == null && nullToAbsent ? const Value.absent() : Value(externalId),
       pgn: Value(pgn),
       playerSide: Value(playerSide),
       result: Value(result),
-      endReason: endReason == null && nullToAbsent
-          ? const Value.absent()
-          : Value(endReason),
-      engineElo: engineElo == null && nullToAbsent
-          ? const Value.absent()
-          : Value(engineElo),
+      endReason: endReason == null && nullToAbsent ? const Value.absent() : Value(endReason),
+      engineElo: engineElo == null && nullToAbsent ? const Value.absent() : Value(engineElo),
       opponentName: opponentName == null && nullToAbsent
           ? const Value.absent()
           : Value(opponentName),
@@ -584,12 +513,8 @@ class GameRow extends DataClass implements Insertable<GameRow> {
       playerRating: playerRating == null && nullToAbsent
           ? const Value.absent()
           : Value(playerRating),
-      timeClass: timeClass == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timeClass),
-      timeControl: timeControl == null && nullToAbsent
-          ? const Value.absent()
-          : Value(timeControl),
+      timeClass: timeClass == null && nullToAbsent ? const Value.absent() : Value(timeClass),
+      timeControl: timeControl == null && nullToAbsent ? const Value.absent() : Value(timeControl),
       practice: Value(practice),
       hintsUsed: Value(hintsUsed),
       plyCount: Value(plyCount),
@@ -598,10 +523,7 @@ class GameRow extends DataClass implements Insertable<GameRow> {
     );
   }
 
-  factory GameRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory GameRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return GameRow(
       id: serializer.fromJson<int>(json['id']),
@@ -678,9 +600,7 @@ class GameRow extends DataClass implements Insertable<GameRow> {
     endReason: endReason.present ? endReason.value : this.endReason,
     engineElo: engineElo.present ? engineElo.value : this.engineElo,
     opponentName: opponentName.present ? opponentName.value : this.opponentName,
-    opponentRating: opponentRating.present
-        ? opponentRating.value
-        : this.opponentRating,
+    opponentRating: opponentRating.present ? opponentRating.value : this.opponentRating,
     playerRating: playerRating.present ? playerRating.value : this.playerRating,
     timeClass: timeClass.present ? timeClass.value : this.timeClass,
     timeControl: timeControl.present ? timeControl.value : this.timeControl,
@@ -694,29 +614,17 @@ class GameRow extends DataClass implements Insertable<GameRow> {
     return GameRow(
       id: data.id.present ? data.id.value : this.id,
       source: data.source.present ? data.source.value : this.source,
-      externalId: data.externalId.present
-          ? data.externalId.value
-          : this.externalId,
+      externalId: data.externalId.present ? data.externalId.value : this.externalId,
       pgn: data.pgn.present ? data.pgn.value : this.pgn,
-      playerSide: data.playerSide.present
-          ? data.playerSide.value
-          : this.playerSide,
+      playerSide: data.playerSide.present ? data.playerSide.value : this.playerSide,
       result: data.result.present ? data.result.value : this.result,
       endReason: data.endReason.present ? data.endReason.value : this.endReason,
       engineElo: data.engineElo.present ? data.engineElo.value : this.engineElo,
-      opponentName: data.opponentName.present
-          ? data.opponentName.value
-          : this.opponentName,
-      opponentRating: data.opponentRating.present
-          ? data.opponentRating.value
-          : this.opponentRating,
-      playerRating: data.playerRating.present
-          ? data.playerRating.value
-          : this.playerRating,
+      opponentName: data.opponentName.present ? data.opponentName.value : this.opponentName,
+      opponentRating: data.opponentRating.present ? data.opponentRating.value : this.opponentRating,
+      playerRating: data.playerRating.present ? data.playerRating.value : this.playerRating,
       timeClass: data.timeClass.present ? data.timeClass.value : this.timeClass,
-      timeControl: data.timeControl.present
-          ? data.timeControl.value
-          : this.timeControl,
+      timeControl: data.timeControl.present ? data.timeControl.value : this.timeControl,
       practice: data.practice.present ? data.practice.value : this.practice,
       hintsUsed: data.hintsUsed.present ? data.hintsUsed.value : this.hintsUsed,
       plyCount: data.plyCount.present ? data.plyCount.value : this.plyCount,
@@ -1030,8 +938,7 @@ class GamesCompanion extends UpdateCompanion<GameRow> {
   }
 }
 
-class $SettingsTable extends Settings
-    with TableInfo<$SettingsTable, SettingRow> {
+class $SettingsTable extends Settings with TableInfo<$SettingsTable, SettingRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1069,18 +976,12 @@ class $SettingsTable extends Settings
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('key')) {
-      context.handle(
-        _keyMeta,
-        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
-      );
+      context.handle(_keyMeta, key.isAcceptableOrUnknown(data['key']!, _keyMeta));
     } else if (isInserting) {
       context.missing(_keyMeta);
     }
     if (data.containsKey('value')) {
-      context.handle(
-        _valueMeta,
-        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
-      );
+      context.handle(_valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
     } else if (isInserting) {
       context.missing(_valueMeta);
     }
@@ -1093,10 +994,7 @@ class $SettingsTable extends Settings
   SettingRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return SettingRow(
-      key: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}key'],
-      )!,
+      key: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}key'])!,
       value: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}value'],
@@ -1126,10 +1024,7 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
     return SettingsCompanion(key: Value(key), value: Value(value));
   }
 
-  factory SettingRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory SettingRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SettingRow(
       key: serializer.fromJson<String>(json['key']),
@@ -1168,9 +1063,7 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is SettingRow &&
-          other.key == this.key &&
-          other.value == this.value);
+      (other is SettingRow && other.key == this.key && other.value == this.value);
 }
 
 class SettingsCompanion extends UpdateCompanion<SettingRow> {
@@ -1200,11 +1093,7 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
     });
   }
 
-  SettingsCompanion copyWith({
-    Value<String>? key,
-    Value<String>? value,
-    Value<int>? rowid,
-  }) {
+  SettingsCompanion copyWith({Value<String>? key, Value<String>? value, Value<int>? rowid}) {
     return SettingsCompanion(
       key: key ?? this.key,
       value: value ?? this.value,
@@ -1238,15 +1127,12 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
   }
 }
 
-class $ImportMonthsTable extends ImportMonths
-    with TableInfo<$ImportMonthsTable, ImportMonthRow> {
+class $ImportMonthsTable extends ImportMonths with TableInfo<$ImportMonthsTable, ImportMonthRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $ImportMonthsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _usernameMeta = const VerificationMeta(
-    'username',
-  );
+  static const VerificationMeta _usernameMeta = const VerificationMeta('username');
   @override
   late final GeneratedColumn<String> username = GeneratedColumn<String>(
     'username',
@@ -1264,9 +1150,7 @@ class $ImportMonthsTable extends ImportMonths
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _completeMeta = const VerificationMeta(
-    'complete',
-  );
+  static const VerificationMeta _completeMeta = const VerificationMeta('complete');
   @override
   late final GeneratedColumn<bool> complete = GeneratedColumn<bool>(
     'complete',
@@ -1274,9 +1158,7 @@ class $ImportMonthsTable extends ImportMonths
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("complete" IN (0, 1))',
-    ),
+    defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("complete" IN (0, 1))'),
   );
   static const VerificationMeta _etagMeta = const VerificationMeta('etag');
   @override
@@ -1287,9 +1169,7 @@ class $ImportMonthsTable extends ImportMonths
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _gameCountMeta = const VerificationMeta(
-    'gameCount',
-  );
+  static const VerificationMeta _gameCountMeta = const VerificationMeta('gameCount');
   @override
   late final GeneratedColumn<int> gameCount = GeneratedColumn<int>(
     'game_count',
@@ -1298,9 +1178,7 @@ class $ImportMonthsTable extends ImportMonths
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
-    'fetchedAt',
-  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta('fetchedAt');
   @override
   late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
     'fetched_at',
@@ -1310,14 +1188,7 @@ class $ImportMonthsTable extends ImportMonths
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [
-    username,
-    month,
-    complete,
-    etag,
-    gameCount,
-    fetchedAt,
-  ];
+  List<GeneratedColumn> get $columns => [username, month, complete, etag, gameCount, fetchedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1339,10 +1210,7 @@ class $ImportMonthsTable extends ImportMonths
       context.missing(_usernameMeta);
     }
     if (data.containsKey('month')) {
-      context.handle(
-        _monthMeta,
-        month.isAcceptableOrUnknown(data['month']!, _monthMeta),
-      );
+      context.handle(_monthMeta, month.isAcceptableOrUnknown(data['month']!, _monthMeta));
     } else if (isInserting) {
       context.missing(_monthMeta);
     }
@@ -1355,10 +1223,7 @@ class $ImportMonthsTable extends ImportMonths
       context.missing(_completeMeta);
     }
     if (data.containsKey('etag')) {
-      context.handle(
-        _etagMeta,
-        etag.isAcceptableOrUnknown(data['etag']!, _etagMeta),
-      );
+      context.handle(_etagMeta, etag.isAcceptableOrUnknown(data['etag']!, _etagMeta));
     }
     if (data.containsKey('game_count')) {
       context.handle(
@@ -1397,10 +1262,7 @@ class $ImportMonthsTable extends ImportMonths
         DriftSqlType.bool,
         data['${effectivePrefix}complete'],
       )!,
-      etag: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}etag'],
-      ),
+      etag: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}etag']),
       gameCount: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}game_count'],
@@ -1465,10 +1327,7 @@ class ImportMonthRow extends DataClass implements Insertable<ImportMonthRow> {
     );
   }
 
-  factory ImportMonthRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory ImportMonthRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ImportMonthRow(
       username: serializer.fromJson<String>(json['username']),
@@ -1532,8 +1391,7 @@ class ImportMonthRow extends DataClass implements Insertable<ImportMonthRow> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(username, month, complete, etag, gameCount, fetchedAt);
+  int get hashCode => Object.hash(username, month, complete, etag, gameCount, fetchedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1658,8 +1516,7 @@ class ImportMonthsCompanion extends UpdateCompanion<ImportMonthRow> {
   }
 }
 
-class $GameAnalysesTable extends GameAnalyses
-    with TableInfo<$GameAnalysesTable, GameAnalysisRow> {
+class $GameAnalysesTable extends GameAnalyses with TableInfo<$GameAnalysesTable, GameAnalysisRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1694,9 +1551,7 @@ class $GameAnalysesTable extends GameAnalyses
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _completeMeta = const VerificationMeta(
-    'complete',
-  );
+  static const VerificationMeta _completeMeta = const VerificationMeta('complete');
   @override
   late final GeneratedColumn<bool> complete = GeneratedColumn<bool>(
     'complete',
@@ -1704,13 +1559,9 @@ class $GameAnalysesTable extends GameAnalyses
     false,
     type: DriftSqlType.bool,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("complete" IN (0, 1))',
-    ),
+    defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("complete" IN (0, 1))'),
   );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
     'updated_at',
@@ -1720,13 +1571,7 @@ class $GameAnalysesTable extends GameAnalyses
     requiredDuringInsert: true,
   );
   @override
-  List<GeneratedColumn> get $columns => [
-    gameId,
-    depth,
-    evals,
-    complete,
-    updatedAt,
-  ];
+  List<GeneratedColumn> get $columns => [gameId, depth, evals, complete, updatedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1740,24 +1585,15 @@ class $GameAnalysesTable extends GameAnalyses
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('game_id')) {
-      context.handle(
-        _gameIdMeta,
-        gameId.isAcceptableOrUnknown(data['game_id']!, _gameIdMeta),
-      );
+      context.handle(_gameIdMeta, gameId.isAcceptableOrUnknown(data['game_id']!, _gameIdMeta));
     }
     if (data.containsKey('depth')) {
-      context.handle(
-        _depthMeta,
-        depth.isAcceptableOrUnknown(data['depth']!, _depthMeta),
-      );
+      context.handle(_depthMeta, depth.isAcceptableOrUnknown(data['depth']!, _depthMeta));
     } else if (isInserting) {
       context.missing(_depthMeta);
     }
     if (data.containsKey('evals')) {
-      context.handle(
-        _evalsMeta,
-        evals.isAcceptableOrUnknown(data['evals']!, _evalsMeta),
-      );
+      context.handle(_evalsMeta, evals.isAcceptableOrUnknown(data['evals']!, _evalsMeta));
     } else if (isInserting) {
       context.missing(_evalsMeta);
     }
@@ -1790,10 +1626,7 @@ class $GameAnalysesTable extends GameAnalyses
         DriftSqlType.int,
         data['${effectivePrefix}game_id'],
       )!,
-      depth: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}depth'],
-      )!,
+      depth: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}depth'])!,
       evals: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}evals'],
@@ -1853,10 +1686,7 @@ class GameAnalysisRow extends DataClass implements Insertable<GameAnalysisRow> {
     );
   }
 
-  factory GameAnalysisRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory GameAnalysisRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return GameAnalysisRow(
       gameId: serializer.fromJson<int>(json['gameId']),
@@ -2015,8 +1845,7 @@ class GameAnalysesCompanion extends UpdateCompanion<GameAnalysisRow> {
   }
 }
 
-class $GameReviewsTable extends GameReviews
-    with TableInfo<$GameReviewsTable, GameReviewRow> {
+class $GameReviewsTable extends GameReviews with TableInfo<$GameReviewsTable, GameReviewRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -2051,9 +1880,7 @@ class $GameReviewsTable extends GameReviews
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
     'created_at',
@@ -2077,24 +1904,15 @@ class $GameReviewsTable extends GameReviews
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('game_id')) {
-      context.handle(
-        _gameIdMeta,
-        gameId.isAcceptableOrUnknown(data['game_id']!, _gameIdMeta),
-      );
+      context.handle(_gameIdMeta, gameId.isAcceptableOrUnknown(data['game_id']!, _gameIdMeta));
     }
     if (data.containsKey('model')) {
-      context.handle(
-        _modelMeta,
-        model.isAcceptableOrUnknown(data['model']!, _modelMeta),
-      );
+      context.handle(_modelMeta, model.isAcceptableOrUnknown(data['model']!, _modelMeta));
     } else if (isInserting) {
       context.missing(_modelMeta);
     }
     if (data.containsKey('json')) {
-      context.handle(
-        _jsonMeta,
-        json.isAcceptableOrUnknown(data['json']!, _jsonMeta),
-      );
+      context.handle(_jsonMeta, json.isAcceptableOrUnknown(data['json']!, _jsonMeta));
     } else if (isInserting) {
       context.missing(_jsonMeta);
     }
@@ -2123,10 +1941,7 @@ class $GameReviewsTable extends GameReviews
         DriftSqlType.string,
         data['${effectivePrefix}model'],
       )!,
-      json: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}json'],
-      )!,
+      json: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}json'])!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2174,10 +1989,7 @@ class GameReviewRow extends DataClass implements Insertable<GameReviewRow> {
     );
   }
 
-  factory GameReviewRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory GameReviewRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return GameReviewRow(
       gameId: serializer.fromJson<int>(json['gameId']),
@@ -2197,17 +2009,13 @@ class GameReviewRow extends DataClass implements Insertable<GameReviewRow> {
     };
   }
 
-  GameReviewRow copyWith({
-    int? gameId,
-    String? model,
-    String? json,
-    DateTime? createdAt,
-  }) => GameReviewRow(
-    gameId: gameId ?? this.gameId,
-    model: model ?? this.model,
-    json: json ?? this.json,
-    createdAt: createdAt ?? this.createdAt,
-  );
+  GameReviewRow copyWith({int? gameId, String? model, String? json, DateTime? createdAt}) =>
+      GameReviewRow(
+        gameId: gameId ?? this.gameId,
+        model: model ?? this.model,
+        json: json ?? this.json,
+        createdAt: createdAt ?? this.createdAt,
+      );
   GameReviewRow copyWithCompanion(GameReviewsCompanion data) {
     return GameReviewRow(
       gameId: data.gameId.present ? data.gameId.value : this.gameId,
@@ -2317,8 +2125,7 @@ class GameReviewsCompanion extends UpdateCompanion<GameReviewRow> {
   }
 }
 
-class $CoachChatsTable extends CoachChats
-    with TableInfo<$CoachChatsTable, CoachChatRow> {
+class $CoachChatsTable extends CoachChats with TableInfo<$CoachChatsTable, CoachChatRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -2332,9 +2139,7 @@ class $CoachChatsTable extends CoachChats
     hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
+    defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'),
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
@@ -2345,9 +2150,7 @@ class $CoachChatsTable extends CoachChats
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
     'created_at',
@@ -2356,9 +2159,7 @@ class $CoachChatsTable extends CoachChats
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
   @override
   late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
     'updated_at',
@@ -2367,9 +2168,7 @@ class $CoachChatsTable extends CoachChats
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _messageCountMeta = const VerificationMeta(
-    'messageCount',
-  );
+  static const VerificationMeta _messageCountMeta = const VerificationMeta('messageCount');
   @override
   late final GeneratedColumn<int> messageCount = GeneratedColumn<int>(
     'message_count',
@@ -2388,9 +2187,7 @@ class $CoachChatsTable extends CoachChats
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _scopeLabelMeta = const VerificationMeta(
-    'scopeLabel',
-  );
+  static const VerificationMeta _scopeLabelMeta = const VerificationMeta('scopeLabel');
   @override
   late final GeneratedColumn<String> scopeLabel = GeneratedColumn<String>(
     'scope_label',
@@ -2399,9 +2196,7 @@ class $CoachChatsTable extends CoachChats
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _thumbFenMeta = const VerificationMeta(
-    'thumbFen',
-  );
+  static const VerificationMeta _thumbFenMeta = const VerificationMeta('thumbFen');
   @override
   late final GeneratedColumn<String> thumbFen = GeneratedColumn<String>(
     'thumb_fen',
@@ -2410,9 +2205,7 @@ class $CoachChatsTable extends CoachChats
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _verifiedMeta = const VerificationMeta(
-    'verified',
-  );
+  static const VerificationMeta _verifiedMeta = const VerificationMeta('verified');
   @override
   late final GeneratedColumn<String> verified = GeneratedColumn<String>(
     'verified',
@@ -2450,10 +2243,7 @@ class $CoachChatsTable extends CoachChats
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
+      context.handle(_titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
@@ -2476,17 +2266,11 @@ class $CoachChatsTable extends CoachChats
     if (data.containsKey('message_count')) {
       context.handle(
         _messageCountMeta,
-        messageCount.isAcceptableOrUnknown(
-          data['message_count']!,
-          _messageCountMeta,
-        ),
+        messageCount.isAcceptableOrUnknown(data['message_count']!, _messageCountMeta),
       );
     }
     if (data.containsKey('game_id')) {
-      context.handle(
-        _gameIdMeta,
-        gameId.isAcceptableOrUnknown(data['game_id']!, _gameIdMeta),
-      );
+      context.handle(_gameIdMeta, gameId.isAcceptableOrUnknown(data['game_id']!, _gameIdMeta));
     }
     if (data.containsKey('scope_label')) {
       context.handle(
@@ -2517,10 +2301,7 @@ class $CoachChatsTable extends CoachChats
   CoachChatRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return CoachChatRow(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       title: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}title'],
@@ -2622,21 +2403,14 @@ class CoachChatRow extends DataClass implements Insertable<CoachChatRow> {
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       messageCount: Value(messageCount),
-      gameId: gameId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(gameId),
+      gameId: gameId == null && nullToAbsent ? const Value.absent() : Value(gameId),
       scopeLabel: Value(scopeLabel),
-      thumbFen: thumbFen == null && nullToAbsent
-          ? const Value.absent()
-          : Value(thumbFen),
+      thumbFen: thumbFen == null && nullToAbsent ? const Value.absent() : Value(thumbFen),
       verified: Value(verified),
     );
   }
 
-  factory CoachChatRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory CoachChatRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CoachChatRow(
       id: serializer.fromJson<int>(json['id']),
@@ -2693,13 +2467,9 @@ class CoachChatRow extends DataClass implements Insertable<CoachChatRow> {
       title: data.title.present ? data.title.value : this.title,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      messageCount: data.messageCount.present
-          ? data.messageCount.value
-          : this.messageCount,
+      messageCount: data.messageCount.present ? data.messageCount.value : this.messageCount,
       gameId: data.gameId.present ? data.gameId.value : this.gameId,
-      scopeLabel: data.scopeLabel.present
-          ? data.scopeLabel.value
-          : this.scopeLabel,
+      scopeLabel: data.scopeLabel.present ? data.scopeLabel.value : this.scopeLabel,
       thumbFen: data.thumbFen.present ? data.thumbFen.value : this.thumbFen,
       verified: data.verified.present ? data.verified.value : this.verified,
     );
@@ -2896,9 +2666,7 @@ class $CoachMessagesTable extends CoachMessages
     hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
+    defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'),
   );
   static const VerificationMeta _chatIdMeta = const VerificationMeta('chatId');
   @override
@@ -2939,9 +2707,7 @@ class $CoachMessagesTable extends CoachMessages
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _payloadMeta = const VerificationMeta(
-    'payload',
-  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta('payload');
   @override
   late final GeneratedColumn<String> payload = GeneratedColumn<String>(
     'payload',
@@ -2969,18 +2735,12 @@ class $CoachMessagesTable extends CoachMessages
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('chat_id')) {
-      context.handle(
-        _chatIdMeta,
-        chatId.isAcceptableOrUnknown(data['chat_id']!, _chatIdMeta),
-      );
+      context.handle(_chatIdMeta, chatId.isAcceptableOrUnknown(data['chat_id']!, _chatIdMeta));
     } else if (isInserting) {
       context.missing(_chatIdMeta);
     }
     if (data.containsKey('role')) {
-      context.handle(
-        _roleMeta,
-        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
-      );
+      context.handle(_roleMeta, role.isAcceptableOrUnknown(data['role']!, _roleMeta));
     } else if (isInserting) {
       context.missing(_roleMeta);
     }
@@ -2990,18 +2750,12 @@ class $CoachMessagesTable extends CoachMessages
       context.missing(_atMeta);
     }
     if (data.containsKey('body')) {
-      context.handle(
-        _bodyMeta,
-        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
-      );
+      context.handle(_bodyMeta, body.isAcceptableOrUnknown(data['body']!, _bodyMeta));
     } else if (isInserting) {
       context.missing(_bodyMeta);
     }
     if (data.containsKey('payload')) {
-      context.handle(
-        _payloadMeta,
-        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
-      );
+      context.handle(_payloadMeta, payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
     }
     return context;
   }
@@ -3012,26 +2766,14 @@ class $CoachMessagesTable extends CoachMessages
   CoachMessageRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return CoachMessageRow(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       chatId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}chat_id'],
       )!,
-      role: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}role'],
-      )!,
-      at: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}at'],
-      )!,
-      body: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}body'],
-      )!,
+      role: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}role'])!,
+      at: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}at'])!,
+      body: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}body'])!,
       payload: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}payload'],
@@ -3090,10 +2832,7 @@ class CoachMessageRow extends DataClass implements Insertable<CoachMessageRow> {
     );
   }
 
-  factory CoachMessageRow.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory CoachMessageRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CoachMessageRow(
       id: serializer.fromJson<int>(json['id']),
@@ -3270,6 +3009,509 @@ class CoachMessagesCompanion extends UpdateCompanion<CoachMessageRow> {
   }
 }
 
+class $SavedPositionsTable extends SavedPositions
+    with TableInfo<$SavedPositionsTable, SavedPositionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SavedPositionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fenMeta = const VerificationMeta('fen');
+  @override
+  late final GeneratedColumn<String> fen = GeneratedColumn<String>(
+    'fen',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _movesMeta = const VerificationMeta('moves');
+  @override
+  late final GeneratedColumn<String> moves = GeneratedColumn<String>(
+    'moves',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  @override
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+    'path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _orientationMeta = const VerificationMeta('orientation');
+  @override
+  late final GeneratedColumn<String> orientation = GeneratedColumn<String>(
+    'orientation',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    fen,
+    moves,
+    path,
+    source,
+    orientation,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'saved_positions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SavedPositionRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(_titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('fen')) {
+      context.handle(_fenMeta, fen.isAcceptableOrUnknown(data['fen']!, _fenMeta));
+    } else if (isInserting) {
+      context.missing(_fenMeta);
+    }
+    if (data.containsKey('moves')) {
+      context.handle(_movesMeta, moves.isAcceptableOrUnknown(data['moves']!, _movesMeta));
+    }
+    if (data.containsKey('path')) {
+      context.handle(_pathMeta, path.isAcceptableOrUnknown(data['path']!, _pathMeta));
+    }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta, source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('orientation')) {
+      context.handle(
+        _orientationMeta,
+        orientation.isAcceptableOrUnknown(data['orientation']!, _orientationMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orientationMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SavedPositionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SavedPositionRow(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      fen: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}fen'])!,
+      moves: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}moves'],
+      )!,
+      path: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}path'])!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      orientation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}orientation'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SavedPositionsTable createAlias(String alias) {
+    return $SavedPositionsTable(attachedDatabase, alias);
+  }
+}
+
+class SavedPositionRow extends DataClass implements Insertable<SavedPositionRow> {
+  final int id;
+  final String title;
+
+  /// The start position, as FEN.
+  final String fen;
+
+  /// JSON: the moves explored from [fen], main line first, as a tree of UCI
+  /// moves (`[{"m": "e2e4", "c": [...]}]`).
+  final String moves;
+
+  /// JSON list of child indices from the start to the position last shown.
+  final String path;
+
+  /// An `AnalysisSource` name: `scan`, `setup` or `game`.
+  final String source;
+
+  /// `white` or `black`: the side at the bottom of the board.
+  final String orientation;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const SavedPositionRow({
+    required this.id,
+    required this.title,
+    required this.fen,
+    required this.moves,
+    required this.path,
+    required this.source,
+    required this.orientation,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    map['fen'] = Variable<String>(fen);
+    map['moves'] = Variable<String>(moves);
+    map['path'] = Variable<String>(path);
+    map['source'] = Variable<String>(source);
+    map['orientation'] = Variable<String>(orientation);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SavedPositionsCompanion toCompanion(bool nullToAbsent) {
+    return SavedPositionsCompanion(
+      id: Value(id),
+      title: Value(title),
+      fen: Value(fen),
+      moves: Value(moves),
+      path: Value(path),
+      source: Value(source),
+      orientation: Value(orientation),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SavedPositionRow.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SavedPositionRow(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      fen: serializer.fromJson<String>(json['fen']),
+      moves: serializer.fromJson<String>(json['moves']),
+      path: serializer.fromJson<String>(json['path']),
+      source: serializer.fromJson<String>(json['source']),
+      orientation: serializer.fromJson<String>(json['orientation']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+      'fen': serializer.toJson<String>(fen),
+      'moves': serializer.toJson<String>(moves),
+      'path': serializer.toJson<String>(path),
+      'source': serializer.toJson<String>(source),
+      'orientation': serializer.toJson<String>(orientation),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SavedPositionRow copyWith({
+    int? id,
+    String? title,
+    String? fen,
+    String? moves,
+    String? path,
+    String? source,
+    String? orientation,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => SavedPositionRow(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    fen: fen ?? this.fen,
+    moves: moves ?? this.moves,
+    path: path ?? this.path,
+    source: source ?? this.source,
+    orientation: orientation ?? this.orientation,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  SavedPositionRow copyWithCompanion(SavedPositionsCompanion data) {
+    return SavedPositionRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      fen: data.fen.present ? data.fen.value : this.fen,
+      moves: data.moves.present ? data.moves.value : this.moves,
+      path: data.path.present ? data.path.value : this.path,
+      source: data.source.present ? data.source.value : this.source,
+      orientation: data.orientation.present ? data.orientation.value : this.orientation,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SavedPositionRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('fen: $fen, ')
+          ..write('moves: $moves, ')
+          ..write('path: $path, ')
+          ..write('source: $source, ')
+          ..write('orientation: $orientation, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, title, fen, moves, path, source, orientation, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SavedPositionRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.fen == this.fen &&
+          other.moves == this.moves &&
+          other.path == this.path &&
+          other.source == this.source &&
+          other.orientation == this.orientation &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SavedPositionsCompanion extends UpdateCompanion<SavedPositionRow> {
+  final Value<int> id;
+  final Value<String> title;
+  final Value<String> fen;
+  final Value<String> moves;
+  final Value<String> path;
+  final Value<String> source;
+  final Value<String> orientation;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const SavedPositionsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.fen = const Value.absent(),
+    this.moves = const Value.absent(),
+    this.path = const Value.absent(),
+    this.source = const Value.absent(),
+    this.orientation = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  SavedPositionsCompanion.insert({
+    this.id = const Value.absent(),
+    required String title,
+    required String fen,
+    this.moves = const Value.absent(),
+    this.path = const Value.absent(),
+    required String source,
+    required String orientation,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : title = Value(title),
+       fen = Value(fen),
+       source = Value(source),
+       orientation = Value(orientation),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<SavedPositionRow> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? fen,
+    Expression<String>? moves,
+    Expression<String>? path,
+    Expression<String>? source,
+    Expression<String>? orientation,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (fen != null) 'fen': fen,
+      if (moves != null) 'moves': moves,
+      if (path != null) 'path': path,
+      if (source != null) 'source': source,
+      if (orientation != null) 'orientation': orientation,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  SavedPositionsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? title,
+    Value<String>? fen,
+    Value<String>? moves,
+    Value<String>? path,
+    Value<String>? source,
+    Value<String>? orientation,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return SavedPositionsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      fen: fen ?? this.fen,
+      moves: moves ?? this.moves,
+      path: path ?? this.path,
+      source: source ?? this.source,
+      orientation: orientation ?? this.orientation,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (fen.present) {
+      map['fen'] = Variable<String>(fen.value);
+    }
+    if (moves.present) {
+      map['moves'] = Variable<String>(moves.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (orientation.present) {
+      map['orientation'] = Variable<String>(orientation.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SavedPositionsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('fen: $fen, ')
+          ..write('moves: $moves, ')
+          ..write('path: $path, ')
+          ..write('source: $source, ')
+          ..write('orientation: $orientation, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3280,6 +3522,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $GameReviewsTable gameReviews = $GameReviewsTable(this);
   late final $CoachChatsTable coachChats = $CoachChatsTable(this);
   late final $CoachMessagesTable coachMessages = $CoachMessagesTable(this);
+  late final $SavedPositionsTable savedPositions = $SavedPositionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3292,28 +3535,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     gameReviews,
     coachChats,
     coachMessages,
+    savedPositions,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'games',
-        limitUpdateKind: UpdateKind.delete,
-      ),
+      on: TableUpdateQuery.onTableName('games', limitUpdateKind: UpdateKind.delete),
       result: [TableUpdate('game_analyses', kind: UpdateKind.delete)],
     ),
     WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'games',
-        limitUpdateKind: UpdateKind.delete,
-      ),
+      on: TableUpdateQuery.onTableName('games', limitUpdateKind: UpdateKind.delete),
       result: [TableUpdate('game_reviews', kind: UpdateKind.delete)],
     ),
     WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'coach_chats',
-        limitUpdateKind: UpdateKind.delete,
-      ),
+      on: TableUpdateQuery.onTableName('coach_chats', limitUpdateKind: UpdateKind.delete),
       result: [TableUpdate('coach_messages', kind: UpdateKind.delete)],
     ),
   ]);
@@ -3362,12 +3597,12 @@ typedef $$GamesTableUpdateCompanionBuilder =
       Value<DateTime> endedAt,
     });
 
-final class $$GamesTableReferences
-    extends BaseReferences<_$AppDatabase, $GamesTable, GameRow> {
+final class $$GamesTableReferences extends BaseReferences<_$AppDatabase, $GamesTable, GameRow> {
   $$GamesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$GameAnalysesTable, List<GameAnalysisRow>>
-  _gameAnalysesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  static MultiTypedResultKey<$GameAnalysesTable, List<GameAnalysisRow>> _gameAnalysesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
     db.gameAnalyses,
     aliasName: 'games__id__game_analyses__game_id',
   );
@@ -3379,16 +3614,12 @@ final class $$GamesTableReferences
     ).filter((f) => f.gameId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_gameAnalysesRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
   }
 
-  static MultiTypedResultKey<$GameReviewsTable, List<GameReviewRow>>
-  _gameReviewsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.gameReviews,
-    aliasName: 'games__id__game_reviews__game_id',
-  );
+  static MultiTypedResultKey<$GameReviewsTable, List<GameReviewRow>> _gameReviewsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(db.gameReviews, aliasName: 'games__id__game_reviews__game_id');
 
   $$GameReviewsTableProcessedTableManager get gameReviewsRefs {
     final manager = $$GameReviewsTableTableManager(
@@ -3397,9 +3628,7 @@ final class $$GamesTableReferences
     ).filter((f) => f.gameId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_gameReviewsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
@@ -3411,95 +3640,59 @@ class $$GamesTableFilterComposer extends Composer<_$AppDatabase, $GamesTable> {
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get source => $composableBuilder(
-    column: $table.source,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get externalId => $composableBuilder(
-    column: $table.externalId,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get externalId =>
+      $composableBuilder(column: $table.externalId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get pgn => $composableBuilder(
-    column: $table.pgn,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get pgn =>
+      $composableBuilder(column: $table.pgn, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get playerSide => $composableBuilder(
-    column: $table.playerSide,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get playerSide =>
+      $composableBuilder(column: $table.playerSide, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get result => $composableBuilder(
-    column: $table.result,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get result =>
+      $composableBuilder(column: $table.result, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get endReason => $composableBuilder(
-    column: $table.endReason,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get endReason =>
+      $composableBuilder(column: $table.endReason, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get engineElo => $composableBuilder(
-    column: $table.engineElo,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get engineElo =>
+      $composableBuilder(column: $table.engineElo, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get opponentName => $composableBuilder(
-    column: $table.opponentName,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get opponentName =>
+      $composableBuilder(column: $table.opponentName, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get opponentRating => $composableBuilder(
-    column: $table.opponentRating,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get opponentRating =>
+      $composableBuilder(column: $table.opponentRating, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get playerRating => $composableBuilder(
-    column: $table.playerRating,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get playerRating =>
+      $composableBuilder(column: $table.playerRating, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get timeClass => $composableBuilder(
-    column: $table.timeClass,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get timeClass =>
+      $composableBuilder(column: $table.timeClass, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get timeControl => $composableBuilder(
-    column: $table.timeControl,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get timeControl =>
+      $composableBuilder(column: $table.timeControl, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<bool> get practice => $composableBuilder(
-    column: $table.practice,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<bool> get practice =>
+      $composableBuilder(column: $table.practice, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get hintsUsed => $composableBuilder(
-    column: $table.hintsUsed,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get hintsUsed =>
+      $composableBuilder(column: $table.hintsUsed, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get plyCount => $composableBuilder(
-    column: $table.plyCount,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get plyCount =>
+      $composableBuilder(column: $table.plyCount, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get startedAt => $composableBuilder(
-    column: $table.startedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get endedAt => $composableBuilder(
-    column: $table.endedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<DateTime> get endedAt =>
+      $composableBuilder(column: $table.endedAt, builder: (column) => ColumnFilters(column));
 
   Expression<bool> gameAnalysesRefs(
     Expression<bool> Function($$GameAnalysesTableFilterComposer f) f,
@@ -3509,18 +3702,13 @@ class $$GamesTableFilterComposer extends Composer<_$AppDatabase, $GamesTable> {
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.gameAnalyses,
       getReferencedColumn: (t) => t.gameId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GameAnalysesTableFilterComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GameAnalysesTableFilterComposer(
             $db: $db,
             $table: $db.gameAnalyses,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -3534,26 +3722,20 @@ class $$GamesTableFilterComposer extends Composer<_$AppDatabase, $GamesTable> {
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.gameReviews,
       getReferencedColumn: (t) => t.gameId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GameReviewsTableFilterComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GameReviewsTableFilterComposer(
             $db: $db,
             $table: $db.gameReviews,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
   }
 }
 
-class $$GamesTableOrderingComposer
-    extends Composer<_$AppDatabase, $GamesTable> {
+class $$GamesTableOrderingComposer extends Composer<_$AppDatabase, $GamesTable> {
   $$GamesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -3561,99 +3743,64 @@ class $$GamesTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get source => $composableBuilder(
-    column: $table.source,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get externalId => $composableBuilder(
-    column: $table.externalId,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get externalId =>
+      $composableBuilder(column: $table.externalId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get pgn => $composableBuilder(
-    column: $table.pgn,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get pgn =>
+      $composableBuilder(column: $table.pgn, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get playerSide => $composableBuilder(
-    column: $table.playerSide,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get playerSide =>
+      $composableBuilder(column: $table.playerSide, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get result => $composableBuilder(
-    column: $table.result,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get result =>
+      $composableBuilder(column: $table.result, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get endReason => $composableBuilder(
-    column: $table.endReason,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get endReason =>
+      $composableBuilder(column: $table.endReason, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get engineElo => $composableBuilder(
-    column: $table.engineElo,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get engineElo =>
+      $composableBuilder(column: $table.engineElo, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get opponentName => $composableBuilder(
-    column: $table.opponentName,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get opponentName =>
+      $composableBuilder(column: $table.opponentName, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get opponentRating => $composableBuilder(
     column: $table.opponentRating,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get playerRating => $composableBuilder(
-    column: $table.playerRating,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get playerRating =>
+      $composableBuilder(column: $table.playerRating, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get timeClass => $composableBuilder(
-    column: $table.timeClass,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get timeClass =>
+      $composableBuilder(column: $table.timeClass, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get timeControl => $composableBuilder(
-    column: $table.timeControl,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get timeControl =>
+      $composableBuilder(column: $table.timeControl, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<bool> get practice => $composableBuilder(
-    column: $table.practice,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<bool> get practice =>
+      $composableBuilder(column: $table.practice, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get hintsUsed => $composableBuilder(
-    column: $table.hintsUsed,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get hintsUsed =>
+      $composableBuilder(column: $table.hintsUsed, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get plyCount => $composableBuilder(
-    column: $table.plyCount,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get plyCount =>
+      $composableBuilder(column: $table.plyCount, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
-    column: $table.startedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get endedAt => $composableBuilder(
-    column: $table.endedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<DateTime> get endedAt =>
+      $composableBuilder(column: $table.endedAt, builder: (column) => ColumnOrderings(column));
 }
 
-class $$GamesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $GamesTable> {
+class $$GamesTableAnnotationComposer extends Composer<_$AppDatabase, $GamesTable> {
   $$GamesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -3661,24 +3808,19 @@ class $$GamesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get source =>
       $composableBuilder(column: $table.source, builder: (column) => column);
 
-  GeneratedColumn<String> get externalId => $composableBuilder(
-    column: $table.externalId,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get externalId =>
+      $composableBuilder(column: $table.externalId, builder: (column) => column);
 
   GeneratedColumn<String> get pgn =>
       $composableBuilder(column: $table.pgn, builder: (column) => column);
 
-  GeneratedColumn<String> get playerSide => $composableBuilder(
-    column: $table.playerSide,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get playerSide =>
+      $composableBuilder(column: $table.playerSide, builder: (column) => column);
 
   GeneratedColumn<String> get result =>
       $composableBuilder(column: $table.result, builder: (column) => column);
@@ -3689,28 +3831,20 @@ class $$GamesTableAnnotationComposer
   GeneratedColumn<int> get engineElo =>
       $composableBuilder(column: $table.engineElo, builder: (column) => column);
 
-  GeneratedColumn<String> get opponentName => $composableBuilder(
-    column: $table.opponentName,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get opponentName =>
+      $composableBuilder(column: $table.opponentName, builder: (column) => column);
 
-  GeneratedColumn<int> get opponentRating => $composableBuilder(
-    column: $table.opponentRating,
-    builder: (column) => column,
-  );
+  GeneratedColumn<int> get opponentRating =>
+      $composableBuilder(column: $table.opponentRating, builder: (column) => column);
 
-  GeneratedColumn<int> get playerRating => $composableBuilder(
-    column: $table.playerRating,
-    builder: (column) => column,
-  );
+  GeneratedColumn<int> get playerRating =>
+      $composableBuilder(column: $table.playerRating, builder: (column) => column);
 
   GeneratedColumn<String> get timeClass =>
       $composableBuilder(column: $table.timeClass, builder: (column) => column);
 
-  GeneratedColumn<String> get timeControl => $composableBuilder(
-    column: $table.timeControl,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get timeControl =>
+      $composableBuilder(column: $table.timeControl, builder: (column) => column);
 
   GeneratedColumn<bool> get practice =>
       $composableBuilder(column: $table.practice, builder: (column) => column);
@@ -3735,18 +3869,13 @@ class $$GamesTableAnnotationComposer
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.gameAnalyses,
       getReferencedColumn: (t) => t.gameId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GameAnalysesTableAnnotationComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GameAnalysesTableAnnotationComposer(
             $db: $db,
             $table: $db.gameAnalyses,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -3760,18 +3889,13 @@ class $$GamesTableAnnotationComposer
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.gameReviews,
       getReferencedColumn: (t) => t.gameId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GameReviewsTableAnnotationComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GameReviewsTableAnnotationComposer(
             $db: $db,
             $table: $db.gameReviews,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -3798,12 +3922,9 @@ class $$GamesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$GamesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$GamesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$GamesTableAnnotationComposer($db: db, $table: table),
+          createFilteringComposer: () => $$GamesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$GamesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$GamesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -3892,63 +4013,40 @@ class $$GamesTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({gameAnalysesRefs = false, gameReviewsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (gameAnalysesRefs) db.gameAnalyses,
-                    if (gameReviewsRefs) db.gameReviews,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (gameAnalysesRefs)
-                        await $_getPrefetchedData<
-                          GameRow,
-                          $GamesTable,
-                          GameAnalysisRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$GamesTableReferences
-                              ._gameAnalysesRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$GamesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).gameAnalysesRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.gameId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (gameReviewsRefs)
-                        await $_getPrefetchedData<
-                          GameRow,
-                          $GamesTable,
-                          GameReviewRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$GamesTableReferences
-                              ._gameReviewsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$GamesTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).gameReviewsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.gameId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
+          prefetchHooksCallback: ({gameAnalysesRefs = false, gameReviewsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (gameAnalysesRefs) db.gameAnalyses,
+                if (gameReviewsRefs) db.gameReviews,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (gameAnalysesRefs)
+                    await $_getPrefetchedData<GameRow, $GamesTable, GameAnalysisRow>(
+                      currentTable: table,
+                      referencedTable: $$GamesTableReferences._gameAnalysesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$GamesTableReferences(db, table, p0).gameAnalysesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.gameId == item.id),
+                      typedResults: items,
+                    ),
+                  if (gameReviewsRefs)
+                    await $_getPrefetchedData<GameRow, $GamesTable, GameReviewRow>(
+                      currentTable: table,
+                      referencedTable: $$GamesTableReferences._gameReviewsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$GamesTableReferences(db, table, p0).gameReviewsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.gameId == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
+            );
+          },
         ),
       );
 }
@@ -3968,20 +4066,11 @@ typedef $$GamesTableProcessedTableManager =
       PrefetchHooks Function({bool gameAnalysesRefs, bool gameReviewsRefs})
     >;
 typedef $$SettingsTableCreateCompanionBuilder =
-    SettingsCompanion Function({
-      required String key,
-      required String value,
-      Value<int> rowid,
-    });
+    SettingsCompanion Function({required String key, required String value, Value<int> rowid});
 typedef $$SettingsTableUpdateCompanionBuilder =
-    SettingsCompanion Function({
-      Value<String> key,
-      Value<String> value,
-      Value<int> rowid,
-    });
+    SettingsCompanion Function({Value<String> key, Value<String> value, Value<int> rowid});
 
-class $$SettingsTableFilterComposer
-    extends Composer<_$AppDatabase, $SettingsTable> {
+class $$SettingsTableFilterComposer extends Composer<_$AppDatabase, $SettingsTable> {
   $$SettingsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -3989,19 +4078,14 @@ class $$SettingsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get key => $composableBuilder(
-    column: $table.key,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get value => $composableBuilder(
-    column: $table.value,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => ColumnFilters(column));
 }
 
-class $$SettingsTableOrderingComposer
-    extends Composer<_$AppDatabase, $SettingsTable> {
+class $$SettingsTableOrderingComposer extends Composer<_$AppDatabase, $SettingsTable> {
   $$SettingsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4009,19 +4093,14 @@ class $$SettingsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get key => $composableBuilder(
-    column: $table.key,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get value => $composableBuilder(
-    column: $table.value,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => ColumnOrderings(column));
 }
 
-class $$SettingsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SettingsTable> {
+class $$SettingsTableAnnotationComposer extends Composer<_$AppDatabase, $SettingsTable> {
   $$SettingsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4047,10 +4126,7 @@ class $$SettingsTableTableManager
           $$SettingsTableAnnotationComposer,
           $$SettingsTableCreateCompanionBuilder,
           $$SettingsTableUpdateCompanionBuilder,
-          (
-            SettingRow,
-            BaseReferences<_$AppDatabase, $SettingsTable, SettingRow>,
-          ),
+          (SettingRow, BaseReferences<_$AppDatabase, $SettingsTable, SettingRow>),
           SettingRow,
           PrefetchHooks Function()
         > {
@@ -4059,10 +4135,8 @@ class $$SettingsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$SettingsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SettingsTableOrderingComposer($db: db, $table: table),
+          createFilteringComposer: () => $$SettingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$SettingsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$SettingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
@@ -4076,20 +4150,12 @@ class $$SettingsTableTableManager
                 required String key,
                 required String value,
                 Value<int> rowid = const Value.absent(),
-              }) => SettingsCompanion.insert(
-                key: key,
-                value: value,
-                rowid: rowid,
-              ),
+              }) => SettingsCompanion.insert(key: key, value: value, rowid: rowid),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
                   e.readTable<$SettingsTable, SettingRow>(table),
-                  BaseReferences<_$AppDatabase, $SettingsTable, SettingRow>(
-                    db,
-                    table,
-                    e,
-                  ),
+                  BaseReferences<_$AppDatabase, $SettingsTable, SettingRow>(db, table, e),
                 ),
               )
               .toList(),
@@ -4133,8 +4199,7 @@ typedef $$ImportMonthsTableUpdateCompanionBuilder =
       Value<int> rowid,
     });
 
-class $$ImportMonthsTableFilterComposer
-    extends Composer<_$AppDatabase, $ImportMonthsTable> {
+class $$ImportMonthsTableFilterComposer extends Composer<_$AppDatabase, $ImportMonthsTable> {
   $$ImportMonthsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4142,39 +4207,26 @@ class $$ImportMonthsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get username => $composableBuilder(
-    column: $table.username,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get username =>
+      $composableBuilder(column: $table.username, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get month => $composableBuilder(
-    column: $table.month,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get month =>
+      $composableBuilder(column: $table.month, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<bool> get complete => $composableBuilder(
-    column: $table.complete,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<bool> get complete =>
+      $composableBuilder(column: $table.complete, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get etag => $composableBuilder(
-    column: $table.etag,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get etag =>
+      $composableBuilder(column: $table.etag, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get gameCount => $composableBuilder(
-    column: $table.gameCount,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get gameCount =>
+      $composableBuilder(column: $table.gameCount, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
-    column: $table.fetchedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => ColumnFilters(column));
 }
 
-class $$ImportMonthsTableOrderingComposer
-    extends Composer<_$AppDatabase, $ImportMonthsTable> {
+class $$ImportMonthsTableOrderingComposer extends Composer<_$AppDatabase, $ImportMonthsTable> {
   $$ImportMonthsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4182,39 +4234,26 @@ class $$ImportMonthsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get username => $composableBuilder(
-    column: $table.username,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get username =>
+      $composableBuilder(column: $table.username, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get month => $composableBuilder(
-    column: $table.month,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get month =>
+      $composableBuilder(column: $table.month, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<bool> get complete => $composableBuilder(
-    column: $table.complete,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<bool> get complete =>
+      $composableBuilder(column: $table.complete, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get etag => $composableBuilder(
-    column: $table.etag,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get etag =>
+      $composableBuilder(column: $table.etag, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get gameCount => $composableBuilder(
-    column: $table.gameCount,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get gameCount =>
+      $composableBuilder(column: $table.gameCount, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
-    column: $table.fetchedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => ColumnOrderings(column));
 }
 
-class $$ImportMonthsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ImportMonthsTable> {
+class $$ImportMonthsTableAnnotationComposer extends Composer<_$AppDatabase, $ImportMonthsTable> {
   $$ImportMonthsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4252,10 +4291,7 @@ class $$ImportMonthsTableTableManager
           $$ImportMonthsTableAnnotationComposer,
           $$ImportMonthsTableCreateCompanionBuilder,
           $$ImportMonthsTableUpdateCompanionBuilder,
-          (
-            ImportMonthRow,
-            BaseReferences<_$AppDatabase, $ImportMonthsTable, ImportMonthRow>,
-          ),
+          (ImportMonthRow, BaseReferences<_$AppDatabase, $ImportMonthsTable, ImportMonthRow>),
           ImportMonthRow,
           PrefetchHooks Function()
         > {
@@ -4264,10 +4300,8 @@ class $$ImportMonthsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$ImportMonthsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ImportMonthsTableOrderingComposer($db: db, $table: table),
+          createFilteringComposer: () => $$ImportMonthsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$ImportMonthsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$ImportMonthsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
@@ -4310,11 +4344,7 @@ class $$ImportMonthsTableTableManager
               .map(
                 (e) => (
                   e.readTable<$ImportMonthsTable, ImportMonthRow>(table),
-                  BaseReferences<
-                    _$AppDatabase,
-                    $ImportMonthsTable,
-                    ImportMonthRow
-                  >(db, table, e),
+                  BaseReferences<_$AppDatabase, $ImportMonthsTable, ImportMonthRow>(db, table, e),
                 ),
               )
               .toList(),
@@ -4333,10 +4363,7 @@ typedef $$ImportMonthsTableProcessedTableManager =
       $$ImportMonthsTableAnnotationComposer,
       $$ImportMonthsTableCreateCompanionBuilder,
       $$ImportMonthsTableUpdateCompanionBuilder,
-      (
-        ImportMonthRow,
-        BaseReferences<_$AppDatabase, $ImportMonthsTable, ImportMonthRow>,
-      ),
+      (ImportMonthRow, BaseReferences<_$AppDatabase, $ImportMonthsTable, ImportMonthRow>),
       ImportMonthRow,
       PrefetchHooks Function()
     >;
@@ -4373,14 +4400,11 @@ final class $$GameAnalysesTableReferences
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_gameIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
-class $$GameAnalysesTableFilterComposer
-    extends Composer<_$AppDatabase, $GameAnalysesTable> {
+class $$GameAnalysesTableFilterComposer extends Composer<_$AppDatabase, $GameAnalysesTable> {
   $$GameAnalysesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4388,25 +4412,17 @@ class $$GameAnalysesTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get depth => $composableBuilder(
-    column: $table.depth,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get depth =>
+      $composableBuilder(column: $table.depth, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get evals => $composableBuilder(
-    column: $table.evals,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get evals =>
+      $composableBuilder(column: $table.evals, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<bool> get complete => $composableBuilder(
-    column: $table.complete,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<bool> get complete =>
+      $composableBuilder(column: $table.complete, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 
   $$GamesTableFilterComposer get gameId {
     final $$GamesTableFilterComposer composer = $composerBuilder(
@@ -4414,26 +4430,20 @@ class $$GameAnalysesTableFilterComposer
       getCurrentColumn: (t) => t.gameId,
       referencedTable: $db.games,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GamesTableFilterComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GamesTableFilterComposer(
             $db: $db,
             $table: $db.games,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$GameAnalysesTableOrderingComposer
-    extends Composer<_$AppDatabase, $GameAnalysesTable> {
+class $$GameAnalysesTableOrderingComposer extends Composer<_$AppDatabase, $GameAnalysesTable> {
   $$GameAnalysesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4441,25 +4451,17 @@ class $$GameAnalysesTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get depth => $composableBuilder(
-    column: $table.depth,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get depth =>
+      $composableBuilder(column: $table.depth, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get evals => $composableBuilder(
-    column: $table.evals,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get evals =>
+      $composableBuilder(column: $table.evals, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<bool> get complete => $composableBuilder(
-    column: $table.complete,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<bool> get complete =>
+      $composableBuilder(column: $table.complete, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
   $$GamesTableOrderingComposer get gameId {
     final $$GamesTableOrderingComposer composer = $composerBuilder(
@@ -4467,26 +4469,20 @@ class $$GameAnalysesTableOrderingComposer
       getCurrentColumn: (t) => t.gameId,
       referencedTable: $db.games,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GamesTableOrderingComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GamesTableOrderingComposer(
             $db: $db,
             $table: $db.games,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$GameAnalysesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $GameAnalysesTable> {
+class $$GameAnalysesTableAnnotationComposer extends Composer<_$AppDatabase, $GameAnalysesTable> {
   $$GameAnalysesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4512,18 +4508,13 @@ class $$GameAnalysesTableAnnotationComposer
       getCurrentColumn: (t) => t.gameId,
       referencedTable: $db.games,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GamesTableAnnotationComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GamesTableAnnotationComposer(
             $db: $db,
             $table: $db.games,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -4550,10 +4541,8 @@ class $$GameAnalysesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$GameAnalysesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$GameAnalysesTableOrderingComposer($db: db, $table: table),
+          createFilteringComposer: () => $$GameAnalysesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$GameAnalysesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$GameAnalysesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
@@ -4617,11 +4606,8 @@ class $$GameAnalysesTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.gameId,
-                                referencedTable: $$GameAnalysesTableReferences
-                                    ._gameIdTable(db),
-                                referencedColumn: $$GameAnalysesTableReferences
-                                    ._gameIdTable(db)
-                                    .id,
+                                referencedTable: $$GameAnalysesTableReferences._gameIdTable(db),
+                                referencedColumn: $$GameAnalysesTableReferences._gameIdTable(db).id,
                               )
                               as T;
                     }
@@ -4682,14 +4668,11 @@ final class $$GameReviewsTableReferences
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_gameIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
-class $$GameReviewsTableFilterComposer
-    extends Composer<_$AppDatabase, $GameReviewsTable> {
+class $$GameReviewsTableFilterComposer extends Composer<_$AppDatabase, $GameReviewsTable> {
   $$GameReviewsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4697,20 +4680,14 @@ class $$GameReviewsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get model => $composableBuilder(
-    column: $table.model,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get model =>
+      $composableBuilder(column: $table.model, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get json => $composableBuilder(
-    column: $table.json,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get json =>
+      $composableBuilder(column: $table.json, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   $$GamesTableFilterComposer get gameId {
     final $$GamesTableFilterComposer composer = $composerBuilder(
@@ -4718,26 +4695,20 @@ class $$GameReviewsTableFilterComposer
       getCurrentColumn: (t) => t.gameId,
       referencedTable: $db.games,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GamesTableFilterComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GamesTableFilterComposer(
             $db: $db,
             $table: $db.games,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$GameReviewsTableOrderingComposer
-    extends Composer<_$AppDatabase, $GameReviewsTable> {
+class $$GameReviewsTableOrderingComposer extends Composer<_$AppDatabase, $GameReviewsTable> {
   $$GameReviewsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4745,20 +4716,14 @@ class $$GameReviewsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get model => $composableBuilder(
-    column: $table.model,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get model =>
+      $composableBuilder(column: $table.model, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get json => $composableBuilder(
-    column: $table.json,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get json =>
+      $composableBuilder(column: $table.json, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   $$GamesTableOrderingComposer get gameId {
     final $$GamesTableOrderingComposer composer = $composerBuilder(
@@ -4766,26 +4731,20 @@ class $$GameReviewsTableOrderingComposer
       getCurrentColumn: (t) => t.gameId,
       referencedTable: $db.games,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GamesTableOrderingComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GamesTableOrderingComposer(
             $db: $db,
             $table: $db.games,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$GameReviewsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $GameReviewsTable> {
+class $$GameReviewsTableAnnotationComposer extends Composer<_$AppDatabase, $GameReviewsTable> {
   $$GameReviewsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4808,18 +4767,13 @@ class $$GameReviewsTableAnnotationComposer
       getCurrentColumn: (t) => t.gameId,
       referencedTable: $db.games,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$GamesTableAnnotationComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$GamesTableAnnotationComposer(
             $db: $db,
             $table: $db.games,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -4846,10 +4800,8 @@ class $$GameReviewsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$GameReviewsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$GameReviewsTableOrderingComposer($db: db, $table: table),
+          createFilteringComposer: () => $$GameReviewsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$GameReviewsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$GameReviewsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
@@ -4909,11 +4861,8 @@ class $$GameReviewsTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.gameId,
-                                referencedTable: $$GameReviewsTableReferences
-                                    ._gameIdTable(db),
-                                referencedColumn: $$GameReviewsTableReferences
-                                    ._gameIdTable(db)
-                                    .id,
+                                referencedTable: $$GameReviewsTableReferences._gameIdTable(db),
+                                referencedColumn: $$GameReviewsTableReferences._gameIdTable(db).id,
                               )
                               as T;
                     }
@@ -4972,8 +4921,9 @@ final class $$CoachChatsTableReferences
     extends BaseReferences<_$AppDatabase, $CoachChatsTable, CoachChatRow> {
   $$CoachChatsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$CoachMessagesTable, List<CoachMessageRow>>
-  _coachMessagesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  static MultiTypedResultKey<$CoachMessagesTable, List<CoachMessageRow>> _coachMessagesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
     db.coachMessages,
     aliasName: 'coach_chats__id__coach_messages__chat_id',
   );
@@ -4985,14 +4935,11 @@ final class $$CoachChatsTableReferences
     ).filter((f) => f.chatId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_coachMessagesRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
-class $$CoachChatsTableFilterComposer
-    extends Composer<_$AppDatabase, $CoachChatsTable> {
+class $$CoachChatsTableFilterComposer extends Composer<_$AppDatabase, $CoachChatsTable> {
   $$CoachChatsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5000,50 +4947,32 @@ class $$CoachChatsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get messageCount => $composableBuilder(
-    column: $table.messageCount,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get messageCount =>
+      $composableBuilder(column: $table.messageCount, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get gameId => $composableBuilder(
-    column: $table.gameId,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get gameId =>
+      $composableBuilder(column: $table.gameId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get scopeLabel => $composableBuilder(
-    column: $table.scopeLabel,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get scopeLabel =>
+      $composableBuilder(column: $table.scopeLabel, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get thumbFen => $composableBuilder(
-    column: $table.thumbFen,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get thumbFen =>
+      $composableBuilder(column: $table.thumbFen, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get verified => $composableBuilder(
-    column: $table.verified,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get verified =>
+      $composableBuilder(column: $table.verified, builder: (column) => ColumnFilters(column));
 
   Expression<bool> coachMessagesRefs(
     Expression<bool> Function($$CoachMessagesTableFilterComposer f) f,
@@ -5053,26 +4982,20 @@ class $$CoachChatsTableFilterComposer
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.coachMessages,
       getReferencedColumn: (t) => t.chatId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoachMessagesTableFilterComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$CoachMessagesTableFilterComposer(
             $db: $db,
             $table: $db.coachMessages,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
   }
 }
 
-class $$CoachChatsTableOrderingComposer
-    extends Composer<_$AppDatabase, $CoachChatsTable> {
+class $$CoachChatsTableOrderingComposer extends Composer<_$AppDatabase, $CoachChatsTable> {
   $$CoachChatsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5080,54 +5003,35 @@ class $$CoachChatsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get messageCount => $composableBuilder(
-    column: $table.messageCount,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get messageCount =>
+      $composableBuilder(column: $table.messageCount, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get gameId => $composableBuilder(
-    column: $table.gameId,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get gameId =>
+      $composableBuilder(column: $table.gameId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get scopeLabel => $composableBuilder(
-    column: $table.scopeLabel,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get scopeLabel =>
+      $composableBuilder(column: $table.scopeLabel, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get thumbFen => $composableBuilder(
-    column: $table.thumbFen,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get thumbFen =>
+      $composableBuilder(column: $table.thumbFen, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get verified => $composableBuilder(
-    column: $table.verified,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get verified =>
+      $composableBuilder(column: $table.verified, builder: (column) => ColumnOrderings(column));
 }
 
-class $$CoachChatsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $CoachChatsTable> {
+class $$CoachChatsTableAnnotationComposer extends Composer<_$AppDatabase, $CoachChatsTable> {
   $$CoachChatsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5135,8 +5039,7 @@ class $$CoachChatsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
@@ -5147,18 +5050,14 @@ class $$CoachChatsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  GeneratedColumn<int> get messageCount => $composableBuilder(
-    column: $table.messageCount,
-    builder: (column) => column,
-  );
+  GeneratedColumn<int> get messageCount =>
+      $composableBuilder(column: $table.messageCount, builder: (column) => column);
 
   GeneratedColumn<int> get gameId =>
       $composableBuilder(column: $table.gameId, builder: (column) => column);
 
-  GeneratedColumn<String> get scopeLabel => $composableBuilder(
-    column: $table.scopeLabel,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get scopeLabel =>
+      $composableBuilder(column: $table.scopeLabel, builder: (column) => column);
 
   GeneratedColumn<String> get thumbFen =>
       $composableBuilder(column: $table.thumbFen, builder: (column) => column);
@@ -5174,18 +5073,13 @@ class $$CoachChatsTableAnnotationComposer
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.coachMessages,
       getReferencedColumn: (t) => t.chatId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoachMessagesTableAnnotationComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$CoachMessagesTableAnnotationComposer(
             $db: $db,
             $table: $db.coachMessages,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return f(composer);
@@ -5212,10 +5106,8 @@ class $$CoachChatsTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$CoachChatsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$CoachChatsTableOrderingComposer($db: db, $table: table),
+          createFilteringComposer: () => $$CoachChatsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$CoachChatsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
               $$CoachChatsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
@@ -5273,27 +5165,16 @@ class $$CoachChatsTableTableManager
           prefetchHooksCallback: ({coachMessagesRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [
-                if (coachMessagesRefs) db.coachMessages,
-              ],
+              explicitlyWatchedTables: [if (coachMessagesRefs) db.coachMessages],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (coachMessagesRefs)
-                    await $_getPrefetchedData<
-                      CoachChatRow,
-                      $CoachChatsTable,
-                      CoachMessageRow
-                    >(
+                    await $_getPrefetchedData<CoachChatRow, $CoachChatsTable, CoachMessageRow>(
                       currentTable: table,
-                      referencedTable: $$CoachChatsTableReferences
-                          ._coachMessagesRefsTable(db),
+                      referencedTable: $$CoachChatsTableReferences._coachMessagesRefsTable(db),
                       managerFromTypedResult: (p0) =>
-                          $$CoachChatsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).coachMessagesRefs,
+                          $$CoachChatsTableReferences(db, table, p0).coachMessagesRefs,
                       referencedItemsForCurrentItem: (item, referencedItems) =>
                           referencedItems.where((e) => e.chatId == item.id),
                       typedResults: items,
@@ -5340,13 +5221,8 @@ typedef $$CoachMessagesTableUpdateCompanionBuilder =
     });
 
 final class $$CoachMessagesTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $CoachMessagesTable, CoachMessageRow> {
-  $$CoachMessagesTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
+    extends BaseReferences<_$AppDatabase, $CoachMessagesTable, CoachMessageRow> {
+  $$CoachMessagesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $CoachChatsTable _chatIdTable(_$AppDatabase db) =>
       db.coachChats.createAlias('coach_messages__chat_id__coach_chats__id');
@@ -5360,14 +5236,11 @@ final class $$CoachMessagesTableReferences
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_chatIdTable($_db));
     if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
-class $$CoachMessagesTableFilterComposer
-    extends Composer<_$AppDatabase, $CoachMessagesTable> {
+class $$CoachMessagesTableFilterComposer extends Composer<_$AppDatabase, $CoachMessagesTable> {
   $$CoachMessagesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5375,30 +5248,20 @@ class $$CoachMessagesTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get role => $composableBuilder(
-    column: $table.role,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get at => $composableBuilder(
-    column: $table.at,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get body => $composableBuilder(
-    column: $table.body,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get payload => $composableBuilder(
-    column: $table.payload,
-    builder: (column) => ColumnFilters(column),
-  );
+  ColumnFilters<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => ColumnFilters(column));
 
   $$CoachChatsTableFilterComposer get chatId {
     final $$CoachChatsTableFilterComposer composer = $composerBuilder(
@@ -5406,26 +5269,20 @@ class $$CoachMessagesTableFilterComposer
       getCurrentColumn: (t) => t.chatId,
       referencedTable: $db.coachChats,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoachChatsTableFilterComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$CoachChatsTableFilterComposer(
             $db: $db,
             $table: $db.coachChats,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$CoachMessagesTableOrderingComposer
-    extends Composer<_$AppDatabase, $CoachMessagesTable> {
+class $$CoachMessagesTableOrderingComposer extends Composer<_$AppDatabase, $CoachMessagesTable> {
   $$CoachMessagesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5433,30 +5290,20 @@ class $$CoachMessagesTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get role => $composableBuilder(
-    column: $table.role,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get at => $composableBuilder(
-    column: $table.at,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get body => $composableBuilder(
-    column: $table.body,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get payload => $composableBuilder(
-    column: $table.payload,
-    builder: (column) => ColumnOrderings(column),
-  );
+  ColumnOrderings<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => ColumnOrderings(column));
 
   $$CoachChatsTableOrderingComposer get chatId {
     final $$CoachChatsTableOrderingComposer composer = $composerBuilder(
@@ -5464,26 +5311,20 @@ class $$CoachMessagesTableOrderingComposer
       getCurrentColumn: (t) => t.chatId,
       referencedTable: $db.coachChats,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoachChatsTableOrderingComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$CoachChatsTableOrderingComposer(
             $db: $db,
             $table: $db.coachChats,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
   }
 }
 
-class $$CoachMessagesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $CoachMessagesTable> {
+class $$CoachMessagesTableAnnotationComposer extends Composer<_$AppDatabase, $CoachMessagesTable> {
   $$CoachMessagesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5491,8 +5332,7 @@ class $$CoachMessagesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get role =>
       $composableBuilder(column: $table.role, builder: (column) => column);
@@ -5512,18 +5352,13 @@ class $$CoachMessagesTableAnnotationComposer
       getCurrentColumn: (t) => t.chatId,
       referencedTable: $db.coachChats,
       getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CoachChatsTableAnnotationComposer(
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) =>
+          $$CoachChatsTableAnnotationComposer(
             $db: $db,
             $table: $db.coachChats,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
+            $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
           ),
     );
     return composer;
@@ -5550,8 +5385,7 @@ class $$CoachMessagesTableTableManager
         TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer: () =>
-              $$CoachMessagesTableFilterComposer($db: db, $table: table),
+          createFilteringComposer: () => $$CoachMessagesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
               $$CoachMessagesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
@@ -5621,8 +5455,7 @@ class $$CoachMessagesTableTableManager
                           state.withJoin(
                                 currentTable: table,
                                 currentColumn: table.chatId,
-                                referencedTable: $$CoachMessagesTableReferences
-                                    ._chatIdTable(db),
+                                referencedTable: $$CoachMessagesTableReferences._chatIdTable(db),
                                 referencedColumn: $$CoachMessagesTableReferences
                                     ._chatIdTable(db)
                                     .id,
@@ -5655,14 +5488,246 @@ typedef $$CoachMessagesTableProcessedTableManager =
       CoachMessageRow,
       PrefetchHooks Function({bool chatId})
     >;
+typedef $$SavedPositionsTableCreateCompanionBuilder =
+    SavedPositionsCompanion Function({
+      Value<int> id,
+      required String title,
+      required String fen,
+      Value<String> moves,
+      Value<String> path,
+      required String source,
+      required String orientation,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+    });
+typedef $$SavedPositionsTableUpdateCompanionBuilder =
+    SavedPositionsCompanion Function({
+      Value<int> id,
+      Value<String> title,
+      Value<String> fen,
+      Value<String> moves,
+      Value<String> path,
+      Value<String> source,
+      Value<String> orientation,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+class $$SavedPositionsTableFilterComposer extends Composer<_$AppDatabase, $SavedPositionsTable> {
+  $$SavedPositionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fen =>
+      $composableBuilder(column: $table.fen, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get moves =>
+      $composableBuilder(column: $table.moves, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get orientation =>
+      $composableBuilder(column: $table.orientation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SavedPositionsTableOrderingComposer extends Composer<_$AppDatabase, $SavedPositionsTable> {
+  $$SavedPositionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fen =>
+      $composableBuilder(column: $table.fen, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get moves =>
+      $composableBuilder(column: $table.moves, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get orientation =>
+      $composableBuilder(column: $table.orientation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SavedPositionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SavedPositionsTable> {
+  $$SavedPositionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get fen =>
+      $composableBuilder(column: $table.fen, builder: (column) => column);
+
+  GeneratedColumn<String> get moves =>
+      $composableBuilder(column: $table.moves, builder: (column) => column);
+
+  GeneratedColumn<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get orientation =>
+      $composableBuilder(column: $table.orientation, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$SavedPositionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SavedPositionsTable,
+          SavedPositionRow,
+          $$SavedPositionsTableFilterComposer,
+          $$SavedPositionsTableOrderingComposer,
+          $$SavedPositionsTableAnnotationComposer,
+          $$SavedPositionsTableCreateCompanionBuilder,
+          $$SavedPositionsTableUpdateCompanionBuilder,
+          (SavedPositionRow, BaseReferences<_$AppDatabase, $SavedPositionsTable, SavedPositionRow>),
+          SavedPositionRow,
+          PrefetchHooks Function()
+        > {
+  $$SavedPositionsTableTableManager(_$AppDatabase db, $SavedPositionsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SavedPositionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SavedPositionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SavedPositionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> fen = const Value.absent(),
+                Value<String> moves = const Value.absent(),
+                Value<String> path = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String> orientation = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => SavedPositionsCompanion(
+                id: id,
+                title: title,
+                fen: fen,
+                moves: moves,
+                path: path,
+                source: source,
+                orientation: orientation,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String title,
+                required String fen,
+                Value<String> moves = const Value.absent(),
+                Value<String> path = const Value.absent(),
+                required String source,
+                required String orientation,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+              }) => SavedPositionsCompanion.insert(
+                id: id,
+                title: title,
+                fen: fen,
+                moves: moves,
+                path: path,
+                source: source,
+                orientation: orientation,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$SavedPositionsTable, SavedPositionRow>(table),
+                  BaseReferences<_$AppDatabase, $SavedPositionsTable, SavedPositionRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SavedPositionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SavedPositionsTable,
+      SavedPositionRow,
+      $$SavedPositionsTableFilterComposer,
+      $$SavedPositionsTableOrderingComposer,
+      $$SavedPositionsTableAnnotationComposer,
+      $$SavedPositionsTableCreateCompanionBuilder,
+      $$SavedPositionsTableUpdateCompanionBuilder,
+      (SavedPositionRow, BaseReferences<_$AppDatabase, $SavedPositionsTable, SavedPositionRow>),
+      SavedPositionRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$GamesTableTableManager get games =>
-      $$GamesTableTableManager(_db, _db.games);
-  $$SettingsTableTableManager get settings =>
-      $$SettingsTableTableManager(_db, _db.settings);
+  $$GamesTableTableManager get games => $$GamesTableTableManager(_db, _db.games);
+  $$SettingsTableTableManager get settings => $$SettingsTableTableManager(_db, _db.settings);
   $$ImportMonthsTableTableManager get importMonths =>
       $$ImportMonthsTableTableManager(_db, _db.importMonths);
   $$GameAnalysesTableTableManager get gameAnalyses =>
@@ -5673,4 +5738,6 @@ class $AppDatabaseManager {
       $$CoachChatsTableTableManager(_db, _db.coachChats);
   $$CoachMessagesTableTableManager get coachMessages =>
       $$CoachMessagesTableTableManager(_db, _db.coachMessages);
+  $$SavedPositionsTableTableManager get savedPositions =>
+      $$SavedPositionsTableTableManager(_db, _db.savedPositions);
 }

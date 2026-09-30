@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:move_wise/core/widgets/dialog_buttons.dart';
 import 'package:move_wise/core/feedback/sound_player.dart';
 import 'package:move_wise/core/storage/game_repository.dart';
 import 'package:move_wise/core/storage/settings_store.dart';
@@ -178,6 +179,10 @@ void main() {
       final container = await pumpGame(tester);
       await tester.tap(find.text('Draw'));
       await tester.pumpAndSettle();
+      // Asked first: a stray tap shouldn't offer anything.
+      expect(find.text('Offer a draw?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Offer draw'));
+      await tester.pumpAndSettle();
       expect(find.text('You offer a draw'), findsOneWidget);
       expect(find.text('Opponent, do you accept?'), findsOneWidget);
 
@@ -190,6 +195,23 @@ void main() {
       );
       expect(find.text('Draw agreed'.toUpperCase()), findsOneWidget, reason: 'result sheet');
       expect(find.text('Rematch · swap colours'), findsOneWidget);
+    });
+
+    testWidgets('resigning is asked first; Cancel keeps the game going', (tester) async {
+      final container = await pumpGame(tester);
+      await tester.tap(find.text('Resign'));
+      await tester.pumpAndSettle();
+      expect(find.text('Resign this game?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(container.read(passControllerProvider).game.isOver, isFalse);
+
+      await tester.tap(find.text('Resign'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(DestructiveButton, 'Resign'));
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      expect(container.read(passControllerProvider).game.isOver, isTrue);
     });
 
     testWidgets('a takeback needs the other player to allow it', (tester) async {

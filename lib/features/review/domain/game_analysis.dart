@@ -27,12 +27,9 @@ class GameAnalysis {
   /// One per move whose before and after positions are both evaluated.
   final List<MoveReview> moves;
 
-  static const maxKeyMoments = 8;
-  static const maxErrorMoments = 6;
+  /// Moments shown besides the blunders, which are never left out.
+  static const maxKeyMoments = 10;
   static const maxGoodMoments = 2;
-
-  /// The opponent's worst mistakes: chances the player had to punish.
-  static const maxOpponentMoments = 2;
 
   bool get isComplete => evals.length == game.history.length;
 
@@ -103,31 +100,47 @@ class GameAnalysis {
       quality: moves.where((m) => m.side == side && m.quality == quality).length,
   };
 
-  /// The moments worth explaining to [player], in game order: their costliest
-  /// errors (worst first, up to [maxErrorMoments]), a couple of their best
-  /// finds, and the opponent's worst slips (mistakes or blunders), at most
-  /// [maxKeyMoments] in all.
+  /// How much [move] changed the game: the winning chances (0–100) its mover
+  /// gave away. A blunder from +1 to −3 costs far more than one from −6 to
+  /// −9, even though both lose three pawns.
+  static double impact(MoveReview move) =>
+      math.max(0, winPercent(move.before) - winPercent(move.after));
+
+  /// The moments worth explaining to [player], the ones that changed the
+  /// game most first:
+  /// * every blunder, by either side (the opponent's were chances to
+  ///   punish), however many there are;
+  /// * then, up to [maxKeyMoments] in all, the player's mistakes and
+  ///   inaccuracies and the opponent's mistakes, costliest first;
+  /// * then, if there's room, up to [maxGoodMoments] of the player's best
+  ///   finds (brilliant first).
   List<MoveReview> keyMoments(Side player) {
-    List<MoveReview> marked(Side side) =>
-        moves.where((m) => m.side == side && m.quality != null).toList();
-    int byLoss(MoveReview a, MoveReview b) => b.loss.compareTo(a.loss);
+    final marked = moves.where((m) => m.quality != null).toList();
+    int byImpact(MoveReview a, MoveReview b) {
+      final order = impact(b).compareTo(impact(a));
+      return order != 0 ? order : a.index.compareTo(b.index);
+    }
 
-    final own = marked(player);
-    final errors = own.where((m) => m.quality!.isError).toList()..sort(byLoss);
-    final good = own.where((m) => !m.quality!.isError).toList()
-      // Brilliant first, then earlier moves.
-      ..sort((a, b) => a.quality!.index.compareTo(b.quality!.index));
-    final opponent =
-        marked(player.opposite)
-            .where((m) => m.quality == MoveQuality.mistake || m.quality == MoveQuality.blunder)
+    final blunders = marked.where((m) => m.quality == MoveQuality.blunder).toList()..sort(byImpact);
+    final errors =
+        marked
+            .where(
+              (m) => m.side == player
+                  ? m.quality == MoveQuality.mistake || m.quality == MoveQuality.inaccuracy
+                  : m.quality == MoveQuality.mistake,
+            )
             .toList()
-          ..sort(byLoss);
+          ..sort(byImpact);
+    final good = marked.where((m) => m.side == player && !m.quality!.isError).toList()
+      ..sort(
+        (a, b) => a.quality!.index != b.quality!.index
+            ? a.quality!.index.compareTo(b.quality!.index)
+            : a.index.compareTo(b.index),
+      );
 
-    final chosen = [
-      ...errors.take(maxErrorMoments),
-      ...good.take(maxGoodMoments),
-      ...opponent.take(maxOpponentMoments),
-    ]..sort((a, b) => a.index.compareTo(b.index));
-    return chosen.take(maxKeyMoments).toList();
+    final room = math.max(0, maxKeyMoments - blunders.length);
+    final chosen = [...blunders, ...errors.take(room)]..sort(byImpact);
+    final goodRoom = math.min(maxGoodMoments, maxKeyMoments - chosen.length);
+    return [...chosen, if (goodRoom > 0) ...good.take(goodRoom)];
   }
 }

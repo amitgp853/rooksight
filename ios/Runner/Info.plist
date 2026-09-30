@@ -72,5 +72,9 @@
 		<string>MoveWise listens when you tap the mic, so you can ask the AI Coach a question by voice.</string>
 		<key>NSSpeechRecognitionUsageDescription</key>
 		<string>MoveWise turns your voice question to the AI Coach into text.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>MoveWise uses the camera when you scan a chess board, to read the position.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>MoveWise opens a photo you pick of a chess board or diagram, to read the position.</string>
 	</dict>
 </plist>

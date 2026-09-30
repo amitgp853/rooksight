@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scan a board · check the position</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>body{margin:0}button{font-family:inherit;cursor:pointer}a{text-decoration:none}</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{c.bg}}; color: {{c.t1}}; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+<header style="height: 56px; flex-shrink: 0; padding: 0 12px 0 8px; display: flex; align-items: center; gap: 4px">
+<a href="ScanCrop.dc.html" aria-label="Back" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: {{c.t1}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px; line-height: 22px">{{title}}</h1>
+<span style="font-size: 12px; color: {{c.t2}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{sub}}</span>
+</div>
+<button type="button" aria-pressed="{{editOn}}" style="height: 36px; flex-shrink: 0; padding: 0 14px; border-radius: 18px; border: 1px solid {{editLine}}; background: {{editBg}}; color: {{editFg}}; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{editIcon}}"></path></svg>{{editLabel}}</button>
+</header>
+
+<div role="{{banner.role}}" style="height: 52px; flex-shrink: 0; margin: 0 12px 8px; box-sizing: border-box; padding: 0 6px 0 12px; border-radius: 14px; background: {{banner.bg}}; border: 1px solid {{banner.line}}; display: flex; align-items: center; gap: 10px">
+<span aria-hidden="true" style="width: 22px; height: 22px; flex-shrink: 0; border-radius: 11px; background: {{banner.dot}}; color: {{banner.dotFg}}; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: 12px">{{banner.sym}}</span>
+<span style="flex-grow: 1; font-size: 13px; line-height: 18px; color: {{c.t1}}">{{banner.text}}</span>
+<sc-if value="{{showThumb}}" hint-placeholder-val="{{true}}">
+<button type="button" aria-label="Compare with your photo" style="width: 44px; height: 40px; flex-shrink: 0; padding: 0; border: none; border-radius: 8px; overflow: hidden; background: transparent; box-shadow: 0 0 0 1.5px {{c.border}}">
+<dc-import name="ScanPhoto" width="44" height="40" board="38" hint-size="44px,40px"></dc-import></button>
+</sc-if>
+</div>
+
+<sc-if value="{{compare}}" hint-placeholder-val="{{false}}">
+<div style="height: 390px; flex-shrink: 0; padding: 0 12px; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-content: start">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="border-radius: 10px; overflow: hidden"><dc-import name="ScanPhoto" width="179" height="179" board="170" hint-size="179px,179px"></dc-import></div>
+<span style="font-size: 12px; font-weight: 600; color: {{c.t2}}; text-align: center">Your photo</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<dc-import name="Board" size="179" radius="10" coords="false" still="true" fen="{{fen}}" unsure="e1,g1" hint-size="179px,179px"></dc-import>
+<span style="font-size: 12px; font-weight: 600; color: {{c.t2}}; text-align: center">What MoveWise saw</span>
+</div>
+<span style="grid-column: 1 / -1; margin-top: 8px; font-size: 13px; line-height: 19px; color: {{c.t2}}; text-align: center">Squares marked <span style="display: inline-flex; width: 16px; height: 16px; border-radius: 8px; background: #E3B25C; color: #1A1204; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: 10px; vertical-align: -3px">?</span> are the ones the scan was least sure about. Tap one to fix it.</span>
+</div>
+</sc-if>
+<sc-if value="{{fullBoard}}" hint-placeholder-val="{{true}}">
+<dc-import name="Board" size="390" still="true" fen="{{fen}}" unsure="e1,g1" sel-sq="{{selSq}}" flipped="false" hint-size="390px,390px"></dc-import>
+</sc-if>
+
+<sc-if value="{{edit}}" hint-placeholder-val="{{false}}">
+<div style="padding: 12px 12px 0; display: flex; flex-direction: column; gap: 8px">
+<dc-import name="PiecePalette" sel="x" theme="{{theme}}" hint-size="366px,98px"></dc-import>
+<span style="font-size: 12px; color: {{c.t3}}; text-align: center">Pick a piece, then tap squares to place it. Tap a piece on the board with the eraser to remove it.</span>
+</div>
+</sc-if>
+
+<sc-if value="{{settings}}" hint-placeholder-val="{{true}}">
+<section aria-label="Position details" style="margin: 12px 12px 0; padding: 4px 14px; border-radius: 16px; background: {{c.raised}}; box-shadow: {{c.cardEdge}}; display: flex; flex-direction: column">
+<div style="height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<span style="font-size: 14px; font-weight: 500">Side to move</span>
+<div role="radiogroup" aria-label="Side to move" style="display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 3px; border-radius: 12px; background: {{c.bg}}; width: 176px">
+<button type="button" role="radio" aria-checked="true" style="height: 34px; border: none; border-radius: 9px; background: {{c.sel}}; color: {{c.t1}}; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 6px; background: #F5F7FA; box-shadow: inset 0 0 0 1px #1A212B"></span>White</button>
+<button type="button" role="radio" aria-checked="false" style="height: 34px; border: none; border-radius: 9px; background: transparent; color: {{c.t2}}; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 6px; background: #1E2530; box-shadow: inset 0 0 0 1px rgba(226,232,240,0.5)"></span>Black</button>
+</div>
+</div>
+<sc-for list="{{castle}}" as="cs" hint-placeholder-count="2">
+<div style="height: 44px; display: flex; align-items: center; gap: 8px; border-top: 1px solid {{c.edge}}">
+<span style="flex-grow: 1; font-size: 14px; font-weight: 500">{{cs.who}} can castle</span>
+<sc-for list="{{cs.opts}}" as="o" hint-placeholder-count="2">
+<label style="height: 32px; padding: 0 10px 0 6px; border-radius: 8px; background: {{c.el}}; display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; cursor: pointer">
+<span aria-hidden="true" style="width: 20px; height: 20px; border-radius: 6px; background: {{c.focus}}; color: {{c.onFocus}}; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+<input type="checkbox" checked aria-label="{{cs.who}} {{o.long}}" style="position: absolute; opacity: 0; width: 1px; height: 1px">{{o.t}}</label>
+</sc-for>
+</div>
+</sc-for>
+<div style="height: 44px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid {{c.edge}}">
+<span style="display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 500">White is at the bottom</span><span style="font-size: 12px; color: {{c.t3}}">Turn off if the photo was taken from Black’s side</span></span>
+<button type="button" role="switch" aria-checked="true" aria-label="White is at the bottom" style="width: 52px; height: 32px; flex-shrink: 0; border-radius: 16px; border: none; padding: 3px; background: {{c.focus}}; display: flex; justify-content: flex-end"><span style="width: 26px; height: 26px; border-radius: 13px; background: {{c.onFocus}}"></span></button>
+</div>
+</section>
+</sc-if>
+
+<div style="flex-grow: 1"></div>
+<footer style="flex-shrink: 0; padding: 10px 12px 24px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+<button type="button" style="height: 44px; border-radius: 12px; border: 1px solid {{c.border}}; background: transparent; color: {{c.t1}}; font-size: 14px; font-weight: 600">Clear board</button>
+<button type="button" style="height: 44px; border-radius: 12px; border: 1px solid {{c.border}}; background: transparent; color: {{c.t1}}; font-size: 14px; font-weight: 600">Reset to detected</button>
+</div>
+<a href="{{goHref}}" aria-disabled="{{goDisabled}}" aria-describedby="scan-why" style="height: 52px; border-radius: 14px; background: {{goBg}}; color: {{goFg}}; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Analyze</a>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["review","edit","compare","illegal"],"default":"review"},"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var st = this.props.state || 'review';
+    var light = this.props.theme === 'light';
+    var c = light
+      ? { bg: '#F1F3F6', raised: '#FFFFFF', el: '#E6EAF0', border: '#D5DBE3', edge: '#E6EAF0', cardEdge: 'inset 0 0 0 1px #D5DBE3', t1: '#121820', t2: '#4A5563', t3: '#5F6B7A', focus: '#2F5BD3', onFocus: '#FFFFFF', brass: '#8A5F0F', coral: '#C22F48', sel: '#FFFFFF' }
+      : { bg: '#0E1217', raised: '#151B22', el: '#1C242E', border: '#2A3441', edge: '#222B36', cardEdge: 'none', t1: '#E9EDF2', t2: '#A3AFBD', t3: '#7C8898', focus: '#86A8FF', onFocus: '#0B1224', brass: '#E3B25C', coral: '#F2677A', sel: '#2A3A5E' };
+    var FEN = 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R';
+    var BAD = 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK1KR';
+    var illegal = st === 'illegal', edit = st === 'edit', compare = st === 'compare';
+    var banner = illegal
+      ? { role: 'alert', bg: light ? 'rgba(194,47,72,0.07)' : 'rgba(242,103,122,0.08)', line: light ? 'rgba(194,47,72,0.35)' : 'rgba(242,103,122,0.45)', dot: '#F2677A', dotFg: '#0B1224', sym: '!', text: 'Each side needs exactly one king. White has two, on e1 and g1.' }
+      : (edit
+        ? { role: 'status', bg: c.raised, line: c.border, dot: c.focus, dotFg: c.onFocus, sym: '✎', text: 'Editing. Pick a piece below, then tap a square.' }
+        : { role: 'status', bg: light ? 'rgba(138,95,15,0.08)' : 'rgba(227,178,92,0.08)', line: light ? 'rgba(138,95,15,0.35)' : 'rgba(227,178,92,0.45)', dot: '#E3B25C', dotFg: '#1A1204', sym: '?', text: compare ? 'Check the two squares against your photo.' : '2 squares to check: e1 and g1. Tap the photo to compare.' });
+    return {
+      c: c, theme: light ? 'light' : 'dark',
+      title: edit ? 'Edit position' : 'Check the position',
+      sub: edit ? 'Changes stay on this phone' : 'Then set what a photo can’t show',
+      editOn: edit ? 'true' : 'false', editLabel: edit ? 'Done' : 'Edit',
+      editIcon: edit ? 'M5 12l5 5 9-10' : 'M4 20h4L19 9l-4-4L4 16z',
+      editBg: edit ? c.focus : 'transparent', editFg: edit ? c.onFocus : c.t1, editLine: edit ? c.focus : c.border,
+      banner: banner,
+      showThumb: !edit && !compare,
+      compare: compare, fullBoard: !compare, edit: edit, settings: !edit,
+      fen: illegal ? BAD : FEN, selSq: edit ? 'g1' : '',
+      castle: [
+        { who: 'White', opts: [{ t: 'O-O', long: 'kingside' }, { t: 'O-O-O', long: 'queenside' }] },
+        { who: 'Black', opts: [{ t: 'O-O', long: 'kingside' }, { t: 'O-O-O', long: 'queenside' }] }
+      ],
+      goHref: illegal ? '#' : 'Analysis.dc.html',
+      goDisabled: illegal ? 'true' : 'false',
+      goBg: illegal ? c.el : c.focus, goFg: illegal ? c.t3 : c.onFocus
+    };
+  }
+}
+</script>
+</body>
+</html>

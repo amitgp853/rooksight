@@ -59,6 +59,10 @@ class GameController extends Notifier<GameSession> {
   Side? _pausedClock;
   bool _paused = false;
 
+  /// The player paused the game themselves: coming back to the app doesn't
+  /// restart the clock, only Resume does.
+  bool _userPaused = false;
+
   @override
   GameSession build() {
     _engine = ref.watch(chessEngineProvider);
@@ -201,9 +205,25 @@ class GameController extends Notifier<GameSession> {
     state = state.copyWith(clock: () => clock.stop(_now()));
   }
 
+  /// Pauses a timed game: the clock stops and the board is hidden until
+  /// [resume].
+  void pause() {
+    if (!state.canPause || state.paused) return;
+    _userPaused = true;
+    pauseClock();
+    state = state.copyWith(paused: true, hint: () => null);
+  }
+
+  void resume() {
+    if (!state.paused) return;
+    _userPaused = false;
+    state = state.copyWith(paused: false);
+    resumeClock();
+  }
+
   /// Restarts the clock that was running when the app went to the background.
   void resumeClock() {
-    if (!_paused) return;
+    if (!_paused || _userPaused) return;
     _paused = false;
     final side = _pausedClock;
     _pausedClock = null;

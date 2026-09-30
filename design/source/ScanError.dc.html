@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scan a board · problems</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>body{margin:0}button{font-family:inherit;cursor:pointer}a{text-decoration:none}</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{c.bg}}; color: {{c.t1}}; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+<header style="height: 56px; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 4px">
+<a href="Home.dc.html" aria-label="Close" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: {{c.t1}}">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Scan a board</h1>
+</header>
+
+<div style="flex-grow: 1; padding: 8px 24px 0; display: flex; flex-direction: column; align-items: center; gap: 16px">
+<sc-if value="{{showPhoto}}" hint-placeholder-val="{{true}}">
+<div style="position: relative; width: 220px; height: 220px; border-radius: 18px; overflow: hidden; box-shadow: 0 0 0 1px {{c.border}}">
+<dc-import name="ScanPhoto" width="220" height="220" board="{{ph.board}}" tilt="{{ph.tilt}}" quality="{{ph.q}}" hint-size="220px,220px"></dc-import>
+<span style="position: absolute; right: 10px; bottom: 10px; width: 36px; height: 36px; border-radius: 18px; background: {{k.badgeBg}}; color: #0B1224; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{k.badge}}"></path></svg></span>
+</div>
+</sc-if>
+<sc-if value="{{showIcon}}" hint-placeholder-val="{{false}}">
+<span style="margin-top: 40px; width: 88px; height: 88px; border-radius: 26px; background: {{c.raised}}; box-shadow: {{c.cardEdge}}; color: {{k.iconFg}}; display: flex; align-items: center; justify-content: center">
+<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{k.icon}}"></path></svg></span>
+</sc-if>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center">
+<h2 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 22px; line-height: 28px">{{k.title}}</h2>
+<p style="margin: 0; font-size: 15px; line-height: 22px; color: {{c.t2}}">{{k.body}}</p>
+</div>
+<sc-if value="{{k.hasTips}}" hint-placeholder-val="{{true}}">
+<ul style="align-self: stretch; margin: 4px 0 0; padding: 6px 14px; list-style: none; border-radius: 16px; background: {{c.raised}}; box-shadow: {{c.cardEdge}}; display: flex; flex-direction: column">
+<sc-for list="{{k.tips}}" as="t" hint-placeholder-count="3">
+<li style="min-height: 44px; display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 20px; border-top: {{t.sep}}"><span aria-hidden="true" style="width: 22px; height: 22px; flex-shrink: 0; border-radius: 11px; background: {{c.el}}; color: {{c.focus}}; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: 12px">{{t.n}}</span>{{t.t}}</li>
+</sc-for>
+</ul>
+</sc-if>
+</div>
+
+<footer style="flex-shrink: 0; padding: 12px 16px 28px; display: flex; flex-direction: column; gap: 10px">
+<a href="{{k.p.href}}" style="height: 56px; border-radius: 14px; background: {{c.focus}}; color: {{c.onFocus}}; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">{{k.p.label}}</a>
+<a href="{{k.s.href}}" style="height: 52px; border-radius: 14px; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.t1}}; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">{{k.s.label}}</a>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["noBoard","blurry","illegal","offline","noKey","limit"],"default":"noBoard"},"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var kind = this.props.kind || 'noBoard';
+    var light = this.props.theme === 'light';
+    var c = light
+      ? { bg: '#F1F3F6', raised: '#FFFFFF', el: '#E6EAF0', border: '#D5DBE3', cardEdge: 'inset 0 0 0 1px #D5DBE3', t1: '#121820', t2: '#4A5563', t3: '#5F6B7A', focus: '#2F5BD3', onFocus: '#FFFFFF', brass: '#8A5F0F', coral: '#C22F48' }
+      : { bg: '#0E1217', raised: '#151B22', el: '#1C242E', border: '#2A3441', cardEdge: 'none', t1: '#E9EDF2', t2: '#A3AFBD', t3: '#7C8898', focus: '#86A8FF', onFocus: '#0B1224', brass: '#E3B25C', coral: '#F2677A' };
+    var tips = function (arr) { return arr.map(function (t, i) { return { n: i + 1, t: t, sep: i === 0 ? 'none' : '1px solid ' + (light ? '#E6EAF0' : '#222B36') }; }); };
+    var retry = { label: 'Try again', href: 'ScanCamera.dc.html' };
+    var upload = { label: 'Upload a photo', href: 'ScanCrop.dc.html' };
+    var byHand = { label: 'Set up the position by hand', href: 'ScanConfirmEdit.dc.html' };
+    var WIFI = 'M2 8.5a15 15 0 0 1 20 0M5.5 12a10 10 0 0 1 13 0M9 15.5a5 5 0 0 1 6 0M12 19h.01M3 3l18 18';
+    var K = {
+      noBoard: { photo: true, ph: { board: 120, tilt: 'true', q: 'good' }, badgeBg: '#E3B25C', badge: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4',
+        title: 'We couldn’t find a board', body: 'The photo doesn’t show a full chess board we can read. A clearer shot usually fixes it.',
+        tips: tips(['Get all 64 squares in the frame, edges included', 'Shoot from straight above, not from the side', 'Use even light without strong glare']), p: retry, s: upload },
+      blurry: { photo: true, ph: { board: 200, tilt: 'false', q: 'dark' }, badgeBg: '#E3B25C', badge: 'M12 3v2M12 19v2M5 12H3M21 12h-2M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+        title: 'Too dark or too blurry', body: 'We can see a board, but not the pieces clearly enough to be sure of the position.',
+        tips: tips(['Turn on a light or the flash', 'Hold still for a second before you tap', 'Tap the screen to focus on the board']), p: retry, s: upload },
+      illegal: { photo: false, icon: 'M12 3l9 16H3zM12 10v4M12 17h.01', iconFg: c.coral,
+        title: 'This position can’t happen', body: 'Each side needs exactly one king, and the scan found two white kings (e1 and g1). One is probably a shadow or a misread piece.',
+        tips: [], p: { label: 'Edit position', href: 'ScanConfirmEdit.dc.html' }, s: { label: 'Scan again', href: 'ScanCamera.dc.html' } },
+      offline: { photo: false, icon: WIFI, iconFg: c.brass,
+        title: 'You’re offline', body: 'Reading a photo needs the internet. You can still set up the position by hand, and Stockfish analysis works offline.',
+        tips: [], p: byHand, s: { label: 'Try again', href: 'ScanScanning.dc.html' } },
+      noKey: { photo: false, icon: 'M15 7a4 4 0 1 1-3.9 5H8v3H5v-3H3v-3h8.1A4 4 0 0 1 15 7zM15 10h.01', iconFg: c.brass,
+        title: 'Scanning needs your AI Coach key', body: 'Board scans are read by Gemini using your own key. Add one in Settings › Developer mode, or set the position up by hand.',
+        tips: [], p: { label: 'Add key in Settings', href: 'SettingsDevNoKey.dc.html' }, s: byHand },
+      limit: { photo: false, icon: 'M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', iconFg: c.brass,
+        title: 'Daily AI limit reached', body: 'Your Gemini key has used today’s free requests. Scanning works again when the limit resets. Setting up by hand and Stockfish work now.',
+        tips: [], p: byHand, s: { label: 'OK', href: 'Home.dc.html' } }
+    };
+    var k = K[kind];
+    return {
+      c: c,
+      showPhoto: !!k.photo, showIcon: !k.photo,
+      ph: k.ph || { board: 120, tilt: 'false', q: 'good' },
+      k: { title: k.title, body: k.body, tips: k.tips, hasTips: k.tips.length > 0, p: k.p, s: k.s,
+        icon: k.icon || '', iconFg: k.iconFg || c.t2, badge: k.badge || '', badgeBg: k.badgeBg || '#E3B25C' }
+    };
+  }
+}
+</script>
+</body>
+</html>

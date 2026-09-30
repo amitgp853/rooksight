@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scan a board · scanning</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;background:#0E1217}button{font-family:inherit;cursor:pointer}a{text-decoration:none}
+@keyframes mw-sc-spin{to{transform:rotate(360deg)}}
+@keyframes mw-sc-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes mw-sc-sweep{0%{top:0}100%{top:100%}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0E1217; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+<header style="height: 56px; flex-shrink: 0; padding: 0 8px; display: flex; align-items: center; gap: 4px">
+<a href="ScanCrop.dc.html" aria-label="Cancel scan" style="width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #E9EDF2">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></a>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">Reading your board</h1>
+</header>
+
+<div style="padding: 8px 16px 0; display: flex; justify-content: center">
+<div style="position: relative; width: 358px; height: 358px; border-radius: 16px; overflow: hidden">
+<dc-import name="ScanPhoto" width="358" height="358" board="344" dim="55" hint-size="358px,358px"></dc-import>
+<sc-if value="{{sweep}}" hint-placeholder-val="{{true}}">
+<span aria-hidden="true" style="position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, rgba(134,168,255,0), #86A8FF, rgba(134,168,255,0)); box-shadow: 0 0 16px 4px rgba(134,168,255,0.45); animation: mw-sc-sweep 1.6s ease-in-out infinite alternate"></span>
+</sc-if>
+</div>
+</div>
+
+<section aria-label="Scan steps" aria-live="polite" style="margin: 20px 16px 0; border-radius: 16px; background: #151B22; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px">
+<span style="height: 28px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #A3AFBD">{{title}}<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0; color: #7C8898">{{count}}</span></span>
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+<div style="display: flex; gap: 12px; padding: 8px 2px; animation: mw-sc-in 0.3s ease-out">
+<div style="width: 20px; flex-shrink: 0; padding-top: 1px">
+<sc-if value="{{s.done}}" hint-placeholder-val="{{true}}">
+<span style="width: 20px; height: 20px; border-radius: 10px; background: {{s.doneBg}}; color: #0B1224; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>
+</sc-if>
+<sc-if value="{{s.running}}" hint-placeholder-val="{{false}}">
+<span style="display: block; width: 20px; height: 20px; box-sizing: border-box; border-radius: 10px; border: 2px solid {{s.spin}}; border-right-color: transparent; animation: mw-sc-spin 0.8s linear infinite"></span>
+</sc-if>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 14px; line-height: 20px; color: {{s.fg}}">{{s.label}}</span>
+<sc-if value="{{s.done}}" hint-placeholder-val="{{true}}">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 17px; color: #7C8898">{{s.detail}}</span>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</section>
+
+<div style="flex-grow: 1"></div>
+<footer style="flex-shrink: 0; padding: 12px 16px 28px; display: flex; flex-direction: column; align-items: center; gap: 10px">
+<span style="font-size: 12px; color: #7C8898; text-align: center">The photo goes to your Gemini key and nowhere else. Every square is checked before you continue.</span>
+<a href="ScanCrop.dc.html" style="height: 44px; padding: 0 16px; display: flex; align-items: center; color: #86A8FF; font-size: 14px; font-weight: 600">Cancel</a>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 0 }; }
+  componentDidMount() {
+    var self = this;
+    this.timer = setInterval(function () { self.setState({ step: (self.state.step + 1) % 7 }); }, 1100);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    var all = [
+      { label: 'Finding the board…', detail: 'Board found · 8 × 8 squares' },
+      { label: 'Identifying pieces…', detail: '33 pieces · 2 unsure' },
+      { label: 'Checking the position is legal…', detail: 'White looks like it has 2 kings' },
+      { label: 'Double-checking e1 and g1…', detail: 'e1 king · g1 empty (shadow)', retry: true }
+    ];
+    var step = Math.min(this.state.step, 4), n = all.length;
+    var steps = all.slice(0, Math.min(step + 1, n)).map(function (s, i) {
+      var done = i < step;
+      return { label: s.label, detail: s.detail, done: done, running: !done,
+        fg: done ? '#E9EDF2' : (s.retry ? '#EBD7B0' : '#C9D7FF'),
+        spin: s.retry ? '#E3B25C' : '#86A8FF', doneBg: s.retry ? '#E3B25C' : '#86A8FF' };
+    });
+    var finished = step >= n;
+    return {
+      steps: steps, sweep: !finished,
+      title: finished ? 'Position ready' : 'Working…',
+      count: Math.min(step, n) + ' / ' + n
+    };
+  }
+}
+</script>
+</body>
+</html>

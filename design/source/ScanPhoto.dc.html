@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scan photo (placeholder)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div role="img" aria-label="Photo of a chess board" style="position: relative; width: {{w}}px; height: {{h}}px; overflow: hidden; background: {{table}}">
+<div style="position: absolute; left: 50%; top: 50%; width: {{bs}}px; height: {{bs}}px; margin-left: {{half}}px; margin-top: {{halfY}}px; transform: {{tf}}; transform-origin: 50% 60%; filter: {{filter}}">
+<div style="padding: {{frame}}px; border-radius: 4px; background: linear-gradient(135deg, #5A3A22, #3B2414); box-shadow: 0 {{sh}}px {{shb}}px rgba(0,0,0,0.55)">
+<dc-import name="Board" size="{{inner}}" theme="ember" coords="false" still="true" fen="{{fen}}" hint-size="300px,300px"></dc-import>
+</div>
+</div>
+<div aria-hidden="true" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: {{light}}"></div>
+<div aria-hidden="true" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(8,11,15,{{dim}})"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"width":{"editor":"int","min":40,"max":800,"default":358},"height":{"editor":"int","min":40,"max":900,"default":358},"board":{"editor":"int","min":20,"max":800,"default":320},"tilt":{"editor":"boolean","default":false},"dim":{"editor":"int","min":0,"max":90,"default":0},"quality":{"editor":"enum","options":["good","dark","blurry"],"default":"good"},"fen":{"editor":null},"$preview":{"width":358,"height":358}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var p = this.props;
+    var yes = function (v) { return v === true || v === 'true'; };
+    var w = Number(p.width || 358), h = Number(p.height || 358), bs = Number(p.board || 320);
+    var frame = Math.round(bs * 0.035), inner = bs - frame * 2;
+    var tilt = yes(p.tilt);
+    var q = p.quality || 'good';
+    var base = 'sepia(0.22) saturate(0.92) contrast(1.04)';
+    return {
+      w: w, h: h, bs: bs, frame: frame, inner: inner, half: -bs / 2, halfY: -bs / 2,
+      fen: p.fen || 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQK2R',
+      tf: tilt ? 'perspective(700px) rotateX(24deg) rotateZ(-3deg) scale(0.96)' : 'rotateZ(-1.2deg)',
+      sh: tilt ? 24 : 10, shb: tilt ? 30 : 18,
+      filter: q === 'dark' ? base + ' brightness(0.32)' : (q === 'blurry' ? base + ' blur(3.5px) brightness(0.9)' : base + ' brightness(0.95)'),
+      table: 'radial-gradient(120% 90% at 40% 30%, #6B5745 0%, #3E3226 55%, #1F1913 100%)',
+      light: q === 'dark' ? 'rgba(0,0,0,0.35)' : 'radial-gradient(90% 70% at 35% 25%, rgba(255,236,200,0.16), rgba(0,0,0,0) 60%), radial-gradient(140% 120% at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.45) 100%)',
+      dim: Number(p.dim || 0) / 100
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Analysis board</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./motion.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit;cursor:pointer}
+a{text-decoration:none}
+@keyframes mw-an-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes mw-an-shim{0%,100%{opacity:.45}50%{opacity:.9}}
+@keyframes mw-an-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; overflow: hidden; box-sizing: border-box; background: {{c.bg}}; color: {{c.t1}}; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+<header style="height: 56px; flex-shrink: 0; padding: 0 4px 0 8px; display: flex; align-items: center; gap: 2px">
+<a href="{{backHref}}" aria-label="Back" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: {{c.t1}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column">
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px; line-height: 22px">Analysis</h1>
+<span style="font-size: 12px; color: {{c.t2}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{sub}}</span>
+</div>
+<a href="CoachEmptyGame.dc.html" aria-label="Ask AI Coach about this position" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: {{c.brass}}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg></a>
+<button type="button" aria-label="Flip board" style="width: 44px; height: 44px; flex-shrink: 0; border: none; border-radius: 12px; background: transparent; color: {{c.t1}}; display: flex; align-items: center; justify-content: center">
+<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M7 4L3 8M7 4l4 4M17 20V4M17 20l-4-4M17 20l4-4"></path></svg></button>
+<button type="button" aria-label="More actions" aria-haspopup="dialog" style="width: 44px; height: 44px; flex-shrink: 0; border: none; border-radius: 12px; background: {{moreBg}}; color: {{c.t1}}; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M5 12h.01M12 12h.01M19 12h.01"></path></svg></button>
+</header>
+
+<sc-if value="{{horiz}}" hint-placeholder-val="{{true}}">
+<dc-import name="EvalBar" cp="{{ev.cp}}" mate="{{ev.mate}}" analysed="{{ev.analysed}}" player="white" theme="{{theme}}" signed="true" hint-size="390px,38px"></dc-import>
+</sc-if>
+
+<div aria-label="{{wdl.aria}}" role="img" style="height: 24px; flex-shrink: 0; padding: 0 16px; display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 600; color: {{c.t2}}">
+<span style="width: 72px; white-space: nowrap">White {{wdl.w}}%</span>
+<span style="flex-grow: 1; height: 6px; border-radius: 3px; overflow: hidden; display: flex; box-shadow: inset 0 0 0 1px {{c.edge}}">
+<span style="width: {{wdl.w}}%; background: #EEF1F5; transition: {{tr}}"></span>
+<span style="width: {{wdl.d}}%; background: #7C8898; transition: {{tr}}"></span>
+<span style="flex-grow: 1; background: #1E2530"></span>
+</span>
+<span style="white-space: nowrap; text-align: right">Draw {{wdl.d}}% · Black {{wdl.l}}%</span>
+</div>
+
+<div style="position: relative; flex-shrink: 0; display: flex; gap: {{boardGap}}px; padding-left: {{boardPad}}px">
+<sc-if value="{{vert}}" hint-placeholder-val="{{false}}">
+<dc-import name="EvalBarV" cp="{{ev.cp}}" mate="{{ev.mate}}" analysed="{{ev.analysed}}" white-bottom="true" theme="{{theme}}" height="368" hint-size="18px,368px"></dc-import>
+</sc-if>
+<dc-import name="Board" size="{{boardSize}}" still="true" fen="{{b.fen}}" last-from="{{b.from}}" last-to="{{b.to}}" mark-sq="{{b.mark}}" mark-kind="{{b.kind}}" arrow-from="{{b.aFrom}}" arrow-to="{{b.aTo}}" arrow-color="{{c.arrow}}" arrow2-from="{{b.tFrom}}" arrow2-to="{{b.tTo}}" hint-size="390px,390px"></dc-import>
+</div>
+
+<sc-if value="{{fb.on}}" hint-placeholder-val="{{false}}">
+<div role="status" style="height: 52px; flex-shrink: 0; margin: 8px 12px 0; box-sizing: border-box; padding: 0 6px 0 10px; border-radius: 14px; background: {{c.coralBg}}; border: 1px solid {{c.coralLine}}; display: flex; align-items: center; gap: 10px; animation: mw-an-in 0.3s ease-out">
+<span style="height: 26px; padding: 0 9px 0 3px; border-radius: 6px; background: rgba(242,103,122,0.16); color: {{c.coral}}; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; flex-shrink: 0"><span style="min-width: 20px; height: 20px; border-radius: 10px; background: #F2677A; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: 10px">??</span>Blunder</span>
+<div style="flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 13px; white-space: nowrap">7. Nxe5 <span style="color: {{c.t2}}">+0.4 → −1.8</span></span>
+<span style="font-size: 12px; color: {{c.t2}}; white-space: nowrap">Best was <span style="font-family: 'JetBrains Mono', monospace; color: {{c.focus}}">7. Bg5</span></span>
+</div>
+<button type="button" style="height: 40px; flex-shrink: 0; padding: 0 12px; border-radius: 10px; border: 1px solid {{c.border}}; background: {{c.raised}}; color: {{c.t1}}; font-size: 13px; font-weight: 600">Take back</button>
+</div>
+</sc-if>
+
+<sc-if value="{{fb.off}}" hint-placeholder-val="{{true}}">
+<div style="height: 44px; flex-shrink: 0; padding: 0 8px 0 16px; display: flex; align-items: center; gap: 8px">
+<span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 4px; flex-shrink: 0; background: {{st.dot}}; animation: {{st.anim}}"></span>
+<span style="flex-grow: 1; min-width: 0; font-size: 12px; color: {{c.t2}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis"><span style="font-weight: 600; color: {{c.t1}}">Stockfish</span> · {{st.text}}</span>
+<span title="Material balance" style="height: 26px; padding: 0 8px; border-radius: 13px; background: {{c.el}}; display: flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; color: {{c.t1}}; flex-shrink: 0">{{st.material}}</span>
+<button type="button" aria-pressed="{{st.threatOn}}" style="height: 30px; padding: 0 10px; border-radius: 15px; border: 1px solid {{st.threatLine}}; background: {{st.threatBg}}; color: {{st.threatFg}}; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; flex-shrink: 0">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 3" aria-hidden="true"><path d="M4 20L20 4M20 4h-7M20 4v7"></path></svg>Threat</button>
+<button type="button" role="switch" aria-checked="{{st.engineOn}}" aria-label="Engine" style="width: 44px; height: 44px; flex-shrink: 0; border: none; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0">
+<span style="width: 38px; height: 22px; box-sizing: border-box; border-radius: 11px; padding: 2px; background: {{st.track}}; display: flex; justify-content: {{st.justify}}"><span style="width: 18px; height: 18px; border-radius: 9px; background: {{st.knob}}"></span></span></button>
+</div>
+</sc-if>
+
+<section aria-label="Engine lines" style="flex-shrink: 0; margin: 0 12px; padding: 4px 0; border-radius: 14px; background: {{c.raised}}; box-shadow: {{c.cardEdge}}; display: flex; flex-direction: column">
+<sc-if value="{{threat.on}}" hint-placeholder-val="{{false}}">
+<div style="height: 32px; padding: 0 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: {{c.coral}}; border-bottom: 1px solid {{c.edge}}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 3" aria-hidden="true"><path d="M4 20L20 4M20 4h-7M20 4v7"></path></svg>
+<span style="color: {{c.t1}}"><span style="font-weight: 600; color: {{c.coral}}">Threat:</span> <span style="font-family: 'JetBrains Mono', monospace">…Na5</span>, going after your c4 bishop</span>
+</div>
+</sc-if>
+<sc-for list="{{lines}}" as="ln" hint-placeholder-count="3">
+<div style="height: 38px; padding: 0 8px 0 8px; display: flex; align-items: center; gap: 8px; opacity: {{ln.op}}; border-top: {{ln.sep}}">
+<span style="min-width: 48px; height: 24px; padding: 0 6px; box-sizing: border-box; border-radius: 7px; background: {{ln.chipBg}}; color: {{ln.chipFg}}; box-shadow: {{ln.chipRing}}; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 12px; flex-shrink: 0">{{ln.ev}}</span>
+<div style="flex-grow: 1; min-width: 0; display: flex; align-items: center; gap: 1px; overflow: hidden; white-space: nowrap; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+<sc-for list="{{ln.moves}}" as="mv" hint-placeholder-count="5">
+<button type="button" style="height: 30px; padding: 0 {{mv.pad}}px; border: none; border-radius: 6px; background: transparent; color: {{mv.fg}}; font-family: inherit; font-size: inherit; font-weight: {{mv.w}}; flex-shrink: 0">{{mv.t}}</button>
+</sc-for>
+<sc-if value="{{ln.shim}}" hint-placeholder-val="{{false}}">
+<span aria-hidden="true" style="height: 10px; width: 180px; border-radius: 5px; background: {{c.el}}; animation: mw-an-shim 1.2s ease-in-out infinite"></span>
+</sc-if>
+</div>
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{c.t3}}; flex-shrink: 0">{{ln.depth}}</span>
+</div>
+</sc-for>
+</section>
+
+<nav aria-label="Moves" style="flex-grow: 1; min-height: 0; overflow: hidden; padding: 8px 12px 0; display: flex; flex-direction: column; gap: 2px; font-family: 'JetBrains Mono', monospace; font-size: 13px">
+<sc-for list="{{blocks}}" as="bk" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1px; margin-left: {{bk.indent}}px; padding-left: {{bk.pl}}px; box-shadow: {{bk.rail}}">
+<sc-if value="{{bk.isVar}}" hint-placeholder-val="{{false}}">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{c.t3}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right: 2px"><path d="M6 4v8a4 4 0 0 0 4 4h8M14 12l4 4-4 4"></path></svg>
+</sc-if>
+<sc-for list="{{bk.tokens}}" as="tk" hint-placeholder-count="6">
+<span style="height: 26px; padding: 0 {{tk.pad}}px; border-radius: 6px; background: {{tk.bg}}; box-shadow: {{tk.ring}}; color: {{tk.fg}}; font-weight: {{tk.w}}; display: flex; align-items: center; gap: 4px">{{tk.t}}<sc-if value="{{tk.q}}" hint-placeholder-val="{{false}}"><span style="min-width: 18px; height: 16px; padding: 0 3px; box-sizing: border-box; border-radius: 8px; background: {{tk.qBg}}; color: #0B1224; display: flex; align-items: center; justify-content: center; font-family: Sora, sans-serif; font-weight: 700; font-size: 9px">{{tk.qT}}</span></sc-if></span>
+</sc-for>
+</div>
+</sc-for>
+</nav>
+
+<div style="flex-shrink: 0; padding: 6px 12px 22px; border-top: 1px solid {{c.edge}}; display: flex; align-items: center; gap: 4px">
+<button type="button" aria-label="Go to start" style="width: 48px; height: 44px; border: none; border-radius: 12px; background: transparent; color: {{c.t2}}; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 5l-7 7 7 7M7 5v14"></path></svg></button>
+<button type="button" aria-label="Back one move" style="width: 56px; height: 44px; border: none; border-radius: 12px; background: {{c.raised}}; box-shadow: {{c.cardEdge}}; color: {{c.t1}}; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; gap: 1px">
+<span style="font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 14px">{{navMove}}</span>
+<span style="font-size: 11px; color: {{c.t3}}">{{navSub}}</span>
+</div>
+<button type="button" aria-label="Forward one move" style="width: 56px; height: 44px; border: none; border-radius: 12px; background: {{c.raised}}; box-shadow: {{c.cardEdge}}; color: {{c.t1}}; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+<button type="button" aria-label="Go to end" style="width: 48px; height: 44px; border: none; border-radius: 12px; background: transparent; color: {{c.t2}}; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5l7 7-7 7M17 5v14"></path></svg></button>
+</div>
+
+<sc-if value="{{varMenu}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(8,11,15,0.35); z-index: 30"></div>
+<div role="menu" aria-label="Variation 8. Bxf6" style="position: absolute; left: 44px; top: 612px; width: 250px; z-index: 31; padding: 6px; border-radius: 14px; background: {{c.raised}}; border: 1px solid {{c.border}}; box-shadow: 0 16px 36px rgba(0,0,0,0.45); display: flex; flex-direction: column">
+<span style="padding: 8px 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: {{c.t3}}">Line from 8. Bxf6</span>
+<button type="button" role="menuitem" style="height: 44px; padding: 0 10px; border: none; border-radius: 10px; background: {{c.el}}; color: {{c.t1}}; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; text-align: left"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>Promote to main line</button>
+<button type="button" role="menuitem" style="height: 44px; padding: 0 10px; border: none; border-radius: 10px; background: transparent; color: {{c.t1}}; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; text-align: left"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>Copy line</button>
+<button type="button" role="menuitem" style="height: 44px; padding: 0 10px; border: none; border-radius: 10px; background: transparent; color: {{c.coral}}; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; text-align: left"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"></path></svg>Delete from here</button>
+</div>
+</sc-if>
+
+<sc-if value="{{sheet}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(8,11,15,0.55); z-index: 30"></div>
+<section role="dialog" aria-labelledby="an-more" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 31; box-sizing: border-box; padding: 10px 16px 28px; border-radius: 24px 24px 0 0; background: {{c.raised}}; border-top: 1px solid {{c.border}}; box-shadow: 0 -16px 40px rgba(0,0,0,0.45); display: flex; flex-direction: column; gap: 4px">
+<span aria-hidden="true" style="align-self: center; width: 36px; height: 4px; border-radius: 2px; background: {{c.border}}; margin-bottom: 6px"></span>
+<h2 id="an-more" style="margin: 0 0 6px; font-family: Sora, sans-serif; font-weight: 600; font-size: 17px">This position</h2>
+<sc-for list="{{actions}}" as="a" hint-placeholder-count="6">
+<button type="button" style="height: 52px; padding: 0 12px; border: none; border-radius: 12px; background: {{a.bg}}; color: {{a.fg}}; display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 500; text-align: left">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{a.icon}}"></path></svg>{{a.label}}</button>
+</sc-for>
+</section>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["starting","sideline","variationMenu","blunder","mate","threat","actions"],"default":"starting"},"layout":{"editor":"enum","options":["horizontal","vertical"],"default":"horizontal"},"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 0 };
+  }
+  componentDidMount() {
+    var self = this;
+    this.timer = setInterval(function () { if (self.state.step < 6) self.setState({ step: self.state.step + 1 }); }, 700);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    var st = this.props.state || 'starting';
+    var light = this.props.theme === 'light';
+    var vert = this.props.layout === 'vertical';
+    var c = light
+      ? { bg: '#F1F3F6', raised: '#FFFFFF', el: '#E6EAF0', border: '#D5DBE3', edge: '#D5DBE3', cardEdge: 'inset 0 0 0 1px #D5DBE3', t1: '#121820', t2: '#4A5563', t3: '#5F6B7A', focus: '#2F5BD3', onFocus: '#FFFFFF', brass: '#8A5F0F', coral: '#C22F48', coralBg: 'rgba(194,47,72,0.07)', coralLine: 'rgba(194,47,72,0.35)', cur: 'rgba(47,91,211,0.14)', curRing: 'inset 0 0 0 1.5px #2F5BD3', arrow: '#2F5BD3' }
+      : { bg: '#0E1217', raised: '#151B22', el: '#1C242E', border: '#2A3441', edge: '#1C242E', cardEdge: 'none', t1: '#E9EDF2', t2: '#A3AFBD', t3: '#7C8898', focus: '#86A8FF', onFocus: '#0B1224', brass: '#E3B25C', coral: '#F2677A', coralBg: 'rgba(242,103,122,0.08)', coralLine: 'rgba(242,103,122,0.45)', cur: 'rgba(134,168,255,0.2)', curRing: 'inset 0 0 0 1.5px #86A8FF', arrow: '#86A8FF' };
+    var Q = { blunder: ['#F2677A', '??'], mistake: ['#F09A55', '?'], inaccuracy: ['#E3C65C', '?!'], best: ['#86A8FF', '!'] };
+
+    var P0 = 'r1bq1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/2PP1N2/PP3PPP/RNBQ1RK1';
+    var OPEN = 'Italian Game · Giuoco Pianissimo';
+    var step = this.state.step;
+
+    // tokens: [text, kind] kind: n = move number, m = move, c = current, q:<quality>
+    var tok = function (arr, isVar) {
+      return arr.map(function (x) {
+        var t = x[0], k = x[1] || 'm', num = k === 'n';
+        var cur = k === 'c' || k.indexOf('c') === 0 && k !== 'n';
+        var q = x[2] ? Q[x[2]] : null;
+        return { t: t, pad: num ? 2 : 5, w: cur ? 600 : 500,
+          fg: num ? c.t3 : (cur ? c.t1 : (isVar ? c.t2 : c.t1)),
+          bg: cur ? c.cur : 'transparent', ring: cur ? c.curRing : 'none',
+          q: !!q, qBg: q ? q[0] : '', qT: q ? q[1] : '' };
+      });
+    };
+    var block = function (arr, isVar) {
+      return { tokens: tok(arr, isVar), isVar: !!isVar, indent: isVar ? 10 : 0, pl: isVar ? 8 : 0, rail: isVar ? 'inset 2px 0 0 ' + c.border : 'none' };
+    };
+    var line = function (ev, moves, depth, i, extra) {
+      var e = extra || {};
+      var pos = ev.charAt(0) === '+' || ev.charAt(0) === 'M' && !e.neg;
+      var neg = ev.charAt(0) === '−' || e.neg;
+      return {
+        ev: ev, depth: depth,
+        chipBg: neg ? '#1E2530' : '#F5F7FA', chipFg: neg ? '#F5F7FA' : '#1E2530',
+        chipRing: light ? 'inset 0 0 0 1px #D5DBE3' : 'inset 0 0 0 1px #2A3441',
+        sep: i === 0 ? 'none' : '1px solid ' + c.edge, op: e.op == null ? 1 : e.op, shim: !!e.shim,
+        moves: moves.map(function (m, j) { var num = /\.$|…$/.test(m); return { t: m, pad: num ? 1 : 4, fg: num ? c.t3 : (j <= 1 ? c.t1 : c.t2), w: j <= 1 && !num ? 600 : 500 }; })
+      };
+    };
+
+    var S;
+    if (st === 'sideline' || st === 'variationMenu') {
+      S = {
+        sub: OPEN, fen: 'r1b2rk1/ppp2pp1/2np1q1p/2b1p3/2B1P3/2PP1N2/PP1N1PPP/R2Q1RK1', from: 'b1', to: 'd2',
+        ev: { cp: 20, mate: 0, analysed: 'true' }, wdl: [38, 51, 11], arrow: ['f6', 'g6'],
+        status: { text: 'depth 24', dot: c.t3, anim: 'none', material: '=' },
+        lines: [
+          line('+0.2', ['9…', 'Qg6', '10.', 'Nh4', 'Qg5', '11.', 'Nf3'], 'd24', 0),
+          line('+0.3', ['9…', 'Be6', '10.', 'Bb3', 'a6', '11.', 'Re1'], 'd24', 1),
+          line('+0.4', ['9…', 'a6', '10.', 'a4', 'Ba7', '11.', 'b4'], 'd24', 2)
+        ],
+        blocks: [
+          block([['6.', 'n'], ['O-O'], ['d6'], ['7.', 'n'], ['Bg5'], ['h6'], ['8.', 'n'], ['Bh4']]),
+          block([['8.', 'n'], ['Bxf6'], ['Qxf6'], ['9.', 'n'], ['Nbd2', 'c']], true),
+          block([['8…', 'n'], ['g5'], ['9.', 'n'], ['Bg3'], ['Nh5']])
+        ],
+        nav: ['9. Nbd2', 'side line · move 17']
+      };
+    } else if (st === 'blunder') {
+      S = {
+        sub: OPEN, fen: 'r1bq1rk1/ppp2ppp/2np1n2/2b1N3/2B1P3/2PP4/PP3PPP/RNBQ1RK1', from: 'f3', to: 'e5', mark: 'e5', kind: 'blunder',
+        ev: { cp: -180, mate: 0, analysed: 'true' }, wdl: [6, 22, 72], arrow: ['d6', 'e5'], fb: true,
+        status: { text: 'depth 22', dot: c.t3, anim: 'none', material: '+1' },
+        lines: [
+          line('−1.8', ['7…', 'dxe5', '8.', 'Bg5', 'Qe7', '9.', 'Nd2'], 'd22', 0),
+          line('−1.6', ['7…', 'Nxe5', '8.', 'd4', 'Bxd4', '9.', 'cxd4'], 'd22', 1),
+          line('−1.1', ['7…', 'Bxf2+', '8.', 'Rxf2', 'Nxe5'], 'd22', 2)
+        ],
+        blocks: [
+          block([['5.', 'n'], ['d3'], ['O-O'], ['6.', 'n'], ['O-O'], ['d6'], ['7.', 'n'], ['Nxe5', 'c', 'blunder']]),
+          block([['7.', 'n'], ['Bg5'], ['h6'], ['8.', 'n'], ['Bh4']], true)
+        ],
+        nav: ['7. Nxe5??', 'your move · Black to play']
+      };
+    } else if (st === 'mate') {
+      S = {
+        sub: 'From your scan · White to move', fen: '2rr2k1/pp3ppp/8/8/4R3/4R3/PP2QPPP/6K1', from: '', to: '',
+        ev: { cp: 0, mate: 3, analysed: 'true' }, wdl: [100, 0, 0], arrow: ['e4', 'e8'],
+        status: { text: 'mate in 3 · d18', dot: c.focus, anim: 'none', material: '+9' },
+        lines: [
+          line('M3', ['28.', 'Re8+', 'Rxe8', '29.', 'Rxe8+', 'Rxe8', '30.', 'Qxe8#'], 'd18', 0),
+          line('+14.8', ['28.', 'Qb5', 'b6', '29.', 'Re7'], 'd18', 1),
+          line('+13.9', ['28.', 'h3', 'Kf8', '29.', 'Qe1'], 'd18', 2)
+        ],
+        blocks: [block([['Position from scan · White to move', 'n']])],
+        nav: ['Start', 'no moves yet']
+      };
+    } else {
+      // starting, threat, actions
+      var settled = st !== 'starting' || step >= 6;
+      var depth = settled ? 24 : [6, 10, 14, 17, 20, 22, 24][step];
+      var cps = [0, 25, 36, 41, 38, 40, 40];
+      var ev = settled ? { cp: 40, mate: 0, analysed: 'true' } : (step === 0 ? { cp: 0, mate: 0, analysed: 'false' } : { cp: cps[step], mate: 0, analysed: 'true' });
+      var shown = settled ? 3 : Math.min(3, step);
+      var all = [
+        line('+0.4', ['7.', 'Bg5', 'h6', '8.', 'Bh4', 'g5', '9.', 'Bg3'], 'd' + depth, 0),
+        line('+0.3', ['7.', 'Re1', 'a6', '8.', 'Bb3', 'Ba7', '9.', 'h3'], 'd' + depth, 1),
+        line('+0.2', ['7.', 'Nbd2', 'a6', '8.', 'Bb3', 'Ba7'], 'd' + depth, 2)
+      ];
+      var lines = all.map(function (l, i) {
+        if (i < shown) return l;
+        return Object.assign({}, l, { ev: '', moves: [], shim: true, depth: '', chipBg: c.el, chipRing: 'none', op: 1 });
+      });
+      var cpShow = ev.analysed === 'true' ? (ev.cp / 100).toFixed(1) : '…';
+      S = {
+        sub: st === 'starting' ? 'From your game · after 6…d6' : OPEN, fen: P0, from: 'd7', to: 'd6',
+        ev: ev, wdl: settled ? [34, 55, 11] : [33, 56, 11], arrow: shown >= 2 ? ['c1', 'g5'] : null,
+        threat: st === 'threat',
+        status: settled && st !== 'starting'
+          ? { text: 'depth 24', dot: c.t3, anim: 'none', material: '=' }
+          : { text: settled ? 'depth 24' : 'thinking · depth ' + depth + ' / 24', dot: c.focus, anim: settled ? 'none' : 'mw-an-pulse 1s ease-in-out infinite', material: '=' },
+        lines: lines,
+        blocks: [block([['4.', 'n'], ['c3'], ['Nf6'], ['5.', 'n'], ['d3'], ['O-O'], ['6.', 'n'], ['O-O'], ['d6', 'c']])],
+        nav: ['6… d6', settled ? 'move 12 · White to play' : 'eval ' + cpShow + ' · still thinking']
+      };
+    }
+
+    var threatOn = !!S.threat;
+    var actions = [
+      { label: 'Ask AI Coach about this position', icon: 'M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z', fg: c.brass },
+      { label: 'Play from here vs Stockfish', icon: 'M5 5h14v14H5zM9 9h6v6H9z' },
+      { label: 'Flip board', icon: 'M7 4v16M7 4L3 8M7 4l4 4M17 20V4M17 20l-4-4M17 20l4-4' },
+      { label: 'Edit position', icon: 'M4 20h4L19 9l-4-4L4 16z' },
+      { label: 'Copy FEN', icon: 'M8 8h12v12H8zM16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3' },
+      { label: 'Share position image', icon: 'M4 12v8h16v-8M12 3v13M7 8l5-5 5 5' }
+    ].map(function (a) { return { label: a.label, icon: a.icon, fg: a.fg || c.t1, bg: 'transparent' }; });
+
+    var w = S.wdl;
+    return {
+      c: c, theme: light ? 'light' : 'dark',
+      horiz: !vert, vert: vert,
+      boardSize: vert ? 368 : 390, boardGap: vert ? 4 : 0, boardPad: 0,
+      backHref: st === 'mate' ? 'ScanConfirm.dc.html' : 'Review.dc.html',
+      sub: S.sub,
+      ev: S.ev,
+      tr: 'width 240ms cubic-bezier(0.33, 1, 0.68, 1)',
+      wdl: { w: w[0], d: w[1], l: w[2], aria: 'White wins ' + w[0] + '%, draw ' + w[1] + '%, Black wins ' + w[2] + '%' },
+      b: { fen: S.fen, from: S.from || '', to: S.to || '', mark: S.mark || '', kind: S.kind || '',
+        aFrom: S.arrow ? S.arrow[0] : '', aTo: S.arrow ? S.arrow[1] : '',
+        tFrom: threatOn ? 'c6' : '', tTo: threatOn ? 'a5' : '' },
+      fb: { on: !!S.fb, off: !S.fb },
+      st: {
+        text: S.status.text, dot: S.status.dot, anim: S.status.anim, material: S.status.material,
+        threatOn: threatOn ? 'true' : 'false',
+        threatBg: threatOn ? 'rgba(242,103,122,0.14)' : 'transparent', threatLine: threatOn ? c.coralLine : c.border, threatFg: threatOn ? c.coral : c.t2,
+        engineOn: 'true', track: c.focus, knob: c.onFocus, justify: 'flex-end'
+      },
+      threat: { on: threatOn },
+      lines: S.lines,
+      blocks: S.blocks,
+      navMove: S.nav[0], navSub: S.nav[1],
+      varMenu: st === 'variationMenu',
+      sheet: st === 'actions',
+      moreBg: st === 'actions' ? c.el : 'transparent',
+      actions: actions
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -428,6 +429,46 @@ void main() {
       expect(body['toolConfig'], {
         'functionCallingConfig': {'mode': 'NONE'},
       });
+    });
+
+    test('images go before the text, base64-encoded', () {
+      final body = GeminiClient.requestBody(
+        LlmRequest(
+          messages: [
+            LlmMessage.user(
+              'Read this board',
+              images: [
+                LlmImage(Uint8List.fromList([1, 2, 3])),
+              ],
+            ),
+          ],
+        ),
+      );
+      final parts = ((body['contents']! as List).single as Map)['parts'] as List<Object?>;
+      expect(parts, [
+        {
+          'inlineData': {
+            'mimeType': 'image/jpeg',
+            'data': base64Encode([1, 2, 3]),
+          },
+        },
+        {'text': 'Read this board'},
+      ]);
+    });
+
+    test('media resolution, only when asked for', () {
+      Object? resolution(LlmRequest request) =>
+          (GeminiClient.requestBody(request)['generationConfig']! as Map)['mediaResolution'];
+      expect(resolution(request), isNull);
+      expect(
+        resolution(
+          const LlmRequest(
+            messages: [LlmMessage.user('Hi')],
+            mediaResolution: LlmMediaResolution.low,
+          ),
+        ),
+        'MEDIA_RESOLUTION_LOW',
+      );
     });
 
     test('no tools, no tool config', () {

@@ -127,6 +127,10 @@ void main() {
                 builder: (context, state) => Text('Coach ${state.uri.query}'),
               ),
               GoRoute(path: '/games', builder: (context, state) => const Text('games list')),
+              GoRoute(
+                path: '/analysis',
+                builder: (context, state) => Text('analysis ${state.uri.query}'),
+              ),
             ],
           ),
         ),
@@ -202,6 +206,116 @@ void main() {
     await tester.tap(find.byTooltip('First move'));
     await tester.pumpAndSettle();
     expect(find.text('Start'), findsOneWidget);
+  });
+
+  testWidgets('Analyze this position opens the analysis board at the move shown', (tester) async {
+    await pumpReview(tester);
+    await tester.tap(find.byTooltip('Previous move'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Analyze position'));
+    await tester.pumpAndSettle();
+    final text = tester.widget<Text>(find.textContaining('analysis ')).data!;
+    final query = Uri.splitQueryString(text.substring('analysis '.length));
+    expect(query['from'], 'game');
+    expect(query['ply'], '3');
+    expect(query['moves'], 'f2f3,e7e5,g2g4,d8h4');
+    expect(query['fen'], Chess.initial.fen);
+  });
+
+  testWidgets('any move shown can be asked about, not only key moments', (tester) async {
+    await pumpReview(tester);
+    await tester.tap(find.byTooltip('Previous move'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ask AI about 2. g4'));
+    await tester.pumpAndSettle();
+    expect(find.text('Coach game=$id&move=2'), findsOneWidget);
+  });
+
+  group('many key moments', () {
+    // 24 moves, every one a blunder: +3 for whoever is to move each time.
+    final pawnWalk = GameRecord(
+      source: GameSource.stockfish,
+      pgn:
+          '[Result "1/2-1/2"]\n\n1. a3 a6 2. b3 b6 3. c3 c6 4. d3 d6 5. e3 e6 6. f3 f6 '
+          '7. g3 g6 8. h3 h6 9. a4 a5 10. b4 b5 11. c4 c5 12. d4 d5 1/2-1/2',
+      playerSide: Side.white,
+      result: '1/2-1/2',
+      endReason: 'agreement',
+      engineElo: 1600,
+      opponentName: 'Stockfish 1600',
+      plyCount: 24,
+      startedAt: DateTime(2026, 9, 28),
+      endedAt: DateTime(2026, 9, 28),
+    );
+
+    Future<void> pumpLong(WidgetTester tester) async {
+      engine.reply = (fen) => [sf(FakeEngine.firstLegalMove(fen), cp: 300)];
+      final long = await games.save(pawnWalk);
+      await pumpReview(tester, gameId: '$long');
+      await scrollTo(tester, find.text('Key moments'));
+    }
+
+    testWidgets('the 8 costliest are cards, the rest one-line rows behind Show all', (
+      tester,
+    ) async {
+      await pumpLong(tester);
+      expect(find.byType(KeyMomentCard), findsNWidgets(8));
+      expect(find.byType(KeyMomentRow), findsNothing);
+      await scrollTo(tester, find.text('Show all 24 moments'));
+      await tester.tap(find.text('Show all 24 moments'));
+      await tester.pumpAndSettle();
+      // The review opens on the last move, itself a key moment: that one is
+      // a full card, the other 15 are rows.
+      expect(find.byType(KeyMomentRow), findsNWidgets(15));
+      expect(find.byType(KeyMomentCard), findsNWidgets(9));
+
+      // Only your moves, then only the opponent's.
+      await scrollTo(tester, find.textContaining('Yours · '));
+      await tester.tap(find.textContaining('Yours · '));
+      await tester.pumpAndSettle();
+      final yours = tester.widgetList<KeyMomentRow>(find.byType(KeyMomentRow));
+      expect(yours.every((r) => r.mover == 'You'), isTrue);
+      await tester.tap(find.textContaining('Opponent’s · '));
+      await tester.pumpAndSettle();
+      final theirs = tester.widgetList<KeyMomentRow>(find.byType(KeyMomentRow));
+      expect(theirs.every((r) => r.mover == 'Stockfish'), isTrue);
+      expect(yours.length + theirs.length, 15);
+
+      await scrollTo(tester, find.text('Show fewer'));
+      await tester.tap(find.text('Show fewer'));
+      await tester.pumpAndSettle();
+      expect(find.byType(KeyMomentRow), findsNothing);
+    });
+
+    testWidgets('a row opens as a full card once its move is on the board', (tester) async {
+      await pumpLong(tester);
+      await scrollTo(tester, find.text('Show all 24 moments'));
+      await tester.tap(find.text('Show all 24 moments'));
+      await tester.pumpAndSettle();
+      final row = find.byType(KeyMomentRow).first;
+      await scrollTo(tester, row);
+      final tapped = tester.widget<KeyMomentRow>(row).move;
+      await tester.tap(row);
+      await tester.pumpAndSettle();
+      // The board comes up; back to the list, where it's now a card.
+      await tester.tap(find.text('Back to key moments'));
+      await tester.pumpAndSettle();
+      final rows = tester.widgetList<KeyMomentRow>(find.byType(KeyMomentRow));
+      expect(rows.map((r) => r.move), isNot(contains(tapped)));
+      expect(rows, hasLength(15));
+    });
+
+    testWidgets('the AI explains only the 8 costliest, in one request', (tester) async {
+      await pumpLong(tester);
+      expect(find.textContaining('Explains the 8 moments that cost most'), findsOneWidget);
+      await scrollTo(tester, find.text('Explain key moments'));
+      await tester.tap(find.text('Explain key moments'));
+      await tester.pumpAndSettle();
+      expect(llm.requests, hasLength(1));
+      final prompt = llm.requests.single.messages.single.text;
+      expect(RegExp('"id":').allMatches(prompt).length, 8);
+    });
   });
 
   testWidgets('filters the move list by mark', (tester) async {
@@ -390,9 +504,10 @@ void main() {
   testWidgets('Ask coach opens the coach about that move', (tester) async {
     await pumpReview(tester);
     await scrollTo(tester, find.text('Ask AI Coach about this move'));
-    await tester.tap(find.text('Ask AI Coach about this move'));
+    await tester.tap(find.text('Ask AI Coach about this move').first);
     await tester.pumpAndSettle();
-    expect(find.text('Coach game=$id&move=0'), findsOneWidget);
+    // The first card is the move that cost most: 2. g4?? (move index 2).
+    expect(find.text('Coach game=$id&move=2'), findsOneWidget);
   });
 
   testWidgets('Ask coach about this game attaches the game', (tester) async {
@@ -508,6 +623,21 @@ void main() {
       expect(find.text('Your line · 2. Kf2??'), findsOneWidget);
       expect(find.textContaining('Blunder · '), findsOneWidget);
       expect(find.textContaining('best was d4'), findsOneWidget);
+    });
+
+    testWidgets('Best move on the final checkmate: no best move, no blank page', (tester) async {
+      await pumpReview(tester); // Opens on the last position: Black has mated.
+      await tester.tap(find.text('Best move'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(MoveWiseBoard), findsOneWidget);
+
+      await tester.tap(find.byTooltip('Previous move'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<MoveWiseBoard>(find.byType(MoveWiseBoard)).shapes.whereType<Arrow>(),
+        isNotEmpty,
+      );
     });
 
     testWidgets('the best-move arrow is off until asked for', (tester) async {

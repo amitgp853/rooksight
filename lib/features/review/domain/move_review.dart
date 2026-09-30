@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../core/chess/uci.dart';
 import '../../play/domain/game_state.dart';
 import 'position_eval.dart';
 
@@ -142,7 +143,7 @@ MoveQuality? _classify({
   final best = evalBefore.bestMove;
   final second = evalBefore.secondScore;
   if (best == null || second == null) return null;
-  final bestMove = Move.parse(best);
+  final bestMove = parseUci(best);
   final isBest = bestMove is NormalMove && positionBefore.normalizeMove(bestMove) == played.move;
   if (!isBest) return null;
   final gap = cappedPawns(evalBefore.score) - cappedPawns(second);

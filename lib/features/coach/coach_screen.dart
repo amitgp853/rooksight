@@ -303,7 +303,6 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
                       state: state,
                       controller: _scroll,
                       dividers: _saved,
-                      footnote: _saved && blocked == null && !state.isBusy,
                       onRetry: () => ref.read(_provider.notifier).retry(),
                     ),
             ),
@@ -315,7 +314,14 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
                     : state.isFull
                     ? Icons.inventory_2_outlined
                     : Icons.wifi_off_rounded,
-                action: state.isFull ? NewChatPill(onPressed: _newChat) : null,
+                action: state.isFull
+                    ? NewChatPill(onPressed: _newChat)
+                    : offline && hasKey
+                    ? TextButton(
+                        onPressed: state.isBusy ? null : () => ref.read(_provider.notifier).retry(),
+                        child: const Text('Try again'),
+                      )
+                    : null,
               ),
             _InputBar(
               controller: _input,
@@ -476,7 +482,6 @@ class _Transcript extends StatelessWidget {
     required this.state,
     required this.controller,
     required this.dividers,
-    required this.footnote,
     required this.onRetry,
   });
 
@@ -484,14 +489,10 @@ class _Transcript extends StatelessWidget {
   final ScrollController controller;
   final bool dividers;
 
-  /// "Continue this chat below…" after the last message.
-  final bool footnote;
   final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    final type = context.type;
     final now = DateTime.now();
     final turns = state.turns;
     return ListView(
@@ -506,22 +507,6 @@ class _Transcript extends StatelessWidget {
             child: _Turn(turn: turn, onRetry: i == turns.length - 1 ? onRetry : null),
           ),
         ],
-        if (footnote && turns.isNotEmpty)
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 300),
-              child: Text(
-                'Continue this chat below. The AI Coach remembers everything above.',
-                textAlign: TextAlign.center,
-                style: type.label.copyWith(
-                  fontSize: 12,
-                  height: 17 / 12,
-                  fontWeight: FontWeight.w400,
-                  color: colors.textTertiary,
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }
@@ -568,8 +553,9 @@ class _Banner extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(12, 10, 12, 0),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        // Clear of the transcript above and the composer below.
+        margin: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
         decoration: BoxDecoration(
           color: colors.bgRaised,
           borderRadius: BorderRadius.circular(12),

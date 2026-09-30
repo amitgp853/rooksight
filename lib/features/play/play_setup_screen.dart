@@ -9,6 +9,7 @@ import '../../core/routing/app_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/dialog_buttons.dart';
 import '../../engine/elo_levels.dart';
 import 'domain/game_config.dart';
 import 'domain/unfinished_game.dart';
@@ -17,7 +18,22 @@ import 'widgets/setup_controls.dart';
 /// New game: Stockfish strength, colour and time control
 /// (`design/source/PlaySetup.dc.html`).
 class PlaySetupScreen extends ConsumerStatefulWidget {
-  const PlaySetupScreen({super.key});
+  const PlaySetupScreen({super.key, this.startFen});
+
+  /// The game starts from this position (e.g. "Play from here" on the
+  /// analysis board); the standard start when null or not a legal position.
+  final String? startFen;
+
+  /// The position the game starts from.
+  Position get startPosition {
+    final fen = startFen;
+    if (fen == null) return Chess.initial;
+    try {
+      return Chess.fromSetup(Setup.parseFen(fen));
+    } on Object {
+      return Chess.initial;
+    }
+  }
 
   @override
   ConsumerState<PlaySetupScreen> createState() => _PlaySetupScreenState();
@@ -27,7 +43,9 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
   late final GameConfig _previous = ref.read(gameConfigProvider);
   late EloLevel _level = _previous.level;
   late TimeControl _timeControl = _previous.timeControl;
-  late ColourChoice _colour = _previous.playerSide == Side.white
+  // From a given position, you play the side to move by default.
+  late ColourChoice _colour =
+      (widget.startFen != null ? widget.startPosition.turn : _previous.playerSide) == Side.white
       ? ColourChoice.white
       : ColourChoice.black;
 
@@ -37,19 +55,22 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
       final abandon = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
+          backgroundColor: context.colors.bgRaised,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: const Text('Abandon your current game?'),
           content: Text(
             'Your game vs Stockfish ${unfinished.config.level.elo} is saved on Home. '
             'Starting a new one ends it.',
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Keep it'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Start new game'),
+            ConfirmRow(
+              cancelLabel: 'Keep it',
+              onCancel: () => Navigator.of(context).pop(false),
+              action: DestructiveButton(
+                label: 'Start new game',
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
             ),
           ],
         ),
@@ -64,6 +85,9 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
             level: _level,
             playerSide: _colour.resolve(Random()),
             timeControl: _timeControl,
+            // Set every time, so a position from the analysis board doesn't
+            // carry over to the next ordinary game.
+            startPosition: widget.startPosition,
           ),
         );
     // Replace setup, so Back from the game returns Home.

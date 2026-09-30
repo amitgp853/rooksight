@@ -161,8 +161,43 @@ class CoachMessages extends Table {
   TextColumn get payload => text().withDefault(const Constant('{}'))();
 }
 
+/// Positions saved from the analysis board (a scan, one set up by hand, or a
+/// game's position), with the moves explored from them.
+@DataClassName('SavedPositionRow')
+class SavedPositions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+
+  /// The start position, as FEN.
+  TextColumn get fen => text()();
+
+  /// JSON: the moves explored from [fen], main line first, as a tree of UCI
+  /// moves (`[{"m": "e2e4", "c": [...]}]`).
+  TextColumn get moves => text().withDefault(const Constant('[]'))();
+
+  /// JSON list of child indices from the start to the position last shown.
+  TextColumn get path => text().withDefault(const Constant('[]'))();
+
+  /// An `AnalysisSource` name: `scan`, `setup` or `game`.
+  TextColumn get source => text()();
+
+  /// `white` or `black`: the side at the bottom of the board.
+  TextColumn get orientation => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+}
+
 @DriftDatabase(
-  tables: [Games, Settings, ImportMonths, GameAnalyses, GameReviews, CoachChats, CoachMessages],
+  tables: [
+    Games,
+    Settings,
+    ImportMonths,
+    GameAnalyses,
+    GameReviews,
+    CoachChats,
+    CoachMessages,
+    SavedPositions,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   /// Opens the app's database file, or [executor] (e.g. in-memory for tests).
@@ -170,7 +205,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bump when the schema changes, and add a step to [migration].
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -197,6 +232,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         await migrator.createTable(coachChats);
         await migrator.createTable(coachMessages);
+      }
+      // v5: positions saved from the analysis board.
+      if (from < 5) {
+        await migrator.createTable(savedPositions);
       }
     },
     // Needed for the cascading deletes above.

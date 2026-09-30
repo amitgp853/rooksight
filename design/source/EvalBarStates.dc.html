@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Eval bar · states</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div style="width: 1080px; height: 1700px; box-sizing: border-box; padding: 56px; background: #0B0F13; color: #E9EDF2; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; gap: 32px">
+
+<header style="display: flex; flex-direction: column; gap: 10px">
+<span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #7C8898">Game Review · component</span>
+<h1 style="margin: 0; font-family: Sora, sans-serif; font-weight: 600; font-size: 40px; letter-spacing: -0.02em">Eval bar</h1>
+<p style="margin: 0; max-width: 860px; font-size: 16px; line-height: 24px; color: #A3AFBD">Full-width pill directly above the board. Your side (the bottom of the board) fills from the left. The fill shows White’s winning chances, clamped to 3–97%; a forced mate or checkmate fills 100%.</p>
+</header>
+
+<sc-for list="{{panels}}" as="pn" hint-placeholder-count="2">
+<section aria-label="{{pn.name}}" style="border-radius: 20px; background: {{pn.bg}}; border: 1px solid {{pn.line}}; padding: 28px 28px 20px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: grid; grid-template-columns: 160px 390px 390px; column-gap: 24px; align-items: end; padding-bottom: 8px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 20px; color: {{pn.fg}}">{{pn.name}}</span>
+<span style="padding-left: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: {{pn.sub}}">You play White</span>
+<span style="padding-left: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: {{pn.sub}}">You play Black</span>
+</div>
+<sc-for list="{{pn.rows}}" as="r" hint-placeholder-count="6">
+<div style="display: grid; grid-template-columns: 160px 390px 390px; column-gap: 24px; align-items: center; min-height: 52px; border-top: 1px solid {{pn.line}}">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600; color: {{pn.fg}}">{{r.name}}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{pn.sub}}">{{r.code}}</span></span>
+<dc-import name="EvalBar" cp="{{r.cp}}" mate="{{r.mate}}" result="{{r.result}}" analysed="{{r.analysed}}" player="white" theme="{{pn.theme}}" hint-size="390px,38px"></dc-import>
+<dc-import name="EvalBar" cp="{{r.cp}}" mate="{{r.mate}}" result="{{r.result}}" analysed="{{r.analysed}}" player="black" theme="{{pn.theme}}" hint-size="390px,38px"></dc-import>
+</div>
+</sc-for>
+</section>
+</sc-for>
+
+<section aria-label="Motion demo" style="border-radius: 20px; background: #0E1217; border: 1px solid #1C242E; padding: 24px 28px; display: grid; grid-template-columns: 160px 390px 390px; column-gap: 24px; align-items: center">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 600">Live: moving</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #7C8898">240ms ease-out cubic</span></span>
+<dc-import name="EvalBar" cp="{{demo.cp}}" mate="{{demo.mate}}" analysed="true" player="white" theme="dark" motion="full" hint-size="390px,38px"></dc-import>
+<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">{{demo.note}}</span>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div style="border-radius: 16px; background: #151B22; padding: 18px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">Fill = White’s win %</span>
+<code style="font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 18px; color: #C9D7FF">win = 50 + 50 × (2 / (1 + e^(−0.00368208 × cp)) − 1)</code>
+<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">Clamp 3–97%. Mate or checkmate: winner 100%. Not analysed yet: 50/50, no number.</span>
+</div>
+<div style="border-radius: 16px; background: #151B22; padding: 18px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">Label</span>
+<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">Inside the side that’s ahead, pinned 8px from its outer end. Face-colour pill, opposite-colour text, JetBrains Mono 12/600. No sign: <span style="font-family: 'JetBrains Mono', monospace; color: #E9EDF2">1.2</span> · <span style="font-family: 'JetBrains Mono', monospace; color: #E9EDF2">M3</span> · <span style="font-family: 'JetBrains Mono', monospace; color: #E9EDF2">1–0</span>. Jumps ends when the lead changes.</span>
+</div>
+<div style="border-radius: 16px; background: #151B22; padding: 18px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-family: Sora, sans-serif; font-weight: 600; font-size: 15px">Motion &amp; access</span>
+<span style="font-size: 13px; line-height: 19px; color: #A3AFBD">Width animates 240ms, ease-out cubic; reduced motion: instant. Label: “Evaluation 1.2, White is better”, or “Evaluation not known yet”.</span>
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1080,"height":1700}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { i: 0 };
+  }
+  componentDidMount() {
+    var self = this;
+    this.timer = setInterval(function () { self.setState({ i: (self.state.i + 1) % 6 }); }, 1400);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    var rows = [
+      { name: 'Equal', code: 'cp 0', cp: 0, mate: 0, result: '', analysed: 'true' },
+      { name: 'White +1.2', code: 'cp +120', cp: 120, mate: 0, result: '', analysed: 'true' },
+      { name: 'Black +3.5', code: 'cp −350', cp: -350, mate: 0, result: '', analysed: 'true' },
+      { name: 'White mates in 3', code: 'mate +3', cp: 0, mate: 3, result: '', analysed: 'true' },
+      { name: 'Checkmate', code: 'result 1–0', cp: 0, mate: 0, result: '1-0', analysed: 'true' },
+      { name: 'Not analysed yet', code: 'no eval', cp: 0, mate: 0, result: '', analysed: 'false' }
+    ];
+    var seq = [
+      { cp: 30, mate: 0, note: 'Level: 0.3 for White.' },
+      { cp: 120, mate: 0, note: 'White pulls ahead: 1.2.' },
+      { cp: -80, mate: 0, note: 'Lead changes: the label jumps to Black’s end.' },
+      { cp: -350, mate: 0, note: 'Black +3.5.' },
+      { cp: 0, mate: 0, note: 'Back to equal.' },
+      { cp: 0, mate: 3, note: 'Forced mate: White fills 100%, M3.' }
+    ];
+    return {
+      panels: [
+        { name: 'Dark', theme: 'dark', bg: '#0E1217', line: '#1C242E', fg: '#E9EDF2', sub: '#7C8898', rows: rows },
+        { name: 'Light', theme: 'light', bg: '#F1F3F6', line: '#D5DBE3', fg: '#121820', sub: '#5F6B7A', rows: rows }
+      ],
+      demo: seq[this.state.i]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -275,6 +275,29 @@ void main() {
       expect(analysis.keyMoments(Side.black).map((m) => m.index), [2]);
     });
 
+    test('key moments keep every blunder, even the last moves of a long game', () {
+      final pawnWalk = fromFen(Chess.initial.fen, [
+        for (final file in 'abcdefgh'.split('')) ...['${file}2${file}3', '${file}7${file}6'],
+        for (final file in 'abcd'.split('')) ...['${file}3${file}4', '${file}6${file}5'],
+      ]);
+      // +3 for whoever is to move, every time: each move throws away 6 pawns.
+      final evals = [for (var i = 0; i < pawnWalk.history.length; i++) eval(300)];
+      final analysis = GameAnalysis(pawnWalk, evals);
+      final moments = analysis.keyMoments(Side.white);
+      expect(moments, hasLength(24));
+      expect(moments.every((m) => m.quality == MoveQuality.blunder), isTrue);
+      expect(moments.map((m) => m.index), contains(23), reason: 'the last move too');
+    });
+
+    test('key moments come costliest first', () {
+      final game = fromFen(Chess.initial.fen, ['a2a3', 'a7a6', 'b2b3', 'b7b6']);
+      // 1. a3 is a mistake (+0.5 → −0.8), 2. b3 a blunder (−0.8 → −3.0).
+      final analysis = GameAnalysis(game, [eval(50), eval(80), eval(-80), eval(300), eval(-300)]);
+      expect(analysis.moves[0].quality, MoveQuality.mistake);
+      expect(analysis.moves[2].quality, MoveQuality.blunder);
+      expect(analysis.keyMoments(Side.white).map((m) => m.index), [2, 0]);
+    });
+
     test('an opponent’s inaccuracy is not a key moment', () {
       // 1. e4 here is an inaccuracy (+0.3 → −0.4) by White.
       final analysis = GameAnalysis(game, [eval(30), eval(40), eval(-40)]);

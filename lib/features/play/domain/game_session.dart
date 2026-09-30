@@ -31,6 +31,7 @@ class GameSession {
     this.startedAt,
     this.savedGameId,
     this.saveFailed = false,
+    this.paused = false,
   });
 
   final GameConfig config;
@@ -63,7 +64,13 @@ class GameSession {
   /// Storing the finished game failed.
   final bool saveFailed;
 
-  bool get isPlayerTurn => !game.isOver && game.turn == config.playerSide;
+  /// The player paused a timed game: the clock is stopped, the board hidden.
+  final bool paused;
+
+  /// A timed game still going can be paused.
+  bool get canPause => clock != null && !game.isOver;
+
+  bool get isPlayerTurn => !game.isOver && !paused && game.turn == config.playerSide;
 
   /// Whether the player may offer a draw now.
   bool get canOfferDraw => !game.isOver && drawOfferedAtPly != game.moves.length;
@@ -83,6 +90,7 @@ class GameSession {
     int? Function()? drawOfferedAtPly,
     int? savedGameId,
     bool? saveFailed,
+    bool? paused,
   }) {
     return GameSession(
       config: config ?? this.config,
@@ -97,6 +105,7 @@ class GameSession {
       startedAt: startedAt,
       savedGameId: savedGameId ?? this.savedGameId,
       saveFailed: saveFailed ?? this.saveFailed,
+      paused: paused ?? this.paused,
     );
   }
 }

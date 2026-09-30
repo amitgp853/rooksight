@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/rendering.dart' show RenderAbstractViewport;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/chess/uci.dart';
 import '../../core/board/board_style.dart';
 import '../../core/board/landing_square.dart';
 import '../../core/board/move_wise_board.dart';
@@ -19,8 +21,10 @@ import '../../core/storage/game_repository.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/segmented_switch.dart';
 import '../../engine/chess_engine.dart';
 import '../../engine/engine_provider.dart';
+import '../analysis/domain/analysis_args.dart';
 import '../games/games_screen.dart' show movesLabel, timeControlLabel;
 import '../games/widgets/delete_game_sheet.dart';
 import '../play/domain/game_state.dart';
@@ -167,6 +171,13 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
   /// Where the player was reading before a tap brought the board up.
   _ReturnSpot? _returnTo;
   final _momentKeys = <int, GlobalKey>{};
+
+  /// The key moments shown as full cards; the rest are one-line rows.
+  static const _fullCards = 8;
+
+  /// The rows beyond the first cards are open, and whose moves they show.
+  bool _allMoments = false;
+  _MomentSide _momentSide = _MomentSide.all;
   final _movesKey = GlobalKey();
 
   /// Brass arrow for Stockfish's best move in the position shown. Off by
@@ -343,10 +354,23 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
 
   /// Scrolls down to [moment]'s full card.
   void _readMoment(MoveReview moment) {
-    setState(() => _returnTo = null);
-    final key = _momentKeys[moment.index];
-    if (key == null) return;
-    if (_offsetOf(key) case final top?) _scrollTo(top - AppSpacing.s4);
+    final moments = _analysis.keyMoments(_player);
+    final inRows = moments.indexOf(moment) >= _fullCards;
+    setState(() {
+      _returnTo = null;
+      // A moment among the rows: open them (it shows as a card, being on
+      // the board), whatever the filter.
+      if (inRows) {
+        _allMoments = true;
+        _momentSide = _MomentSide.all;
+      }
+    });
+    // Once built (a row may just have opened).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final key = _momentKeys[moment.index];
+      if (!mounted || key == null) return;
+      if (_offsetOf(key) case final top?) _scrollTo(top - AppSpacing.s4);
+    });
   }
 
   /// The player scrolls the page themselves: they've moved on.
@@ -370,7 +394,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
   void _playBestMove(MoveReview moment, {String? backTo, GlobalKey? spot}) {
     var line = GameState.start(_analysis.game.history[moment.index]);
     for (final uci in _analysis.evals[moment.index].bestLine.take(8)) {
-      final move = Move.parse(uci);
+      final move = parseUci(uci);
       final next = move == null ? null : line.play(move);
       if (next == null) break;
       line = next;
@@ -382,6 +406,36 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
     _lineTimer = Timer(_bestMoveDelay, () {
       if (_line?.step == 0) _update(() => _line!.step = 1);
     });
+  }
+
+  ButtonStyle _toolStyle(BuildContext context) => OutlinedButton.styleFrom(
+    minimumSize: const Size.fromHeight(44),
+    padding: const EdgeInsets.symmetric(horizontal: 10),
+    backgroundColor: context.colors.bgRaised,
+    shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
+    textStyle: context.type.label.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+  );
+
+  /// Opens the analysis board on the position shown, with the game (or the
+  /// line being explored) as its main line, so Back returns to this move.
+  void _analyze() {
+    final game = _analysis.game;
+    final line = _line;
+    final moves = line == null
+        ? [for (final m in game.moves) m.move.uci]
+        : [
+            for (final m in game.moves.take(line.from)) m.move.uci,
+            for (final m in line.game.moves) m.move.uci,
+          ];
+    context.push(
+      AnalysisArgs(
+        fen: game.history.first.fen,
+        moves: moves,
+        ply: line == null ? _ply : line.from + line.step,
+        source: AnalysisSource.game,
+        orientation: _player,
+      ).location,
+    );
   }
 
   void _stepLine(int step) {
@@ -463,7 +517,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
         );
       }
     } else if (_showBest && eval != null && evalTurn == position.turn) {
-      if (Move.parse(eval.bestMove ?? '') case final NormalMove best) {
+      if (parseUci(eval.bestMove) case final NormalMove best) {
         shapes.add(hintArrow(colors, from: best.from, to: best.to));
       }
     }
@@ -520,6 +574,40 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
             onNext: _ply < total ? () => _goTo(_ply + 1) : null,
             onLast: _ply < total ? () => _goTo(total) : null,
           ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, 4),
+          child: Row(
+            spacing: AppSpacing.s2,
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _analyze,
+                  style: _toolStyle(context),
+                  icon: Icon(Icons.insights_rounded, size: 18, color: colors.focus),
+                  label: const Text(
+                    'Analyze position',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              // Any move of the game, not just the key moments.
+              if (line == null && _ply > 0)
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push(Routes.coachAbout(widget.gameId, _ply - 1)),
+                    style: _toolStyle(context),
+                    icon: Icon(Icons.chat_bubble_outline_rounded, size: 18, color: colors.brass),
+                    label: Text(
+                      'Ask AI about ${moveLabel(game, _ply - 1)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
         AnimatedSize(
           duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
@@ -597,9 +685,11 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
                     _ExplainPanel(
                       state: widget.state,
                       gameId: widget.gameId,
-                      moments: moments.length,
+                      moments: math.min(moments.length, ReviewController.maxExplainedMoments),
+                      total: moments.length,
                     ),
-                    for (final moment in moments) _momentCard(moment, moments),
+                    for (final moment in moments.take(_fullCards)) _momentCard(moment, moments),
+                    ..._otherMoments(moments),
                   ],
                 ],
               ),
@@ -697,6 +787,86 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
       _evalAt(line, line.step - 1)!.bestLine.take(1),
     ).firstOrNull;
     return '${quality.label} · $eval${best == null ? '' : ' · best was $best'}';
+  }
+
+  /// The key moments after the first cards: one line each, behind "Show
+  /// all", filtered by whose move it was. The one on the board opens as a
+  /// full card.
+  List<Widget> _otherMoments(List<MoveReview> moments) {
+    final rest = moments.skip(_fullCards).toList();
+    if (rest.isEmpty) return const [];
+    final type = context.type;
+    final colors = context.colors;
+    if (!_allMoments) {
+      return [
+        OutlinedButton.icon(
+          onPressed: () => setState(() => _allMoments = true),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(44),
+            backgroundColor: colors.bgRaised,
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
+            textStyle: type.label.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+          icon: const Icon(Icons.expand_more_rounded, size: 20),
+          label: Text('Show all ${moments.length} moments'),
+        ),
+      ];
+    }
+    final yours = rest.where((m) => m.side == _player).length;
+    final shown = [
+      for (final m in rest)
+        if (switch (_momentSide) {
+          _MomentSide.all => true,
+          _MomentSide.yours => m.side == _player,
+          _MomentSide.opponent => m.side != _player,
+        })
+          m,
+    ];
+    final onBoard = rest.where((m) => m.index + 1 == _ply).firstOrNull;
+    return [
+      if (yours > 0 && yours < rest.length)
+        SegmentedSwitch<_MomentSide>(
+          values: _MomentSide.values,
+          selected: _momentSide,
+          label: (side) => switch (side) {
+            _MomentSide.all => 'All · ${rest.length}',
+            _MomentSide.yours => 'Yours · $yours',
+            _MomentSide.opponent => 'Opponent’s · ${rest.length - yours}',
+          },
+          onSelect: (side) => setState(() => _momentSide = side),
+        ),
+      for (final moment in shown)
+        moment == onBoard ? _momentCard(moment, moments) : _momentRow(moment),
+      TextButton.icon(
+        onPressed: () => setState(() {
+          _allMoments = false;
+          _momentSide = _MomentSide.all;
+        }),
+        icon: const Icon(Icons.expand_less_rounded, size: 20),
+        label: const Text('Show fewer'),
+      ),
+    ];
+  }
+
+  Widget _momentRow(MoveReview moment) {
+    final key = _momentKeys.putIfAbsent(moment.index, GlobalKey.new);
+    final record = widget.saved.record;
+    final isPlayer = moment.side == _player;
+    return KeyMomentRow(
+      key: key,
+      quality: moment.quality!,
+      move: '${moveLabel(_analysis.game, moment.index)}${moment.quality!.symbol}',
+      mover: isPlayer
+          ? 'You'
+          : record.source == GameSource.stockfish
+          ? 'Stockfish'
+          : (record.opponentName ?? 'Opponent'),
+      change: evalChange(moment),
+      onTap: () {
+        _goTo(moment.index + 1);
+        _showBoard(backTo: 'Back to key moments', spot: key);
+      },
+    );
   }
 
   Widget _momentCard(MoveReview moment, List<MoveReview> moments) {
@@ -1188,11 +1358,20 @@ class _EvalCard extends StatelessWidget {
 /// Asks the AI to explain the key moments (one Gemini call, kept with the
 /// game), and shows where that stands.
 class _ExplainPanel extends ConsumerWidget {
-  const _ExplainPanel({required this.state, required this.gameId, required this.moments});
+  const _ExplainPanel({
+    required this.state,
+    required this.gameId,
+    required this.moments,
+    required this.total,
+  });
 
   final ReviewState state;
   final int gameId;
+
+  /// Moments the AI explains: the costliest, at most
+  /// [ReviewController.maxExplainedMoments] of [total].
   final int moments;
+  final int total;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1316,7 +1495,10 @@ class _ExplainPanel extends ConsumerWidget {
             label: const Text('Explain key moments'),
           ),
           Text(
-            'Every move the AI mentions is checked.',
+            total > moments
+                ? 'Explains the $moments moments that cost most, in one request. '
+                      'Every move the AI mentions is checked.'
+                : 'Every move the AI mentions is checked.',
             textAlign: TextAlign.center,
             style: caption,
           ),
@@ -1324,3 +1506,6 @@ class _ExplainPanel extends ConsumerWidget {
     }
   }
 }
+
+/// Whose key moments the rows show.
+enum _MomentSide { all, yours, opponent }

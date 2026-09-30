@@ -1,6 +1,7 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../core/chess/uci.dart';
 import '../../play/widgets/result_copy.dart' show moveLabel, moveNumber;
 import '../widgets/quality_chip.dart' show formatEval;
 import 'game_analysis.dart';
@@ -80,7 +81,7 @@ List<String> sanLine(Position start, Iterable<String> uci) {
   final sans = <String>[];
   var position = start;
   for (final text in uci) {
-    final move = Move.parse(text);
+    final move = parseUci(text);
     if (move == null || !position.isLegal(move)) break;
     final (next, san) = position.makeSan(move);
     sans.add(san);
@@ -94,7 +95,7 @@ List<String> sanLine(Position start, Iterable<String> uci) {
   final positions = [start];
   final moves = <Move>[];
   for (final text in uci) {
-    final move = Move.parse(text);
+    final move = parseUci(text);
     if (move == null || !positions.last.isLegal(move)) break;
     positions.add(positions.last.play(move));
     moves.add(move);

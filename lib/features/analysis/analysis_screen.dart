@@ -160,7 +160,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
         initial: _defaultTitle,
         note:
             'Kept on this phone with the moves you explore. Open it again from Saved '
-            'positions on Home.',
+            'Positions on Home.',
       ),
     );
     if (title == null || !mounted) return;
@@ -178,7 +178,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       _savedId = id;
       _savedState = _stateOf(_session);
     });
-    messenger.showSnackBar(const SnackBar(content: Text('Saved to Saved positions on Home')));
+    messenger.showSnackBar(const SnackBar(content: Text('Saved to Saved Positions on Home')));
   }
 
   AnalysisSession _newSession(Position start, List<String> moves, int? ply) {

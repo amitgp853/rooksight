@@ -13,7 +13,9 @@ import '../../core/routing/app_router.dart';
 import '../../core/settings/display_settings.dart';
 import '../../core/theme/app_theme.dart';
 import 'domain/board_reader.dart';
+import 'domain/photo_check.dart';
 import 'domain/scan_photo.dart';
+import 'domain/scan_usage.dart';
 import 'scan_check_screen.dart';
 import 'widgets/scan_camera_view.dart';
 import 'widgets/scan_crop_view.dart';
@@ -45,6 +47,11 @@ class GalleryPhotoPicker implements PhotoPicker {
 }
 
 final photoPickerProvider = Provider<PhotoPicker>((ref) => GalleryPhotoPicker());
+
+/// Checks a cropped photo on the phone before any request. Override in
+/// tests.
+typedef PhotoChecker = Future<PhotoCheck?> Function(Uint8List jpeg);
+final photoCheckerProvider = Provider<PhotoChecker>((ref) => PhotoCheck.of);
 
 sealed class _Stage {
   const _Stage();
@@ -97,11 +104,29 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   int _run = 0;
   bool _loading = false;
 
+  /// What each crop scanned so far came to, by fingerprint: scanning the
+  /// same crop again costs no request. Kept while this screen is open.
+  final _answers = <int, Object>{};
+
+  /// Photos in a row that showed no readable board; after
+  /// [_missesBeforeTips] the camera opens with the tips.
+  int _misses = 0;
+  bool _tipsNext = false;
+  static const _missesBeforeTips = 3;
+
+  void _miss() {
+    if (++_misses >= _missesBeforeTips) {
+      _misses = 0;
+      _tipsNext = true;
+    }
+  }
+
   void _go(_Stage stage) {
     if (mounted) setState(() => _stage = stage);
   }
 
   Future<void> _usePhoto(Uint8List raw) async {
+    _tipsNext = false;
     setState(() => _loading = true);
     final photo = await ScanPhoto.fromBytes(raw);
     if (!mounted) return;
@@ -135,6 +160,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     _go(_Crop(await photo.rotated(clockwise: clockwise)));
   }
 
+  /// "Scan board": the same crop again gets its earlier answer; a photo the
+  /// phone can tell is too dark, blurry or not a board is caught before any
+  /// request (the player may scan anyway); then the daily limit; then Gemini.
   Future<void> _scan(ScanPhoto photo, Rect crop) async {
     if (!ref.read(llmConfiguredProvider)) {
       _go(_Failed(const ScanFailure(ScanFailureKind.noKey), photo: photo));
@@ -142,6 +170,92 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     }
     _go(_Crop(photo, busy: true));
     final cropped = await photo.crop(crop);
+    if (!mounted) return;
+
+    if (_answers[_fingerprint(cropped)] case final known?) {
+      await _answer(known, photo, cropped);
+      return;
+    }
+
+    final check = await ref.read(photoCheckerProvider)(cropped);
+    if (!mounted) return;
+    if (check != null && (check.tooDark || check.tooBlurry)) {
+      _miss();
+      _go(
+        _Failed(
+          const ScanFailure(ScanFailureKind.blurry, local: true),
+          photo: photo,
+          cropped: cropped,
+        ),
+      );
+      return;
+    }
+    if (check != null && !check.looksLikeBoard) {
+      _go(_Crop(photo)); // Not busy while the question is open.
+      final scanAnyway = await _confirmNotBoard();
+      if (!mounted) return;
+      if (!scanAnyway) {
+        _miss();
+        _go(_Crop(photo));
+        return;
+      }
+    }
+    await _send(photo, cropped);
+  }
+
+  /// Asks whether to spend a request on a photo that doesn't look like a
+  /// board.
+  Future<bool> _confirmNotBoard() async {
+    final answer = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final colors = context.colors;
+        final type = context.type;
+        return AlertDialog(
+          backgroundColor: colors.bgRaised,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text('This doesn’t look like a chess board', style: type.heading),
+          content: Text(
+            'Checked on your phone, so no AI request was used. Crop to just the 64 squares, '
+            'or scan anyway if it really is a board.',
+            style: type.body.copyWith(color: colors.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Adjust crop'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Scan anyway'),
+            ),
+          ],
+        );
+      },
+    );
+    return answer ?? false;
+  }
+
+  /// Spends one scan of today's allowance and reads [cropped] with Gemini.
+  Future<void> _send(ScanPhoto photo, Uint8List cropped) async {
+    final usage = ref.read(scanUsageProvider.notifier);
+    if (usage.reachedLimit) {
+      _go(_Failed(const ScanFailure(ScanFailureKind.dailyCap), photo: photo, cropped: cropped));
+      return;
+    }
+    usage.record();
+    final left = usage.left;
+    if (left <= ScanUsage.dailyLimit - ScanUsage.warnFrom) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            left == 0
+                ? 'That was today’s last scan.'
+                : '$left ${left == 1 ? 'scan' : 'scans'} left today.',
+          ),
+        ),
+      );
+    }
     await _read(photo, cropped);
   }
 
@@ -160,17 +274,47 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
             isCancelled: stale,
           );
       if (result == null || stale()) return;
+      _answers[_fingerprint(cropped)] = result;
+      _misses = 0;
       // A moment on "Position ready" before the board opens.
       await Future<void>.delayed(const Duration(milliseconds: 450));
       if (!mounted || stale()) return;
-      _go(_Crop(photo));
-      await context.push(
-        Routes.scanCheck,
-        extra: ScanCheckArgs(result: result, photo: cropped),
-      );
+      await _answer(result, photo, cropped);
     } on ScanFailure catch (failure) {
-      if (!stale()) _go(_Failed(failure, photo: photo, cropped: cropped));
+      if (stale()) return;
+      // What the photo shows won't change; a lost connection or a busy
+      // server might, so those aren't kept.
+      if (failure.kind
+          case ScanFailureKind.noBoard || ScanFailureKind.blurry || ScanFailureKind.illegal) {
+        _answers[_fingerprint(cropped)] = failure;
+      }
+      if (failure.kind case ScanFailureKind.noBoard || ScanFailureKind.blurry) _miss();
+      _go(_Failed(failure, photo: photo, cropped: cropped));
     }
+  }
+
+  /// Shows what a scan came to: the position to check, or why it failed.
+  Future<void> _answer(Object answer, ScanPhoto photo, Uint8List cropped) async {
+    switch (answer) {
+      case ScanResult():
+        _go(_Crop(photo));
+        await context.push(
+          Routes.scanCheck,
+          extra: ScanCheckArgs(result: answer, photo: cropped),
+        );
+      case ScanFailure():
+        _go(_Failed(answer, photo: photo, cropped: cropped));
+    }
+  }
+
+  /// A quick fingerprint of a crop (FNV-1a): the same crop of the same photo
+  /// always encodes to the same bytes.
+  static int _fingerprint(Uint8List bytes) {
+    var hash = 0x811c9dc5;
+    for (final b in bytes) {
+      hash = ((hash ^ b) * 0x01000193) & 0xffffffff;
+    }
+    return hash ^ bytes.length;
   }
 
   void _cancelReading(ScanPhoto photo) {
@@ -190,7 +334,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     final photo = failed.photo;
     final cropped = failed.cropped;
     if (photo != null && cropped != null) {
-      await _read(photo, cropped);
+      await _send(photo, cropped);
     } else if (photo != null) {
       _go(_Crop(photo));
     }
@@ -205,7 +349,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       onPressed: () {
         final (photo, cropped) = (failed.photo, failed.cropped);
         if (photo != null && cropped != null) {
-          unawaited(_read(photo, cropped));
+          unawaited(_send(photo, cropped));
         } else {
           _go(photo == null ? const _Camera() : _Crop(photo));
         }
@@ -228,7 +372,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
         (label: 'Add key in Settings', onPressed: () => _addKey(failed)),
         byHand,
       ),
-      ScanFailureKind.limit => (byHand, (label: 'OK', onPressed: _close)),
+      ScanFailureKind.limit ||
+      ScanFailureKind.dailyCap => (byHand, (label: 'OK', onPressed: _close)),
       ScanFailureKind.failed => (again, byHand),
     };
   }
@@ -260,7 +405,12 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           backgroundColor: const Color(0xFF050709),
           body: Stack(
             children: [
-              ScanCameraView(onPhoto: _usePhoto, onGallery: _gallery, onClose: _close),
+              ScanCameraView(
+                onPhoto: _usePhoto,
+                onGallery: _gallery,
+                onClose: _close,
+                showTipsFirst: _tipsNext,
+              ),
               if (_loading) const Center(child: CircularProgressIndicator()),
             ],
           ),
@@ -286,11 +436,16 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       _Failed() => Builder(
         builder: (context) {
           final (primary, secondary) = _actions(stage);
+          final (photo, cropped) = (stage.photo, stage.cropped);
           return ScanErrorView(
             failure: stage.failure,
             photo: stage.cropped ?? stage.photo?.bytes,
             primary: primary,
             secondary: secondary,
+            // The phone's check can be wrong: the player can still spend a scan.
+            tertiary: stage.failure.local && photo != null && cropped != null
+                ? (label: 'Scan anyway', onPressed: () => _send(photo, cropped))
+                : null,
             onClose: _close,
           );
         },

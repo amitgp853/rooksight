@@ -19,12 +19,17 @@ class ScanCameraView extends ConsumerStatefulWidget {
     required this.onPhoto,
     required this.onGallery,
     required this.onClose,
+    this.showTipsFirst = false,
   });
 
   /// The picture just taken, as file bytes.
   final ValueChanged<Uint8List> onPhoto;
   final VoidCallback onGallery;
   final VoidCallback onClose;
+
+  /// Opens "Tips for a good scan" straight away (after several photos in a
+  /// row that couldn't be read).
+  final bool showTipsFirst;
 
   @override
   ConsumerState<ScanCameraView> createState() => _ScanCameraViewState();
@@ -44,6 +49,11 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     unawaited(_start());
+    if (widget.showTipsFirst) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _showTips();
+      });
+    }
   }
 
   @override

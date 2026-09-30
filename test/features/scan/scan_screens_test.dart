@@ -10,9 +10,12 @@ import 'package:image/image.dart' as img;
 import 'package:move_wise/core/llm/gemini_client.dart';
 import 'package:move_wise/core/llm/llm_client.dart';
 import 'package:move_wise/core/routing/app_router.dart';
+import 'package:move_wise/core/storage/settings_store.dart';
 import 'package:move_wise/core/theme/app_theme.dart';
 import 'package:move_wise/features/scan/domain/board_reader.dart';
 import 'package:move_wise/features/scan/domain/board_setup.dart';
+import 'package:move_wise/features/scan/domain/photo_check.dart';
+import 'package:move_wise/features/scan/domain/scan_usage.dart';
 import 'package:move_wise/features/scan/domain/scan_photo.dart';
 import 'package:move_wise/features/scan/scan_check_screen.dart';
 import 'package:move_wise/features/scan/scan_screen.dart';
@@ -21,6 +24,15 @@ import '../../support/fake_llm.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
+
+  /// What the phone's own photo check says; a clear board unless a test
+  /// sets otherwise.
+  var check = const PhotoCheck(brightness: 150, contrast: 60, sharpness: 400, boardScore: 0.8);
+  late SettingsStore store;
+  setUp(() {
+    check = const PhotoCheck(brightness: 150, contrast: 60, sharpness: 400, boardScore: 0.8);
+    store = SettingsStore.inMemory();
+  });
 
   Future<void> pump(WidgetTester tester, Widget home, {bool hasKey = true, LlmClient? llm}) async {
     tester.view.physicalSize = const Size(390 * 3, 844 * 3);
@@ -43,6 +55,8 @@ void main() {
         overrides: [
           llmConfiguredProvider.overrideWithValue(hasKey),
           if (llm != null) llmClientProvider.overrideWithValue(llm),
+          photoCheckerProvider.overrideWithValue((_) async => check),
+          settingsStoreProvider.overrideWithValue(store),
         ],
         child: MaterialApp.router(theme: AppTheme.dark(), routerConfig: router),
       ),
@@ -203,6 +217,150 @@ void main() {
       expect(find.text('You’re offline'), findsOneWidget);
       expect(find.text('Set up the position by hand'), findsOneWidget);
       expect(find.text('Try again'), findsOneWidget);
+    });
+
+    /// Taps Scan board and lets the crop (an isolate) and the reading finish.
+    Future<void> scanBoard(WidgetTester tester, {required bool Function() until}) async {
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Scan board'));
+        for (var i = 0; i < 100 && !until(); i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+          await tester.pump();
+        }
+      });
+      await tester.pumpAndSettle();
+    }
+
+    String noBoardReply() => jsonEncode({
+      'board_found': false,
+      'image_quality': 'clear',
+      'ranks': <String>[],
+      'white_at_bottom': true,
+      'unsure_cells': <Object?>[],
+    });
+
+    testWidgets('a dark or blurry photo is caught on the phone: no request', (tester) async {
+      check = const PhotoCheck(brightness: 12, contrast: 8, sharpness: 400, boardScore: 0.8);
+      final llm = FakeLlm(reply: noBoardReply());
+      await pump(tester, ScanScreen(photo: photo), llm: llm);
+      await scanBoard(
+        tester,
+        until: () => find.text('Too dark or too blurry').evaluate().isNotEmpty,
+      );
+
+      expect(find.text('Too dark or too blurry'), findsOneWidget);
+      expect(find.textContaining('no AI request was used'), findsOneWidget);
+      expect(llm.requests, isEmpty);
+
+      // The check can be wrong: Scan anyway spends one request.
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Scan anyway'));
+        for (var i = 0; i < 50 && llm.requests.isEmpty; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+          await tester.pump();
+        }
+      });
+      await tester.pumpAndSettle();
+      expect(llm.requests, hasLength(1));
+      expect(find.text('We couldn’t find a board'), findsOneWidget);
+    });
+
+    testWidgets('not a board: asks before spending a request', (tester) async {
+      check = const PhotoCheck(brightness: 150, contrast: 60, sharpness: 400, boardScore: 0.1);
+      final llm = FakeLlm(reply: noBoardReply());
+      await pump(tester, ScanScreen(photo: photo), llm: llm);
+      await scanBoard(
+        tester,
+        until: () => find.text('This doesn’t look like a chess board').evaluate().isNotEmpty,
+      );
+      expect(find.text('This doesn’t look like a chess board'), findsOneWidget);
+
+      await tester.tap(find.text('Adjust crop'));
+      await tester.pumpAndSettle();
+      expect(find.text('Crop to the board'), findsOneWidget);
+      expect(llm.requests, isEmpty);
+    });
+
+    testWidgets('the same crop scanned again reuses the answer', (tester) async {
+      final llm = FakeLlm(reply: noBoardReply());
+      await pump(tester, ScanScreen(photo: photo), llm: llm);
+      await scanBoard(
+        tester,
+        until: () => find.text('We couldn’t find a board').evaluate().isNotEmpty,
+      );
+      expect(llm.requests, hasLength(1));
+
+      // Back to the crop, same corners, Scan board again.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('Crop to the board'), findsOneWidget);
+      await scanBoard(
+        tester,
+        until: () => find.text('We couldn’t find a board').evaluate().isNotEmpty,
+      );
+      expect(find.text('We couldn’t find a board'), findsOneWidget);
+      expect(llm.requests, hasLength(1), reason: 'no second request');
+    });
+
+    testWidgets('after 3 unreadable photos in a row, the camera opens with the tips', (
+      tester,
+    ) async {
+      check = const PhotoCheck(brightness: 12, contrast: 8, sharpness: 400, boardScore: 0.8);
+      await pump(
+        tester,
+        ScanScreen(photo: photo),
+        llm: FakeLlm(reply: noBoardReply()),
+      );
+      for (var i = 0; i < 3; i++) {
+        if (i > 0) {
+          await tester.binding.handlePopRoute(); // Back to the crop.
+          await tester.pumpAndSettle();
+        }
+        await scanBoard(
+          tester,
+          until: () => find.text('Too dark or too blurry').evaluate().isNotEmpty,
+        );
+      }
+      await tester.tap(find.text('Try again'));
+      // The camera (none in tests) keeps a spinner going: pump, don't settle.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(find.text('Got it'), findsOneWidget, reason: 'the tips sheet');
+    });
+
+    testWidgets('the daily limit: then only setting up by hand', (tester) async {
+      final now = DateTime.now();
+      store
+        ..set('scan.day', '${now.year}-${now.month}-${now.day}')
+        ..set('scan.count', '${ScanUsage.dailyLimit}');
+      final llm = FakeLlm(reply: noBoardReply());
+      await pump(tester, ScanScreen(photo: photo), llm: llm);
+      await scanBoard(
+        tester,
+        until: () => find.textContaining('scans today').evaluate().isNotEmpty,
+      );
+      expect(find.text('That’s ${ScanUsage.dailyLimit} scans today'), findsOneWidget);
+      expect(find.text('Set up the position by hand'), findsOneWidget);
+      expect(llm.requests, isEmpty);
+    });
+
+    testWidgets('near the limit, says how many scans are left', (tester) async {
+      final now = DateTime.now();
+      store
+        ..set('scan.day', '${now.year}-${now.month}-${now.day}')
+        ..set('scan.count', '${ScanUsage.dailyLimit - 3}');
+      await pump(
+        tester,
+        ScanScreen(photo: photo),
+        llm: FakeLlm(reply: noBoardReply()),
+      );
+      await scanBoard(
+        tester,
+        until: () => find.text('We couldn’t find a board').evaluate().isNotEmpty,
+      );
+      expect(find.text('2 scans left today.'), findsOneWidget);
+      expect(store.get('scan.count'), '${ScanUsage.dailyLimit - 2}');
     });
   });
 }

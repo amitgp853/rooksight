@@ -6,6 +6,7 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../domain/board_reader.dart';
+import '../domain/scan_usage.dart';
 
 /// A button on the error screen.
 typedef ScanAction = ({String label, VoidCallback onPressed});
@@ -21,12 +22,16 @@ class ScanErrorView extends StatelessWidget {
     required this.primary,
     required this.secondary,
     required this.onClose,
+    this.tertiary,
   });
 
   final ScanFailure failure;
   final Uint8List? photo;
   final ScanAction primary;
   final ScanAction secondary;
+
+  /// A quiet third option under the buttons (e.g. "Scan anyway").
+  final ScanAction? tertiary;
   final VoidCallback onClose;
 
   @override
@@ -205,6 +210,8 @@ class ScanErrorView extends StatelessWidget {
                     ),
                     child: Text(secondary.label),
                   ),
+                  if (tertiary case final third?)
+                    TextButton(onPressed: third.onPressed, child: Text(third.label)),
                 ],
               ),
             ),
@@ -240,7 +247,10 @@ ScanErrorCopy scanErrorCopy(ScanFailure failure) => switch (failure.kind) {
   ),
   ScanFailureKind.blurry => (
     title: 'Too dark or too blurry',
-    body: 'We can see a board, but not the pieces clearly enough to be sure of the position.',
+    body: failure.local
+        ? 'Checked on your phone: the pieces won’t be clear enough to read, so no AI request '
+              'was used.'
+        : 'We can see a board, but not the pieces clearly enough to be sure of the position.',
     tips: const [
       'Turn on a light or the flash',
       'Hold still for a second before you tap',
@@ -296,6 +306,16 @@ ScanErrorCopy scanErrorCopy(ScanFailure failure) => switch (failure.kind) {
     tips: const [],
     photoBadge: null,
     icon: Icons.schedule_rounded,
+    coral: false,
+  ),
+  ScanFailureKind.dailyCap => (
+    title: 'That’s ${ScanUsage.dailyLimit} scans today',
+    body:
+        'Scanning pauses until tomorrow, so your Gemini key’s free requests last. You can '
+        'still set the position up by hand, and Stockfish works as usual.',
+    tips: const [],
+    photoBadge: null,
+    icon: Icons.event_busy_rounded,
     coral: false,
   ),
   ScanFailureKind.failed => (

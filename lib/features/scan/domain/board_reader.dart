@@ -49,12 +49,28 @@ class ScanResult {
 }
 
 /// Why a scan didn't produce a position.
-enum ScanFailureKind { noBoard, blurry, illegal, offline, noKey, invalidKey, limit, failed }
+enum ScanFailureKind {
+  noBoard,
+  blurry,
+  illegal,
+  offline,
+  noKey,
+  invalidKey,
+  limit,
+  failed,
+
+  /// The app's own daily scan limit (see `ScanUsage`).
+  dailyCap,
+}
 
 class ScanFailure implements Exception {
-  const ScanFailure(this.kind, {this.result});
+  const ScanFailure(this.kind, {this.result, this.local = false});
 
   final ScanFailureKind kind;
+
+  /// Found on the phone, before any Gemini request (no request spent). The
+  /// check can be wrong, so the player may scan anyway.
+  final bool local;
 
   /// What was read, for an [ScanFailureKind.illegal] position (to edit).
   final ScanResult? result;

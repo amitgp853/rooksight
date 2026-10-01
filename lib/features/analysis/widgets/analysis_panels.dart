@@ -56,22 +56,30 @@ class WdlStrip extends ConsumerWidget {
                     color: const Color(0xFF1E2530),
                     border: Border.all(color: colors.bgElevated),
                   ),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) => Row(
-                      children: [
-                        AnimatedContainer(
-                          duration: duration,
-                          curve: Curves.easeOutCubic,
-                          width: constraints.maxWidth * (w?.white ?? 0) / 100,
-                          color: const Color(0xFFEEF1F5),
-                        ),
-                        AnimatedContainer(
-                          duration: duration,
-                          curve: Curves.easeOutCubic,
-                          width: constraints.maxWidth * (w?.draw ?? 0) / 100,
-                          color: const Color(0xFF7C8898),
-                        ),
-                      ],
+                  // The shares animate, not pixel widths: the strip's width
+                  // changes with the labels beside it, and widths aimed at the
+                  // old width would overflow the new one mid-animation.
+                  child: TweenAnimationBuilder<Offset>(
+                    tween: Tween(end: Offset((w?.white ?? 0) / 100, (w?.draw ?? 0) / 100)),
+                    duration: duration,
+                    curve: Curves.easeOutCubic,
+                    builder: (context, share, _) => LayoutBuilder(
+                      builder: (context, constraints) {
+                        final white = share.dx.clamp(0.0, 1.0);
+                        final draw = share.dy.clamp(0.0, 1.0 - white);
+                        return Row(
+                          children: [
+                            Container(
+                              width: constraints.maxWidth * white,
+                              color: const Color(0xFFEEF1F5),
+                            ),
+                            Container(
+                              width: constraints.maxWidth * draw,
+                              color: const Color(0xFF7C8898),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),

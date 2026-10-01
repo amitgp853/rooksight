@@ -1,6 +1,6 @@
 # MoveWise
 
-**An AI chess coach that never makes up a move.** Play Stockfish at your level, play a
+**An AI chess coach you can trust: every move is verified by Stockfish.** Play Stockfish at your level, play a
 friend on the same phone, or import your Chess.com and Lichess games. Every move is
 reviewed by Stockfish on your phone, and you can ask the AI Coach why you keep losing,
 then come back to that chat later. Every move the AI mentions is checked against the

@@ -79,14 +79,14 @@ def main():
     d.text((x, 460), "MoveWise", font=font("Sora-SemiBold.ttf", 132), fill=TEXT)
     d.text(
         (x, 640),
-        "An AI chess coach that\nnever makes up a move.",
-        font=font("InstrumentSans-Medium.ttf", 58),
+        "An AI chess coach\nyou can trust: every move\nis verified by Stockfish.",
+        font=font("InstrumentSans-Medium.ttf", 52),
         fill=TEXT_2,
-        spacing=18,
+        spacing=14,
     )
 
     chip_font = font("InstrumentSans-SemiBold.ttf", 36)
-    cy = 860
+    cy = 880
     cx = x
     for i, label in enumerate(
         ["Play Stockfish", "Review", "AI Coach", "Scan a board", "Stats"]

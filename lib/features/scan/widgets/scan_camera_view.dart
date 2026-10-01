@@ -10,6 +10,7 @@ import '../../../core/motion/reduce_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/move_wise_sheet.dart';
+import '../domain/focus_point.dart';
 import '../domain/low_light.dart';
 
 /// The camera (`ScanCamera.dc.html`): a square guide frame with the rest of
@@ -54,6 +55,12 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
   bool _lowLight = false;
   bool _lowLightDismissed = false;
 
+  /// Where the player last tapped to focus, while its ring shows. The tap
+  /// count restarts the ring's animation on every tap.
+  Offset? _focusAt;
+  int _focusTaps = 0;
+  Timer? _hideFocusRing;
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +76,7 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _hideFocusRing?.cancel();
     unawaited(_camera?.dispose());
     super.dispose();
   }
@@ -218,14 +226,34 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
 
   Future<void> _focus(TapUpDetails details, Size size) async {
     final camera = _camera;
-    if (camera == null || !camera.value.focusPointSupported) return;
-    final point = Offset(
-      (details.localPosition.dx / size.width).clamp(0, 1),
-      (details.localPosition.dy / size.height).clamp(0, 1),
+    if (camera == null || !camera.value.isInitialized) return;
+    final canFocus = camera.value.focusPointSupported;
+    final canMeter = camera.value.exposurePointSupported;
+    if (!canFocus && !canMeter) return;
+
+    setState(() {
+      _focusAt = details.localPosition;
+      _focusTaps++;
+    });
+    _hideFocusRing?.cancel();
+    _hideFocusRing = Timer(const Duration(milliseconds: 1200), () {
+      if (mounted) setState(() => _focusAt = null);
+    });
+
+    // The preview is cropped to fill the screen, so the tap is mapped onto
+    // the whole camera frame, which is what the focus point is relative to.
+    final preview = camera.value.previewSize;
+    final point = focusPointForTap(
+      details.localPosition,
+      size,
+      // Reported landscape; the phone is held upright.
+      preview == null ? null : Size(preview.height, preview.width),
     );
     try {
-      await camera.setFocusPoint(point);
-      await camera.setExposurePoint(point);
+      // Exposure first: on Android each call starts a new metering action,
+      // and setting exposure after focus would cancel the focus scan.
+      if (canMeter) await camera.setExposurePoint(point);
+      if (canFocus) await camera.setFocusPoint(point);
     } on CameraException {
       // Not every camera can; the preview just stays as it is.
     }
@@ -332,6 +360,14 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
                         ),
                       ],
                     ),
+                  ),
+                ),
+              if (_focusAt case final at?)
+                Positioned(
+                  left: at.dx - _FocusRing.size / 2,
+                  top: at.dy - _FocusRing.size / 2,
+                  child: IgnorePointer(
+                    child: _FocusRing(key: ValueKey(_focusTaps), reduceMotion: reduce),
                   ),
                 ),
               // Capture flash.
@@ -490,6 +526,36 @@ class _CoverPreview extends StatelessWidget {
         fit: BoxFit.cover,
         child: SizedBox(width: preview.height, height: preview.width, child: CameraPreview(camera)),
       ),
+    );
+  }
+}
+
+/// The ring where the player tapped to focus: it settles from a little
+/// larger, then the camera view removes it.
+class _FocusRing extends StatelessWidget {
+  const _FocusRing({super.key, required this.reduceMotion});
+
+  static const size = 72.0;
+
+  final bool reduceMotion;
+
+  @override
+  Widget build(BuildContext context) {
+    final ring = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFE3B25C), width: 2),
+      ),
+    );
+    if (reduceMotion) return ring;
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 1.3, end: 1),
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      builder: (context, scale, child) => Transform.scale(scale: scale, child: child),
+      child: ring,
     );
   }
 }

@@ -10,7 +10,7 @@ Flutter · Android and iOS · no login, no backend, free to run ·
 [support it on Ko-fi](https://ko-fi.com/amitgp853).
 
 <p align="center">
-  <img src="design/banner.png" alt="MoveWise: play Stockfish, review your games, ask the AI Coach">
+  <img src="design/banner.png" alt="MoveWise: play Stockfish, scan a board, review your games, ask the AI Coach">
 </p>
 
 <p align="center"><b><a href="design/screenshots/README.md">See all screenshots →</a></b></p>

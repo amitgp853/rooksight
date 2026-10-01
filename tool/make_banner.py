@@ -23,7 +23,7 @@ BRASS = "#E3B25C"
 
 W, H = 2560, 1280
 PHONE_H = 940
-SCREENS = ["home.png", "game.png", "review.png", "coach.png"]
+SCREENS = ["home.png", "scan-check.png", "review-moments.png", "coach.png"]
 # Vertical stagger for each phone, so the row reads as a fan.
 STAGGER = [190, 110, 210, 130]
 

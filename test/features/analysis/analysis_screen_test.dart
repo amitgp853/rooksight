@@ -145,34 +145,34 @@ void main() {
   });
 
   testWidgets('following a line into checkmate shows the mate, without errors', (tester) async {
-    // Black to move plays h6, then White mates on the back rank.
-    const fen = '6k1/5ppp/8/8/8/8/5PPP/R5K1 b - - 0 1';
+    // Black to move plays b6, then White mates on the back rank.
+    const fen = '6k1/1p3ppp/8/8/8/8/5PPP/R5K1 b - - 0 1';
     engine.reply = (fen) {
       final position = Chess.fromSetup(Setup.parseFen(fen));
       if (position.turn == Side.black) {
         return [
-          EngineLine(
+          const EngineLine(
             rank: 1,
             depth: 24,
-            score: const EngineScore.mate(-1),
-            pv: const ['h7h6', 'a1a8'],
+            score: EngineScore.mate(-1),
+            pv: ['b7b6', 'a1a8'],
             wdl: (win: 0, draw: 0, loss: 1000),
           ),
         ];
       }
       return [
-        EngineLine(
+        const EngineLine(
           rank: 1,
           depth: 24,
-          score: const EngineScore.mate(1),
-          pv: const ['a1a8'],
+          score: EngineScore.mate(1),
+          pv: ['a1a8'],
           wdl: (win: 1000, draw: 0, loss: 0),
         ),
       ];
     };
     await pump(tester, const AnalysisArgs(fen: fen, source: AnalysisSource.setup));
     // Tap each move of the line in turn, as a player stepping along it.
-    await tester.tap(find.descendant(of: find.byType(InkWell), matching: find.text('h6')).first);
+    await tester.tap(find.descendant(of: find.byType(InkWell), matching: find.text('b6')).first);
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }

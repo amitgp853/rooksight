@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
+import 'button_row.dart';
 
 /// The buttons at the foot of a confirmation, as on "Delete this game?":
 /// the same height and shape everywhere.
 ButtonStyle _base(BuildContext context) => OutlinedButton.styleFrom(
-  minimumSize: const Size.fromHeight(AppSpacing.buttonHeight),
+  // No minimum width: [ConfirmRow] sets it, and stacks long labels.
+  minimumSize: const Size(0, AppSpacing.buttonHeight),
   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
   shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
   textStyle: context.type.heading.copyWith(fontSize: 16),
@@ -77,7 +79,8 @@ class ConfirmButton extends StatelessWidget {
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(AppSpacing.buttonHeight),
+        // No minimum width: [ConfirmRow] sets it, and stacks long labels.
+        minimumSize: const Size(0, AppSpacing.buttonHeight),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
         textStyle: context.type.heading.copyWith(fontSize: 16),
@@ -88,7 +91,8 @@ class ConfirmButton extends StatelessWidget {
 }
 
 /// Cancel and the main action side by side, equal widths: the foot of every
-/// confirmation and name dialog.
+/// confirmation and name dialog. When a label doesn't fit half the width,
+/// they stack, the action on top.
 class ConfirmRow extends StatelessWidget {
   const ConfirmRow({
     super.key,
@@ -105,13 +109,10 @@ class ConfirmRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      spacing: AppSpacing.s3,
+    return ButtonRow(
       children: [
-        Expanded(
-          child: CancelButton(onPressed: onCancel, label: cancelLabel),
-        ),
-        Expanded(child: action),
+        CancelButton(onPressed: onCancel, label: cancelLabel),
+        action,
       ],
     );
   }

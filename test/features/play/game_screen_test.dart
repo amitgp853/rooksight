@@ -36,6 +36,24 @@ class _Config extends GameConfigNotifier {
 /// would never settle.
 final _untimed = GameConfig.initial.copyWith(timeControl: TimeControl.none);
 
+/// The message under the board is whole in view: not clipped, no scrolling.
+void expectMessageFits(WidgetTester tester, Finder text) {
+  final card = find.ancestor(of: text, matching: find.byType(Container)).first;
+  final strip = find.ancestor(of: text, matching: find.byType(SingleChildScrollView)).first;
+  final cardRect = tester.getRect(card);
+  final stripRect = tester.getRect(strip);
+  expect(cardRect.top, greaterThanOrEqualTo(stripRect.top), reason: 'top cut off');
+  expect(cardRect.bottom, lessThanOrEqualTo(stripRect.bottom), reason: 'bottom cut off');
+}
+
+/// A real phone's status bar and home indicator, which shrink the room
+/// left under the board.
+Future<void> withPhoneInsets(WidgetTester tester) async {
+  tester.view.padding = const FakeViewPadding(top: 47 * 3, bottom: 34 * 3);
+  addTearDown(tester.view.resetPadding);
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
 
@@ -132,10 +150,12 @@ void main() {
       final container = await pumpGame(tester);
       await tapMove(tester, Square.e2, Square.e4); // Stockfish replies.
       final live = boardFen(tester);
+      await withPhoneInsets(tester);
 
       await tester.tap(find.byTooltip('Previous move'));
       await tester.pumpAndSettle();
       expect(find.text('Looking back at 1. e4'), findsOneWidget);
+      expectMessageFits(tester, find.text('Looking back at 1. e4'));
       expect(boardFen(tester), startsWith('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR'));
 
       // No moving while looking back.

@@ -21,6 +21,7 @@ import '../../core/storage/game_repository.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/button_row.dart';
 import '../../core/widgets/segmented_switch.dart';
 import '../../engine/chess_engine.dart';
 import '../../engine/engine_provider.dart';
@@ -409,7 +410,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
   }
 
   ButtonStyle _toolStyle(BuildContext context) => OutlinedButton.styleFrom(
-    minimumSize: const Size.fromHeight(44),
+    minimumSize: const Size(0, 44),
     padding: const EdgeInsets.symmetric(horizontal: 10),
     backgroundColor: context.colors.bgRaised,
     shape: const RoundedRectangleBorder(borderRadius: AppRadius.smAll),
@@ -576,33 +577,27 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, 4),
-          child: Row(
+          // Side by side when both labels fit, else one above the other.
+          child: ButtonRow(
             spacing: AppSpacing.s2,
+            mainLast: false,
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _analyze,
-                  style: _toolStyle(context),
-                  icon: Icon(Icons.insights_rounded, size: 18, color: colors.focus),
-                  label: const Text(
-                    'Analyze position',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+              OutlinedButton.icon(
+                onPressed: _analyze,
+                style: _toolStyle(context),
+                icon: Icon(Icons.insights_rounded, size: 18, color: colors.focus),
+                label: const Text('Analyze position', maxLines: 1),
               ),
               // Any move of the game, not just the key moments.
               if (line == null && _ply > 0)
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => context.push(Routes.coachAbout(widget.gameId, _ply - 1)),
-                    style: _toolStyle(context),
-                    icon: Icon(Icons.chat_bubble_outline_rounded, size: 18, color: colors.brass),
-                    label: Text(
-                      'Ask AI about ${moveLabel(game, _ply - 1)}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                OutlinedButton.icon(
+                  onPressed: () => context.push(Routes.coachAbout(widget.gameId, _ply - 1)),
+                  style: _toolStyle(context),
+                  icon: Icon(Icons.chat_bubble_outline_rounded, size: 18, color: colors.brass),
+                  label: Text(
+                    'Ask AI about ${moveLabel(game, _ply - 1)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
             ],

@@ -61,7 +61,7 @@ class SavedPositionsScreen extends ConsumerWidget {
         ),
         AsyncError() => Center(
           child: Text(
-            'Saved positions couldn’t be loaded.',
+            'Saved Positions couldn’t be loaded.',
             style: type.body.copyWith(color: colors.textSecondary),
           ),
         ),

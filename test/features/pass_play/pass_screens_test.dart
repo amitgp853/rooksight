@@ -24,6 +24,24 @@ import '../../support/fake_sound_player.dart';
 /// would never settle.
 final _untimed = PassConfig.initial.copyWith(timeControl: TimeControl.none);
 
+/// The message under the board is whole in view: not clipped, no scrolling.
+void expectMessageFits(WidgetTester tester, Finder text) {
+  final card = find.ancestor(of: text, matching: find.byType(Container)).first;
+  final strip = find.ancestor(of: text, matching: find.byType(SingleChildScrollView)).first;
+  final cardRect = tester.getRect(card);
+  final stripRect = tester.getRect(strip);
+  expect(cardRect.top, greaterThanOrEqualTo(stripRect.top), reason: 'top cut off');
+  expect(cardRect.bottom, lessThanOrEqualTo(stripRect.bottom), reason: 'bottom cut off');
+}
+
+/// A real phone's status bar and home indicator, which shrink the room
+/// left under the board.
+Future<void> withPhoneInsets(WidgetTester tester) async {
+  tester.view.padding = const FakeViewPadding(top: 47 * 3, bottom: 34 * 3);
+  addTearDown(tester.view.resetPadding);
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
 
@@ -225,6 +243,19 @@ void main() {
       await tester.pumpAndSettle();
       expect(container.read(passControllerProvider).game.moves, isEmpty);
       expect(top(tester, 'Opponent'), lessThan(top(tester, 'You')), reason: 'back to White');
+    });
+
+    testWidgets('game over: the result notice fits whole under the board', (tester) async {
+      final container = await pumpGame(tester);
+      await withPhoneInsets(tester);
+      container.read(passControllerProvider.notifier).resign(Side.black);
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpAndSettle();
+      Navigator.of(tester.element(find.text('Rematch · swap colours'))).pop(); // The sheet.
+      await tester.pumpAndSettle();
+
+      expect(find.text('See result'), findsOneWidget);
+      expectMessageFits(tester, find.text('See result'));
     });
 
     testWidgets('face to face, game over: a header, and the result on the near side only', (

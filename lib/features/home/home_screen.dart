@@ -559,7 +559,6 @@ class _StatsCard extends ConsumerWidget {
   }
 }
 
-/// The games list: not in the design, which has no way to it.
 /// Under Scan Position, once something is saved: the saved positions.
 class _SavedPositionsRow extends ConsumerWidget {
   const _SavedPositionsRow({required this.onTap});
@@ -584,6 +583,7 @@ class _SavedPositionsRow extends ConsumerWidget {
   }
 }
 
+/// The games list: not in the design, which has no way to it.
 class _GamesCard extends ConsumerWidget {
   const _GamesCard({required this.onTap});
 

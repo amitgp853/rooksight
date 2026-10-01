@@ -18,6 +18,7 @@ import 'domain/game_session.dart';
 import 'domain/move_feedback.dart';
 import 'widgets/game_actions.dart';
 import 'widgets/game_board.dart';
+import 'widgets/game_message.dart';
 import 'widgets/game_sheets.dart';
 import 'widgets/move_strip.dart';
 import 'widgets/player_row.dart';
@@ -37,7 +38,8 @@ class GameScreen extends ConsumerStatefulWidget {
 class _GameScreenState extends ConsumerState<GameScreen> {
   /// Player rows, move strip and action bar; the board gets the rest, up to
   /// the full width.
-  static const _reservedHeight = 2 * PlayerRow.height + MoveStrip.height + _ActionBar.height;
+  static const _reservedHeight =
+      2 * PlayerRow.height + MoveStrip.height + messageMinHeight + _ActionBar.height;
 
   /// The final position stays in view this long before the result sheet.
   static const _resultHold = Duration(milliseconds: 600);
@@ -315,9 +317,9 @@ class _MessageArea extends ConsumerWidget {
     // Centred when it fits; scrolls on short screens (the error card is tall).
     return LayoutBuilder(
       builder: (context, constraints) => SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: 4),
         child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: math.max(0, constraints.maxHeight - 20)),
+          constraints: BoxConstraints(minHeight: math.max(0, constraints.maxHeight - 8)),
           child: Center(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 150),
@@ -412,7 +414,13 @@ class _Toast extends StatelessWidget {
     final tint = this.tint;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: AppSpacing.s3),
+      // With a button: tighter, so the toast fits the room under the board.
+      padding: EdgeInsets.fromLTRB(
+        14,
+        action == null ? AppSpacing.s3 : 6,
+        action == null ? 14 : 6,
+        action == null ? AppSpacing.s3 : 6,
+      ),
       decoration: BoxDecoration(
         color: tint?.withValues(alpha: 0.10) ?? colors.bgRaised,
         borderRadius: BorderRadius.circular(14),
@@ -433,7 +441,12 @@ class _Toast extends StatelessWidget {
               ),
             ),
           ),
-          ?action,
+          if (action case final action?)
+            TextButtonTheme(
+              // The app's button look, at the toast's size.
+              data: compactActionTheme(context),
+              child: action,
+            ),
         ],
       ),
     );

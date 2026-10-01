@@ -9,6 +9,7 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/logo_mark.dart';
+import '../../core/widgets/pill_search_field.dart';
 import '../../core/widgets/segmented_switch.dart';
 import 'widgets/delete_game_sheet.dart';
 
@@ -32,6 +33,45 @@ enum ResultFilter {
     won => game.record.outcome == PlayerOutcome.win,
     lost => game.record.outcome == PlayerOutcome.loss,
   };
+}
+
+/// What the search box and the date picker narrow the list to.
+@immutable
+class GameSearch {
+  const GameSearch({this.text = '', this.dates});
+
+  /// Part of the opponent's name, any case.
+  final String text;
+
+  /// Days the game ended on, both ends included.
+  final DateTimeRange? dates;
+
+  bool get isActive => text.trim().isNotEmpty || dates != null;
+
+  bool matches(SavedGame game) {
+    final query = text.trim().toLowerCase();
+    if (query.isNotEmpty && !opponentName(game.record).toLowerCase().contains(query)) {
+      return false;
+    }
+    if (dates case final dates?) {
+      final ended = game.record.endedAt.toLocal();
+      final day = DateTime(ended.year, ended.month, ended.day);
+      if (day.isBefore(_day(dates.start)) || day.isAfter(_day(dates.end))) return false;
+    }
+    return true;
+  }
+
+  static DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
+}
+
+/// `12 Sep – 28 Sep`, `28 Sep`, with the year when it isn't this one.
+String dateRangeLabel(DateTimeRange range, {required DateTime now}) {
+  String day(DateTime d) => d.year == now.year ? shortDate(d) : '${shortDate(d)} ${d.year}';
+  final sameDay =
+      range.start.year == range.end.year &&
+      range.start.month == range.end.month &&
+      range.start.day == range.end.day;
+  return sameDay ? day(range.start) : '${day(range.start)} – ${day(range.end)}';
 }
 
 /// Game history. Not designed yet: built from the design system's tokens and
@@ -62,6 +102,46 @@ class GamesScreen extends ConsumerStatefulWidget {
 
 class _GamesScreenState extends ConsumerState<GamesScreen> {
   ResultFilter _filter = ResultFilter.all;
+  final _searchText = TextEditingController();
+  DateTimeRange? _dates;
+
+  GameSearch get _search => GameSearch(text: _searchText.text, dates: _dates);
+
+  @override
+  void initState() {
+    super.initState();
+    _searchText.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _searchText.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDates(List<SavedGame> games) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final oldest = games.isEmpty
+        ? today
+        : games.map((g) => g.record.endedAt.toLocal()).reduce((a, b) => a.isBefore(b) ? a : b);
+    final first = DateTime(oldest.year, oldest.month, oldest.day);
+    final picked = await showDateRangePicker(
+      context: context,
+      firstDate: first.isBefore(today) ? first : today,
+      lastDate: today,
+      initialDateRange: _dates,
+      helpText: 'Games played between',
+      saveText: 'Done',
+      confirmText: 'Done',
+    );
+    if (picked != null && mounted) setState(() => _dates = picked);
+  }
+
+  void _clearSearch() => setState(() {
+    _searchText.clear();
+    _dates = null;
+  });
 
   /// Asks, then deletes [game]. True if it was deleted.
   Future<bool> _delete(SavedGame game) async {
@@ -90,10 +170,33 @@ class _GamesScreenState extends ConsumerState<GamesScreen> {
         AsyncData(value: final games) when games.isEmpty && only == null => const _EmptyState(),
         AsyncData(value: final games) => Builder(
           builder: (context) {
-            final shown = games.where(_filter.matches).toList();
+            final search = _search;
+            final shown = games.where((g) => _filter.matches(g) && search.matches(g)).toList();
             return ListView(
               padding: const EdgeInsets.all(AppSpacing.gutter),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               children: [
+                Row(
+                  spacing: AppSpacing.s2,
+                  children: [
+                    Expanded(
+                      child: PillSearchField(controller: _searchText, hint: 'Search by opponent'),
+                    ),
+                    _DateButton(active: _dates != null, onPressed: () => _pickDates(games)),
+                  ],
+                ),
+                if (_dates case final dates?) ...[
+                  const SizedBox(height: AppSpacing.s2),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: _DatesChip(
+                      label: dateRangeLabel(dates, now: DateTime.now()),
+                      onEdit: () => _pickDates(games),
+                      onClear: () => setState(() => _dates = null),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.s3),
                 SegmentedSwitch(
                   values: ResultFilter.values,
                   selected: _filter,
@@ -105,13 +208,32 @@ class _GamesScreenState extends ConsumerState<GamesScreen> {
                   _FilterHeader(title: widget.title, count: shown.length),
                   const SizedBox(height: AppSpacing.s2),
                 ],
+                if (search.isActive && shown.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.s2),
+                    child: Text(
+                      '${shown.length} ${shown.length == 1 ? 'game' : 'games'} found',
+                      style: type.label.copyWith(color: colors.textSecondary),
+                    ),
+                  ),
                 if (shown.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: AppSpacing.s8),
-                    child: Text(
-                      _filter == ResultFilter.won ? 'No wins here yet.' : 'No losses here.',
-                      textAlign: TextAlign.center,
-                      style: type.body.copyWith(color: colors.textSecondary),
+                    child: Column(
+                      spacing: AppSpacing.s2,
+                      children: [
+                        Text(
+                          search.isActive
+                              ? 'No games match your search.'
+                              : _filter == ResultFilter.won
+                              ? 'No wins here yet.'
+                              : 'No losses here.',
+                          textAlign: TextAlign.center,
+                          style: type.body.copyWith(color: colors.textSecondary),
+                        ),
+                        if (search.isActive)
+                          TextButton(onPressed: _clearSearch, child: const Text('Clear search')),
+                      ],
                     ),
                   ),
                 for (final game in shown)
@@ -145,6 +267,89 @@ class _GamesScreenState extends ConsumerState<GamesScreen> {
         ),
         _ => const Center(child: CircularProgressIndicator()),
       },
+    );
+  }
+}
+
+/// Opens the date range picker; tinted while a range is set.
+class _DateButton extends StatelessWidget {
+  const _DateButton({required this.active, required this.onPressed});
+
+  final bool active;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return IconButton(
+      tooltip: active ? 'Change dates' : 'Filter by date',
+      onPressed: onPressed,
+      isSelected: active,
+      icon: const Icon(Icons.calendar_month_outlined, size: 20),
+      style: IconButton.styleFrom(
+        fixedSize: const Size.square(44),
+        backgroundColor: active ? colors.focus.withValues(alpha: 0.16) : colors.bgRaised,
+        foregroundColor: active ? colors.focus : colors.textSecondary,
+        side: BorderSide(color: active ? colors.focus : colors.border),
+      ),
+    );
+  }
+}
+
+/// The dates the list is narrowed to: tap to change, ✕ to clear.
+class _DatesChip extends StatelessWidget {
+  const _DatesChip({required this.label, required this.onEdit, required this.onClear});
+
+  final String label;
+  final VoidCallback onEdit;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Material(
+      color: colors.focus.withValues(alpha: 0.14),
+      shape: const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: onEdit,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 4, 0),
+              child: SizedBox(
+                height: 36,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 6,
+                  children: [
+                    Icon(Icons.event_rounded, size: 16, color: colors.focus),
+                    Text(
+                      label,
+                      style: context.type.label.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Clear dates',
+            onPressed: onClear,
+            icon: const Icon(Icons.close_rounded, size: 16),
+            color: colors.textSecondary,
+            style: IconButton.styleFrom(
+              fixedSize: const Size.square(36),
+              minimumSize: const Size.square(36),
+              tapTargetSize: MaterialTapTargetSize.padded,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

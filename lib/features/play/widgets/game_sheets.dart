@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/routing/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/button_row.dart';
 import '../domain/game_controller.dart';
 import 'result_copy.dart';
 
@@ -223,8 +224,9 @@ class ResultSheet extends ConsumerWidget {
                 ),
                 child: const Text('Review with AI Coach'),
               ),
-              Row(
+              ButtonRow(
                 spacing: AppSpacing.s2,
+                mainLast: false,
                 children: [
                   for (final (label, action) in [
                     (
@@ -239,17 +241,15 @@ class ResultSheet extends ConsumerWidget {
                       savedId == null ? null : () => open(Routes.reportCard('$savedId')),
                     ),
                   ])
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: action,
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
-                          shape: buttonShape,
-                          textStyle: type.heading.copyWith(fontSize: 15),
-                        ),
-                        child: Text(label),
+                    OutlinedButton(
+                      onPressed: action,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
+                        shape: buttonShape,
+                        textStyle: type.heading.copyWith(fontSize: 15),
                       ),
+                      child: Text(label),
                     ),
                 ],
               ),

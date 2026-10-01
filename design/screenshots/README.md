@@ -79,9 +79,16 @@ Top 3 weaknesses · when games go wrong · results by opening and personal bests
 
 <p>
   <img src="games.png" width="220" alt="Game library with search and filters">
+  <img src="games-empty.png" width="220" alt="No games yet: play Stockfish or import your games">
   <img src="import.png" width="220" alt="Chess.com and Lichess import">
-  <img src="settings.png" width="220" alt="Settings">
+</p>
+
+Game library with search, date and won/lost filters · before your first game · Chess.com and Lichess import
+
+<p>
+  <img src="settings.png" width="220" alt="Settings: import, board theme, appearance, sound">
+  <img src="settings-developer.png" width="220" alt="Developer mode: your own Gemini key, with steps to get one free">
   <img src="home-light.png" width="220" alt="Light mode">
 </p>
 
-Game library with search, date and won/lost filters · Chess.com and Lichess import · settings · light mode
+Settings · developer mode with your own Gemini key · light mode

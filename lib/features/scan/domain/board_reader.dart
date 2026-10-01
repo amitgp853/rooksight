@@ -11,6 +11,9 @@ import 'scan_photo.dart';
 /// Cuts [box] out of a board photo, as a JPEG.
 typedef CellCropper = Future<Uint8List> Function(Uint8List board, CellBox box);
 
+/// Draws the lines between [rows] × [cols] cells on a board photo.
+typedef GridDrawer = Future<Uint8List> Function(Uint8List board, {int rows, int cols});
+
 /// One row of the "Reading your board" list: what the reader is doing, and
 /// once done, what it found.
 @immutable
@@ -84,15 +87,23 @@ class ScanFailure implements Exception {
 /// if something doesn't add up (two white kings, a pawn on the back rank) a
 /// second request looks again at just those squares.
 ///
+/// The first look goes to the lighter model with a grid drawn on the photo,
+/// and must answer exactly 8 × 8 squares: tested on book diagrams, that read
+/// every square right where the bare photo, as free text, often shifted a
+/// row by one. The second look, a harder question, uses the usual model.
+///
 /// Nothing is stored. Tokens: the first request is the photo (1120 tokens on
 /// Gemini 3) plus about 400 of text; the second look, when needed, sends a
 /// close-up of the doubtful squares at a lower resolution, which still gives
 /// each square at least as much detail as the first look did.
 class BoardReader {
-  BoardReader(this._llm, {CellCropper? crop}) : _crop = crop ?? ScanPhoto.cropCells;
+  BoardReader(this._llm, {CellCropper? crop, GridDrawer? grid})
+    : _crop = crop ?? ScanPhoto.cropCells,
+      _grid = grid ?? ScanPhoto.withGrid;
 
   final LlmClient _llm;
   final CellCropper _crop;
+  final GridDrawer _grid;
 
   /// Squares asked about in the second look, at most.
   static const maxRecheck = 6;
@@ -114,10 +125,11 @@ class BoardReader {
       LlmRequest(
         system: _readSystem,
         messages: [
-          LlmMessage.user(_readPrompt, images: [LlmImage(jpeg)]),
+          LlmMessage.user(_readPrompt, images: [LlmImage(await _gridded(jpeg, 8, 8))]),
         ],
         jsonSchema: _readSchema,
         temperature: 0.1,
+        light: true,
       ),
     );
     if (cancelled()) return null;
@@ -125,12 +137,13 @@ class BoardReader {
     final found = reading['board_found'] == true;
     final quality = reading['image_quality'];
     final whiteAtBottom = reading['white_at_bottom'] != false;
-    final ranks = [...?(reading['ranks'] as List<Object?>?)?.whereType<String>()];
+    final ranks = _ranks(reading['rows']);
+    if (!found) throw const ScanFailure(ScanFailureKind.noBoard);
     final grid = BoardSetup.fromRanks(ranks);
-    if (!found || grid == null) {
-      throw ScanFailure(
-        found && quality != 'clear' ? ScanFailureKind.blurry : ScanFailureKind.noBoard,
-      );
+    if (grid == null) {
+      // Not answered as 8 × 8 squares: a dark photo, or else a bad answer
+      // (not a missing board).
+      throw ScanFailure(quality == 'clear' ? ScanFailureKind.failed : ScanFailureKind.blurry);
     }
     var unsure = _cells(reading['unsure_cells']);
     if (quality != 'clear' && unsure.length > 8) throw const ScanFailure(ScanFailureKind.blurry);
@@ -203,7 +216,13 @@ class BoardReader {
         messages: [
           LlmMessage.user(
             _recheckPrompt(ranks, cells, closeUp == null ? null : box),
-            images: [LlmImage(closeUp ?? jpeg)],
+            images: [
+              LlmImage(
+                closeUp == null
+                    ? await _gridded(jpeg, 8, 8)
+                    : await _gridded(closeUp, box.bottom - box.top + 1, box.right - box.left + 1),
+              ),
+            ],
           ),
         ],
         jsonSchema: _recheckSchema,
@@ -285,6 +304,22 @@ class BoardReader {
         : white;
   }
 
+  /// [jpeg] with its grid drawn on, or as it is if that fails.
+  Future<Uint8List> _gridded(Uint8List jpeg, int rows, int cols) async {
+    try {
+      return await _grid(jpeg, rows: rows, cols: cols);
+    } on Object {
+      return jpeg;
+    }
+  }
+
+  /// The `rows` of a reading as eight-character strings (each row a list of
+  /// one-character squares).
+  static List<String> _ranks(Object? rows) => [
+    for (final row in (rows as List<Object?>? ?? const []))
+      if (row is List<Object?>) row.whereType<String>().join() else if (row is String) row,
+  ];
+
   Future<Map<String, Object?>> _ask(LlmRequest request) async {
     final String text;
     try {
@@ -357,11 +392,11 @@ class BoardReader {
       'Report only what you can see. Never invent pieces to make a position look normal.';
 
   static const _readPrompt = '''
-Read the chess position in this photo.
+Read the chess position in this photo. Thin red lines have been drawn over it to mark the 64 squares: read one red cell at a time. It may be a real board or a printed diagram (in diagrams the dark squares are often hatched with diagonal lines; hatching is never a piece; white pieces are drawn hollow/outlined, black pieces filled in).
 
-- board_found: false if the photo doesn't show a whole 8×8 chess board.
+- board_found: false only if the photo doesn't show a whole 8×8 chess board.
 - image_quality: "clear", or "too_dark" / "too_blurry" if you can't tell the pieces apart reliably.
-- ranks: the board as it appears in the photo, exactly 8 strings, the row at the TOP of the photo first. Each string has exactly 8 characters, left to right: K Q R B N P for white pieces, k q r b n p for black pieces, "." for an empty square.
+- rows: the board as it appears in the photo, exactly 8 rows, the row at the TOP of the photo first. Each row is exactly 8 squares, left to right: K Q R B N P for white pieces, k q r b n p for black pieces, "." for an empty square. Go square by square; count to 8 in every row.
 - white_at_bottom: true if White's pieces started on the side nearest the bottom of the photo (look at the coordinates if printed, else at where most white pieces are, else true).
 - unsure_cells: the cells (row 0–7 from the top, col 0–7 from the left) you are least sure about, if any.''';
 
@@ -373,15 +408,26 @@ Read the chess position in this photo.
         'type': 'string',
         'enum': ['clear', 'too_dark', 'too_blurry'],
       },
-      'ranks': {
+      // 8 × 8, each square one of the 13 symbols: the model can't send a
+      // row that's a square short or long.
+      'rows': {
         'type': 'array',
-        'items': {'type': 'string'},
+        'items': {
+          'type': 'array',
+          'items': {'type': 'string', 'enum': _squareSymbols},
+          'minItems': 8,
+          'maxItems': 8,
+        },
+        'minItems': 8,
+        'maxItems': 8,
       },
       'white_at_bottom': {'type': 'boolean'},
       'unsure_cells': {'type': 'array', 'items': _cellSchema},
     },
-    'required': ['board_found', 'image_quality', 'ranks', 'white_at_bottom', 'unsure_cells'],
+    'required': ['board_found', 'image_quality', 'rows', 'white_at_bottom', 'unsure_cells'],
   };
+
+  static const _squareSymbols = ['K', 'Q', 'R', 'B', 'N', 'P', 'k', 'q', 'r', 'b', 'n', 'p', '.'];
 
   static const _cellSchema = {
     'type': 'object',
@@ -400,6 +446,7 @@ Read the chess position in this photo.
       '''
 You read this board as (top row of the photo first, "." empty):
 ${ranks.join('\n')}
+Thin red lines mark the squares in the picture.
 ${closeUp == null ? '' : '\nThe picture is a close-up of part of that board: rows ${closeUp.top}–${closeUp.bottom} and columns ${closeUp.left}–${closeUp.right} of the 8×8 grid. Use the full grid’s row and column numbers in your answer.\n'}
 That position is impossible, so some of it is misread. Look again, carefully, at only these cells (row 0–7 from the top, col 0–7 from the left):
 ${[for (final c in cells) '- row ${c.row}, col ${c.col}'].join('\n')}
@@ -416,7 +463,7 @@ Shadows, reflections and pieces hiding behind taller ones are common mistakes. F
           'properties': {
             'row': {'type': 'integer'},
             'col': {'type': 'integer'},
-            'piece': {'type': 'string'},
+            'piece': {'type': 'string', 'enum': _squareSymbols},
           },
           'required': ['row', 'col', 'piece'],
         },

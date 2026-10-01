@@ -20,6 +20,7 @@ import '../../core/widgets/move_wise_sheet.dart';
 import '../../engine/engine_provider.dart';
 import '../games/games_screen.dart' show shortDate;
 import '../report_card/data/image_sharer.dart';
+import '../review/domain/position_eval.dart';
 import '../review/widgets/eval_bar.dart';
 import '../review/widgets/quality_chip.dart';
 import '../scan/domain/board_setup.dart';
@@ -54,6 +55,15 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
   late String _subtitle;
   late final ChessboardController _board;
   final _boardKey = GlobalKey();
+
+  /// The move the board shows. Stockfish reports several times a position;
+  /// the board is only sent a position when the move changes.
+  AnalysisNode? _boardNode;
+
+  /// The last trusted reading, shown (faded) on the eval bar and win chances
+  /// until Stockfish has one for the position shown, so stepping through
+  /// moves doesn't snap the bar to level and back.
+  _Reading? _reading;
 
   /// The saved position this board keeps up to date, once saved.
   int? _savedId;
@@ -90,6 +100,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       _subtitle = _subtitleFor(widget.args.source, _session);
     }
     _board = ChessboardController(game: _gameData());
+    _boardNode = _session.current;
     // Stockfish reports progress at once; start once this state can rebuild.
     scheduleMicrotask(() {
       if (mounted) _session.start();
@@ -206,12 +217,34 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
 
   void _onChange() {
     if (!mounted) return;
-    setState(() {});
-    _board.updatePosition(_gameData());
+    setState(() {
+      if (_freshReading() case final reading?) _reading = reading;
+    });
+    if (_session.current != _boardNode) {
+      _boardNode = _session.current;
+      _board.updatePosition(_gameData());
+    }
     // Once saved, moves explored are kept (checked a moment after changes).
     if (_savedId != null && !(_saveTimer?.isActive ?? false)) {
       _saveTimer = Timer(_saveDelay, () => unawaited(_writeMoves()));
     }
+  }
+
+  /// Stockfish's reading of the position shown, once deep enough to trust,
+  /// or at any depth while there's nothing to show instead.
+  _Reading? _freshReading() {
+    final position = _session.position;
+    final analysis = _session.analysis;
+    if (analysis == null) return null;
+    final trusted = analysis.isTerminal || analysis.depth >= AnalysisSession.trustedDepth;
+    if (!trusted && _reading != null) return null;
+    final wdl = analysis.lines.firstOrNull?.wdl;
+    return (
+      node: _session.current,
+      eval: analysis.evalOf(position),
+      toMove: position.turn,
+      wdl: wdl == null ? null : whiteWdl(wdl, position.turn),
+    );
   }
 
   GameData _gameData() {
@@ -278,10 +311,12 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       _savedState = null;
       _saveTimer?.cancel();
       _subtitle = _subtitleFor(AnalysisSource.setup, _session);
+      _reading = null;
     });
     old
       ..removeListener(_onChange)
       ..dispose();
+    _boardNode = _session.current;
     _board.updatePosition(_gameData());
     _session.start();
   }
@@ -422,9 +457,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     final position = session.position;
     final analysis = session.analysis;
     final best = analysis?.lines.firstOrNull;
-    final eval = analysis?.evalOf(position);
     final review = session.reviewOf(session.current);
-    final wdl = best?.wdl == null ? null : whiteWdl(best!.wdl!, position.turn);
+    final reading = session.engineOn ? _reading : null;
+    // An earlier position's reading, until this one has its own.
+    final held = reading != null && reading.node != session.current;
 
     final shapes = <Shape>{};
     if (session.engineOn &&
@@ -481,13 +517,21 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                   onFlip: _flip,
                   onMore: _showActions,
                 ),
-                EvalBar(
-                  eval: session.engineOn ? eval : null,
-                  toMove: position.turn,
-                  orientation: _orientation,
-                  signed: true,
+                AnimatedOpacity(
+                  opacity: held ? 0.55 : 1,
+                  duration: const Duration(milliseconds: 150),
+                  child: Column(
+                    children: [
+                      EvalBar(
+                        eval: reading?.eval,
+                        toMove: reading?.toMove ?? position.turn,
+                        orientation: _orientation,
+                        signed: true,
+                      ),
+                      WdlStrip(wdl: reading?.wdl),
+                    ],
+                  ),
                 ),
-                WdlStrip(wdl: session.engineOn ? wdl : null),
                 RepaintBoundary(
                   key: _boardKey,
                   child: MoveWiseBoard(
@@ -637,3 +681,11 @@ class _Header extends StatelessWidget {
     );
   }
 }
+
+/// What the eval bar and win chances show: Stockfish's reading of [node].
+typedef _Reading = ({
+  AnalysisNode node,
+  PositionEval eval,
+  Side toMove,
+  ({int white, int draw, int black})? wdl,
+});

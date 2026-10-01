@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as img;
 import 'package:move_wise/core/llm/llm_client.dart';
 import 'package:move_wise/features/scan/domain/board_reader.dart';
 import 'package:move_wise/features/scan/domain/board_setup.dart';
@@ -34,7 +35,7 @@ Map<String, Object?> _reading({
 }) => {
   'board_found': found,
   'image_quality': quality,
-  'ranks': ranks,
+  'rows': ranks,
   'white_at_bottom': whiteAtBottom,
   'unsure_cells': unsure,
 };
@@ -280,6 +281,87 @@ void main() {
       expect(cropped, isFalse);
       expect(llm.requests.last.messages.single.images.single.bytes, photo);
       expect(llm.requests.last.mediaResolution, isNull);
+    });
+
+    test('the first look: the lighter model, a gridded photo, 8 × 8 squares', () async {
+      final llm = FakeLlm(
+        turns: [
+          _json({
+            ..._reading(),
+            // Rows as the schema asks: lists of single squares.
+            'rows': [for (final rank in _startRanks) rank.split('')],
+          }),
+        ],
+      );
+      final grids = <(int, int)>[];
+      final gridded = Uint8List.fromList([7, 7]);
+      final result = await BoardReader(
+        llm,
+        grid: (board, {rows = 8, cols = 8}) async {
+          grids.add((rows, cols));
+          return gridded;
+        },
+      ).read(photo, onSteps: (_) {});
+
+      expect(result!.setup.fen, Chess.initial.fen);
+      final first = llm.requests.single;
+      expect(first.light, isTrue);
+      expect(first.messages.single.images.single.bytes, gridded);
+      expect(grids, [(8, 8)]);
+      final rows = (first.jsonSchema!['properties']! as Map)['rows'] as Map;
+      expect(rows['minItems'], 8);
+      expect(rows['maxItems'], 8);
+    });
+
+    test('the second look: the usual model, the close-up gridded by its cells', () async {
+      final llm = FakeLlm(
+        turns: [
+          _json(_reading(ranks: [..._startRanks.take(7), 'RNBQKBKR'])),
+          _json({
+            'cells': [
+              {'row': 7, 'col': 6, 'piece': 'N'},
+            ],
+          }),
+        ],
+      );
+      final grids = <(int, int)>[];
+      await BoardReader(
+        llm,
+        crop: (board, box) async => board,
+        grid: (board, {rows = 8, cols = 8}) async {
+          grids.add((rows, cols));
+          return board;
+        },
+      ).read(photo, onSteps: (_) {});
+      expect(llm.requests.last.light, isFalse);
+      // e1–g1 plus a cell around: rows 6–7, columns 3–7.
+      expect(grids, [(8, 8), (2, 5)]);
+    });
+
+    test('a board answered with a row too long is a bad answer, not a missing board', () async {
+      Future<ScanFailureKind> kind(Map<String, Object?> json) async {
+        try {
+          await BoardReader(FakeLlm(turns: [_json(json)])).read(photo, onSteps: (_) {});
+        } on ScanFailure catch (f) {
+          return f.kind;
+        }
+        fail('expected a failure');
+      }
+
+      final tooLong = ['...k.r..nr', ..._startRanks.skip(1)];
+      expect(await kind(_reading(ranks: tooLong)), ScanFailureKind.failed);
+    });
+
+    test('the grid: red lines on the cell edges, the squares left as they were', () async {
+      final white = img.Image(width: 160, height: 160)..clear(img.ColorRgb8(255, 255, 255));
+      final out = img.decodeJpg(await ScanPhoto.withGrid(img.encodeJpg(white)))!;
+      bool red(int x, int y) {
+        final p = out.getPixel(x, y);
+        return p.r > 180 && p.g < 120 && p.b < 120;
+      }
+
+      expect(red(20, 10), isTrue, reason: 'the line between columns 0 and 1');
+      expect(red(10, 100), isFalse, reason: 'inside a square');
     });
 
     test('no board, and a dark photo', () async {

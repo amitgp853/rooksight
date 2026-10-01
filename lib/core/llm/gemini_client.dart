@@ -17,7 +17,8 @@ import 'llm_client.dart';
 /// limits) are retried with exponential backoff and jitter, up to
 /// [maxAttempts] tries. If the model stays overloaded or its free quota is
 /// used up (a rate limit that asks for a long wait), the request moves to the
-/// [fallbackModels] in turn. A rejected key fails at once.
+/// [fallbackModels] in turn. A rejected key fails at once. A
+/// [LlmRequest.light] request starts on [lightModel] instead.
 ///
 /// Each reply's token usage is logged, to see what a review or a coach
 /// question really costs.
@@ -27,6 +28,7 @@ class GeminiClient implements LlmClient {
     required this.model,
     this.fallbackModels = const [],
     this.thinkingLevel,
+    this.lightModel,
     http.Client? client,
     Future<void> Function(Duration)? wait,
     Random? random,
@@ -49,6 +51,10 @@ class GeminiClient implements LlmClient {
   /// The primary model's thinking level (e.g. `low`); null or empty for its
   /// default. [fallbackModels] always use their own default.
   final String? thinkingLevel;
+
+  /// Tried first for [LlmRequest.light] requests (e.g. Flash-Lite): quicker,
+  /// with its own free quota, so they leave the primary's to the coach.
+  final String? lightModel;
 
   /// The model that answered the last request (the primary until then).
   @override
@@ -84,7 +90,11 @@ class GeminiClient implements LlmClient {
   Future<LlmReply> respond(LlmRequest request) async {
     if (_apiKey.isEmpty) throw const LlmMissingKey();
 
-    final models = [_primary, ...fallbackModels];
+    final models = {
+      if (request.light) ?lightModel,
+      _primary,
+      ...fallbackModels,
+    }.toList();
     for (final (i, candidate) in models.indexed) {
       final body = requestBody(
         request,
@@ -316,6 +326,7 @@ final llmClientProvider = Provider<LlmClient>((ref) {
     model: model,
     thinkingLevel: thinkingLevel,
     fallbackModels: fallbacks,
+    lightModel: ApiKeys.geminiFallbackModel,
   );
 });
 

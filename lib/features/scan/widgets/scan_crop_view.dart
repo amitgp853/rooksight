@@ -176,7 +176,7 @@ class _ScanCropViewState extends ConsumerState<ScanCropView> {
                       children: [
                         Text('Crop to the board', style: type.heading.copyWith(color: fg)),
                         Text(
-                          'Drag the corners so only the 64 squares are inside',
+                          'Drag the corners until the grid sits on the squares',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: type.label.copyWith(
@@ -349,7 +349,9 @@ class _ScanCropViewState extends ConsumerState<ScanCropView> {
   }
 }
 
-/// Dims outside the crop; outline and rule-of-thirds lines inside.
+/// Dims outside the crop; outline and an 8 × 8 grid inside. The same grid
+/// is drawn on the photo the AI reads, so lining it up with the board's
+/// squares here is what keeps each piece on the right square.
 class _CropPainter extends CustomPainter {
   _CropPainter(this.crop);
 
@@ -365,14 +367,14 @@ class _CropPainter extends CustomPainter {
       ),
       Paint()..color = const Color(0x9E050709),
     );
-    final thirds = Paint()
+    final grid = Paint()
       ..color = const Color(0x59F5F7FA)
       ..strokeWidth = 1;
-    for (final t in [1 / 3, 2 / 3]) {
-      final x = crop.left + crop.width * t;
-      final y = crop.top + crop.height * t;
-      canvas.drawLine(Offset(x, crop.top), Offset(x, crop.bottom), thirds);
-      canvas.drawLine(Offset(crop.left, y), Offset(crop.right, y), thirds);
+    for (var i = 1; i < 8; i++) {
+      final x = crop.left + crop.width * i / 8;
+      final y = crop.top + crop.height * i / 8;
+      canvas.drawLine(Offset(x, crop.top), Offset(x, crop.bottom), grid);
+      canvas.drawLine(Offset(crop.left, y), Offset(crop.right, y), grid);
     }
     canvas.drawRect(
       crop,

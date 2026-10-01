@@ -115,6 +115,75 @@ void main() {
     expect(find.text('Start'), findsOneWidget);
   });
 
+  testWidgets('the eval bar keeps its reading until the next position has one', (tester) async {
+    await pump(tester, AnalysisArgs(fen: Chess.initial.fen, source: AnalysisSource.scan));
+    expect(find.text('White 34%'), findsOneWidget);
+
+    // Stockfish is slow on the next position, and finds Black better there.
+    engine
+      ..delay = const Duration(seconds: 1)
+      ..reply = (fen) => [
+        EngineLine(
+          rank: 1,
+          depth: 16,
+          score: const EngineScore.centipawns(150),
+          pv: [FakeEngine.firstLegalMove(fen)],
+          wdl: (win: 600, draw: 300, loss: 100),
+        ),
+      ];
+    final best = Move.parse(FakeEngine.firstLegalMove(Chess.initial.fen))!;
+    final san = Chess.initial.makeSan(best).$2;
+    await tester.tap(find.descendant(of: find.byType(InkWell), matching: find.text(san)).first);
+    await tester.pump(const Duration(milliseconds: 300));
+    // Not snapped to level: the last reading stays.
+    expect(find.text('White 34%'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('White 10%'), findsOneWidget); // Black to move, 60% Black.
+    await tester.pump(const Duration(seconds: 10));
+  });
+
+  testWidgets('following a line into checkmate shows the mate, without errors', (tester) async {
+    // Black to move plays h6, then White mates on the back rank.
+    const fen = '6k1/5ppp/8/8/8/8/5PPP/R5K1 b - - 0 1';
+    engine.reply = (fen) {
+      final position = Chess.fromSetup(Setup.parseFen(fen));
+      if (position.turn == Side.black) {
+        return [
+          EngineLine(
+            rank: 1,
+            depth: 24,
+            score: const EngineScore.mate(-1),
+            pv: const ['h7h6', 'a1a8'],
+            wdl: (win: 0, draw: 0, loss: 1000),
+          ),
+        ];
+      }
+      return [
+        EngineLine(
+          rank: 1,
+          depth: 24,
+          score: const EngineScore.mate(1),
+          pv: const ['a1a8'],
+          wdl: (win: 1000, draw: 0, loss: 0),
+        ),
+      ];
+    };
+    await pump(tester, const AnalysisArgs(fen: fen, source: AnalysisSource.setup));
+    // Tap each move of the line in turn, as a player stepping along it.
+    await tester.tap(find.descendant(of: find.byType(InkWell), matching: find.text('h6')).first);
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.tap(find.descendant(of: find.byType(InkWell), matching: find.text('Ra8#')).first);
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(tester.takeException(), isNull);
+    expect(find.text('Checkmate. White wins.'), findsOneWidget);
+  });
+
   testWidgets('from a game: opens at the move given, with the game as the main line', (
     tester,
   ) async {

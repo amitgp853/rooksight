@@ -308,6 +308,38 @@ void main() {
       expect(asked, ['big:generateContent', 'small:generateContent']);
     });
 
+    test('a light request starts on the light model, then the usual ones', () async {
+      final asked = <String, Object?>{};
+      final client = GeminiClient(
+        apiKey: 'k',
+        model: 'big',
+        fallbackModels: ['small'],
+        lightModel: 'small',
+        thinkingLevel: 'low',
+        wait: (_) async {},
+        client: MockClient((r) async {
+          final config = (jsonDecode(r.body) as Map)['generationConfig'] as Map;
+          final model = r.url.pathSegments.last.split(':').first;
+          asked[model] = config['thinkingConfig'];
+          return model == 'small'
+              ? http.Response('{"error": {"details": [{"retryDelay": "3600s"}]}}', 429)
+              : ok;
+        }),
+      );
+      const light = LlmRequest(messages: [LlmMessage.user('Read this')], light: true);
+      expect(await client.generate(light), 'fine');
+      // Each model once, light first, and only the primary thinks.
+      expect(asked, {
+        'small': null,
+        'big': {'thinkingLevel': 'low'},
+      });
+      expect(asked.keys, ['small', 'big']);
+
+      asked.clear();
+      expect(await client.generate(request), 'fine');
+      expect(asked.keys, ['big'], reason: 'other requests start on the primary');
+    });
+
     test('a rejected key does not try the fallback', () async {
       var calls = 0;
       final client = GeminiClient(

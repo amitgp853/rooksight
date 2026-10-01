@@ -252,7 +252,7 @@ void main() {
         reply: jsonEncode({
           'board_found': true,
           'image_quality': 'clear',
-          'ranks': [
+          'rows': [
             'rnbqkbnr',
             'pppppppp',
             '........',
@@ -323,7 +323,7 @@ void main() {
     String noBoardReply() => jsonEncode({
       'board_found': false,
       'image_quality': 'clear',
-      'ranks': <String>[],
+      'rows': <String>[],
       'white_at_bottom': true,
       'unsure_cells': <Object?>[],
     });

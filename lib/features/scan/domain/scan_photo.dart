@@ -35,6 +35,12 @@ class ScanPhoto {
 
   /// A close-up of [cells] of [board] (a photo cropped to the 64 squares),
   /// for a second look at a few squares.
+  /// [board] with thin red lines between its cells ([rows] × [cols] of
+  /// them), so the model reads one square at a time instead of counting
+  /// along a row (where it often slips by one). Only the model sees it.
+  static Future<Uint8List> withGrid(Uint8List board, {int rows = 8, int cols = 8}) =>
+      compute(_grid, (board, rows, cols));
+
   static Future<Uint8List> cropCells(Uint8List board, CellBox cells) {
     final rect = Rect.fromLTRB(
       cells.left / 8,
@@ -85,6 +91,22 @@ Uint8List _crop((Uint8List, Rect) args) {
     );
   }
   return img.encodeJpg(cut, quality: 85);
+}
+
+Uint8List _grid((Uint8List, int, int) args) {
+  final (bytes, rows, cols) = args;
+  final image = img.decodeJpg(bytes)!;
+  final width = math.max(2, (math.max(image.width, image.height) / 340).round());
+  final red = img.ColorRgb8(230, 40, 40);
+  for (var i = 0; i <= cols; i++) {
+    final x = (i * (image.width - 1) / cols).round();
+    img.drawLine(image, x1: x, y1: 0, x2: x, y2: image.height - 1, color: red, thickness: width);
+  }
+  for (var i = 0; i <= rows; i++) {
+    final y = (i * (image.height - 1) / rows).round();
+    img.drawLine(image, x1: 0, y1: y, x2: image.width - 1, y2: y, color: red, thickness: width);
+  }
+  return img.encodeJpg(image, quality: 85);
 }
 
 ScanPhoto _encode(img.Image image) =>

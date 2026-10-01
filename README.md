@@ -10,30 +10,10 @@ Flutter · Android and iOS · no login, no backend, free to run ·
 [support it on Ko-fi](https://ko-fi.com/amitgp853).
 
 <p align="center">
-  <img src="design/screenshots/home.png" width="200" alt="Home">
-  <img src="design/screenshots/game.png" width="200" alt="Playing Stockfish: only your clock runs">
-  <img src="design/screenshots/result.png" width="200" alt="Game over">
-  <img src="design/screenshots/review.png" width="200" alt="Game review with AI explanations">
-  <br>
-  <img src="design/screenshots/coach.png" width="200" alt="AI Coach answering with its steps">
-  <img src="design/screenshots/stats-weaknesses.png" width="200" alt="Top 3 weaknesses">
-  <img src="design/screenshots/stats-charts.png" width="200" alt="When games go wrong">
-  <img src="design/screenshots/report-card.png" width="200" alt="Shareable report card">
-  <br>
-  <img src="design/screenshots/play-setup.png" width="200" alt="New game setup">
-  <img src="design/screenshots/pass-setup.png" width="200" alt="Pass & Play setup">
-  <img src="design/screenshots/pass-tabletop.png" width="200" alt="Pass & Play, face to face">
-  <img src="design/screenshots/pass-result.png" width="200" alt="Pass & Play result, saved to your games">
-  <br>
-  <img src="design/screenshots/coach-new.png" width="200" alt="AI Coach, new chat">
-  <img src="design/screenshots/coach-chats.png" width="200" alt="Saved AI Coach chats">
-  <img src="design/screenshots/coach-chat-options.png" width="200" alt="Rename or delete a chat">
-  <img src="design/screenshots/import.png" width="200" alt="Chess.com and Lichess import">
-  <br>
-  <img src="design/screenshots/stats-openings.png" width="200" alt="Results by opening and personal bests">
-  <img src="design/screenshots/games.png" width="200" alt="Game library">
-  <img src="design/screenshots/home-light.png" width="200" alt="Light mode">
+  <img src="design/banner.png" alt="MoveWise: play Stockfish, review your games, ask the AI Coach">
 </p>
+
+<p align="center"><b><a href="design/screenshots/README.md">See all screenshots →</a></b></p>
 
 ## What it does
 
@@ -42,7 +22,7 @@ Flutter · Android and iOS · no login, no backend, free to run ·
 | **Play** | Stockfish from 400 to 3000 Elo (step 200), your colour and time control. Only you are timed; Stockfish plays without a clock. Hints, take-backs in practice mode, draw offers, every rule (castling, en passant, promotion, repetition, 50-move rule, insufficient material). An unfinished game waits on Home. |
 | **Pass & Play** | Two players on one phone, fully offline, both clocks running. The board turns for the player to move, or a face-to-face layout lets the phone lie flat between you (pieces turn to face whoever's move it is). Takebacks and draw offers need the other player's OK. Pause hides the board; "Save and finish later" keeps the game on Home. Finished games are saved from the first player's side and count in their stats. |
 | **Import** | Your public Chess.com and Lichess games by username (one per site, kept on the phone). No login; requests are one at a time, and later imports fetch only new games. When a site asks to slow down, the import pauses with a live countdown (or "Try now") and carries on by itself. |
-| **Scan a board** | Photograph a real board or a book diagram (or pick a photo), crop it to the 64 squares, and Gemini reads the position with your own key while you watch each step. If something doesn't add up (two white kings, a pawn on the back rank) it takes a second look at just those squares. Then check it: doubtful squares are marked, a side-by-side view compares with your photo, a piece palette fixes any square, and you set side to move and castling. Analyze stays off until the position is legal. Without a key, offline or out of quota, the same editor sets a position up by hand. The photo is never saved. Up to 30 scans a day, so your free quota lasts. |
+| **Scan a board** | Photograph a real board or a book diagram (or pick a photo), line the crop's 8 × 8 grid up with the squares, and Gemini reads the position (the same grid is drawn on the photo it sees, so it reads one square at a time) with your own key while you watch each step. If something doesn't add up (two white kings, a pawn on the back rank) it takes a second look at just those squares. Then check it: doubtful squares are marked, a side-by-side view compares with your photo, a piece palette fixes any square, and you set side to move and castling. Analyze stays off until the position is legal. Without a key, offline or out of quota, the same editor sets a position up by hand. The photo is never saved. Up to 20 scans a day, so your free quota lasts. |
 | **Analysis board** | Any position from a scan, by hand, or "Analyze this position" in a review: Stockfish's eval (signed), win/draw/loss chances, its top 3 lines deepening live to depth 24, the best-move arrow, and a Threat arrow for what the other side wants. Play any move for either side; moves off the line become variations (long-press to promote, copy or delete), each marked `?!` `?` `??` against Stockfish's best, with Take back. Flip, copy FEN, share an image, play on from here vs Stockfish, or ask the AI Coach. Save a position (bookmark) to come back to it from Home: the moves you explore are kept as you go. |
 | **Games** | Every game you played or imported, in one list: open its review, or delete it. |
 | **Review** | Stockfish checks every move on the phone, at the depth you pick in Settings (Fast, Balanced or Deep): accuracy, an evaluation graph and bar, moves marked `!!` `!` `?!` `?` `??`, and the key moments. One optional AI request explains them. |
@@ -236,7 +216,7 @@ flutter build appbundle --dart-define-from-file=.env   # or: flutter build ipa
 The Gemini key is never compiled into a release build; players add their own.
 
 **Free tier:** playing (against Stockfish or a friend), importing, reviewing
-with Stockfish, stats and reopening saved chats make no AI calls. Explaining a game is 1 call; a coach question is 2–6. Overloads and
+with Stockfish, stats and reopening saved chats make no AI calls. Explaining a game is 1 call; a coach question is 2–6; a board scan is 1–2, read by the lighter model first (`GEMINI_FALLBACK_MODEL`, Flash-Lite), so scans don't use up the main model's quota (on the free tier, about 20 requests a day per model). Overloads and
 short rate limits are retried with jittered backoff. A busy model, or one whose
 free quota is used up, hands over to a lighter one. The models come from
 `remote.json`. For development, setting `GEMINI_MODEL` in `.env` ignores the
@@ -265,7 +245,7 @@ fallbacks), forced and optional updates, the analytics categories, and the
 screens.
 
 Tools in `tool/` regenerate assets: `render_pieces.dart` (piece PNGs),
-`make_sounds.py` (move sounds). `engine_probe.dart` prints Stockfish's UCI
+`make_sounds.py` (move sounds), `make_banner.py` (the README banner). `engine_probe.dart` prints Stockfish's UCI
 traffic with timings on a real device.
 Icons and splash come from `flutter_launcher_icons.yaml` and
 `flutter_native_splash.yaml`.

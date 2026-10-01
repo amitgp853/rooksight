@@ -10,8 +10,8 @@ final scanClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 /// a position up by hand is never limited.
 class ScanUsage extends Notifier<int> {
   /// Scans a day. Near it, the player is told how many are left.
-  static const dailyLimit = 30;
-  static const warnFrom = 25;
+  static const dailyLimit = 20;
+  static const warnFrom = 15;
 
   static const _dayKey = 'scan.day';
   static const _countKey = 'scan.count';

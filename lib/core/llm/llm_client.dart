@@ -106,7 +106,12 @@ class LlmRequest {
     this.tools = const [],
     this.toolMode = LlmToolMode.auto,
     this.mediaResolution,
+    this.light = false,
   });
+
+  /// A quick, simple task (reading a photo, not reasoning about chess): the
+  /// provider's lighter, faster model first, its usual one if that fails.
+  final bool light;
 
   /// How much detail (and how many tokens) each image gets; the model's
   /// default when null.

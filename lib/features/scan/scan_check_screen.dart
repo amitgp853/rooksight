@@ -80,6 +80,21 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
 
   void _change(VoidCallback change) => setState(change);
 
+  /// After a scan, the editor is a step on the check screen: Back leaves it
+  /// (keeping the edits) instead of going back to the camera.
+  bool get _canPop => !_comparing && !(_fromScan && _editing);
+
+  /// Steps back within this screen: out of the photo compare, then out of
+  /// the editor.
+  void _stepBack() => _change(() {
+    if (_comparing) {
+      _comparing = false;
+    } else {
+      _editing = false;
+      _selected = null;
+    }
+  });
+
   void _place(Square square, Piece? piece) {
     _setup = _setup.withPiece(square, piece);
     _unsure = {..._unsure}..remove(square);
@@ -137,9 +152,9 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
     final reduce = shouldReduceMotion(context, ref);
 
     return PopScope(
-      canPop: !_comparing,
+      canPop: _canPop,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && _comparing) setState(() => _comparing = false);
+        if (!didPop) _stepBack();
       },
       child: Scaffold(
         body: SafeArea(
@@ -154,9 +169,7 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
                         ? 'Changes stay on this phone'
                         : 'Then set what a photo can’t show',
                     editing: _editing,
-                    onBack: () => _comparing
-                        ? setState(() => _comparing = false)
-                        : Navigator.of(context).maybePop(),
+                    onBack: () => _canPop ? Navigator.of(context).maybePop() : _stepBack(),
                     onEdit: () => _change(() {
                       _editing = !_editing;
                       _comparing = false;

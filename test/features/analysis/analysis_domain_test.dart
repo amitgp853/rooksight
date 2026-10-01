@@ -138,6 +138,12 @@ void main() {
       ));
     });
 
+    test('WDL rounding never makes more than 100', () {
+      // 50.5 and 49.5 would each round up.
+      expect(whiteWdl((win: 505, draw: 0, loss: 495), Side.white), (white: 51, draw: 0, black: 49));
+      expect(whiteWdl((win: 5, draw: 995, loss: 0), Side.white), (white: 1, draw: 99, black: 0));
+    });
+
     test('material from White’s side', () {
       expect(materialText(Chess.initial), '=');
       final position = Chess.fromSetup(Setup.parseFen('4k3/8/8/8/8/8/8/3QK3 w - - 0 1'));

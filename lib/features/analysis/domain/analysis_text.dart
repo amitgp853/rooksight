@@ -50,9 +50,10 @@ bool whiteAhead(EngineScore score, Side toMove) {
 /// [wdl] for the side to move. They add up to 100.
 ({int white, int draw, int black}) whiteWdl(Wdl wdl, Side toMove) {
   final (win, loss) = toMove == Side.white ? (wdl.win, wdl.loss) : (wdl.loss, wdl.win);
-  final white = (win / 10).round();
-  final black = (loss / 10).round();
-  return (white: white, draw: (100 - white - black).clamp(0, 100), black: black);
+  // Rounded one by one they can make 101 (50.5 / 49.5): Black takes the rest.
+  final white = (win / 10).round().clamp(0, 100);
+  final draw = (wdl.draw / 10).round().clamp(0, 100 - white);
+  return (white: white, draw: draw, black: 100 - white - draw);
 }
 
 /// Material on the board from White's side: `+1`, `=`, `−2`.

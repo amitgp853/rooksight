@@ -42,10 +42,11 @@ Flutter · Android and iOS · no login, no backend, free to run ·
 | **Play** | Stockfish from 400 to 3000 Elo (step 200), your colour and time control. Only you are timed; Stockfish plays without a clock. Hints, take-backs in practice mode, draw offers, every rule (castling, en passant, promotion, repetition, 50-move rule, insufficient material). An unfinished game waits on Home. |
 | **Pass & Play** | Two players on one phone, fully offline, both clocks running. The board turns for the player to move, or a face-to-face layout lets the phone lie flat between you (pieces turn to face whoever's move it is). Takebacks and draw offers need the other player's OK. Pause hides the board; "Save and finish later" keeps the game on Home. Finished games are saved from the first player's side and count in their stats. |
 | **Import** | Your public Chess.com and Lichess games by username (one per site, kept on the phone). No login; requests are one at a time, and later imports fetch only new games. When a site asks to slow down, the import pauses with a live countdown (or "Try now") and carries on by itself. |
-| **Scan a board** | Photograph a real board or a book diagram (or pick a photo), crop it to the 64 squares, and Gemini reads the position with your own key while you watch each step. If something doesn't add up (two white kings, a pawn on the back rank) it takes a second look at just those squares. Then check it: doubtful squares are marked, a side-by-side view compares with your photo, a piece palette fixes any square, and you set side to move and castling. Analyze stays off until the position is legal. Without a key, offline or out of quota, the same editor sets a position up by hand. The photo is never saved. |
+| **Scan a board** | Photograph a real board or a book diagram (or pick a photo), crop it to the 64 squares, and Gemini reads the position with your own key while you watch each step. If something doesn't add up (two white kings, a pawn on the back rank) it takes a second look at just those squares. Then check it: doubtful squares are marked, a side-by-side view compares with your photo, a piece palette fixes any square, and you set side to move and castling. Analyze stays off until the position is legal. Without a key, offline or out of quota, the same editor sets a position up by hand. The photo is never saved. Up to 30 scans a day, so your free quota lasts. |
 | **Analysis board** | Any position from a scan, by hand, or "Analyze this position" in a review: Stockfish's eval (signed), win/draw/loss chances, its top 3 lines deepening live to depth 24, the best-move arrow, and a Threat arrow for what the other side wants. Play any move for either side; moves off the line become variations (long-press to promote, copy or delete), each marked `?!` `?` `??` against Stockfish's best, with Take back. Flip, copy FEN, share an image, play on from here vs Stockfish, or ask the AI Coach. Save a position (bookmark) to come back to it from Home: the moves you explore are kept as you go. |
-| **Review** | Stockfish checks every move on the phone: accuracy, an evaluation graph and bar, moves marked `!!` `!` `?!` `?` `??`, and the key moments. One optional AI request explains them. |
-| **AI Coach** | Ask anything about your games. A tool-calling agent looks at your games and asks Stockfish, and you watch each step as it happens. Chats are saved on the phone: search them, rename or delete them, and reopen one to carry on (opening a chat never runs the AI). |
+| **Games** | Every game you played or imported, in one list: open its review, or delete it. |
+| **Review** | Stockfish checks every move on the phone, at the depth you pick in Settings (Fast, Balanced or Deep): accuracy, an evaluation graph and bar, moves marked `!!` `!` `?!` `?` `??`, and the key moments. One optional AI request explains them. |
+| **AI Coach** | Ask anything about your games, typed or spoken. A tool-calling agent looks at your games and asks Stockfish, and you watch each step as it happens. Chats are saved on the phone: search them, rename or delete them, and reopen one to carry on (opening a chat never runs the AI). |
 | **Stats** | Your top 3 weaknesses, when in a game things go wrong, blunders by phase, results by opening, personal bests. All computed on the phone. |
 | **Report card** | A 1080 × 1350 image of a game (accuracy, best move, worst blunder, verdict) to share. |
 
@@ -60,7 +61,7 @@ flowchart TB
     play[play] --- pass[pass_play] --- review[review] --- coach[coach]
     import[import] --- stats[stats] --- report[report_card]
     games[games] --- settings[settings] --- splash[splash]
-    scan[scan] --- analysis[analysis]
+    scan[scan] --- analysis[analysis] --- home[home]
   end
 
   subgraph core["core/ + engine/"]
@@ -70,6 +71,8 @@ flowchart TB
     repo["GameRepository · AnalysisRepository · ChatRepository<br/>(Drift / SQLite)"]
     rules["dartchess<br/>(rules, SAN, PGN)"]
     board["chessground board<br/>+ MoveWise theme"]
+    remote["RemoteConfig<br/>(remote.json on GitHub, cached on the phone)"]
+    analytics["Analytics<br/>(TelemetryDeck, anonymous, opt-out)"]
   end
 
   play --> engine & rules & board & repo
@@ -81,17 +84,24 @@ flowchart TB
   report --> repo & board
   scan --> llm & rules & board
   analysis --> engine & rules & board
+  home --> remote
+  llm -. model names .-> remote
+  UI -. usage counts .-> analytics
 ```
 
 ```
 lib/
-  core/       theme, board, routing, storage (Drift), llm, settings, motion
+  core/       theme, board, chess, routing, storage (Drift), llm, config (remote config),
+              update, analytics, settings, motion, feedback, speech, widgets
   engine/     Stockfish over UCI, Elo levels (one config file)
-  features/   play · pass_play · import · games · review · coach · stats · report_card · settings · splash
+  features/   home · play · pass_play · scan · analysis · import · games · review ·
+              coach · stats · report_card · settings · splash
+config/       remote.json: the app's remote settings (see below)
 ```
 
 **Stack:** Flutter, Riverpod, go_router, Drift, dartchess, chessground,
-multistockfish (Stockfish 16), Gemini over plain REST, share_plus.
+multistockfish (Stockfish 16), Gemini over plain REST, camera and image_picker
+(scan), speech_to_text (voice questions), share_plus, TelemetryDeck (usage counts).
 
 ## The AI Coach agent
 
@@ -149,6 +159,44 @@ scores by how much it dropped your winning chances, and the game averages a
 volatility-weighted mean with a harmonic mean, so a few blunders count as they
 should instead of disappearing into a plain average.
 
+## Updates and remote config
+
+There is no server. The app reads one small JSON file,
+[`config/remote.json`](config/remote.json), from this repo on GitHub
+([what each field does](config/README.md)):
+
+- **Forced update:** a build below `minBuild` shows "Time to update" in place
+  of the app, with a link to the store.
+- **Optional update:** a build below `latestBuild` shows an "Update available"
+  card on Home. "Later" hides it until the next build.
+- **Gemini model:** switch every installed app to another model (or thinking
+  level) without a release, e.g. when Google retires one. The built-in models
+  stay as fallbacks, so a typo can't break the AI features.
+
+It never slows the app down: the app opens on the copy saved last time (or its
+built-in defaults) and fetches a fresh one after the first frame, at most once an
+hour. Offline, nothing changes.
+
+**Releasing a build:** bump the `+N` build number in `pubspec.yaml`. Once the build
+is live in the store, raise `latestBuild` in `remote.json` (and `minBuild` too,
+to make the update required), then push to `main`. Phones pick it up within
+about an hour.
+
+> The file is read from `raw.githubusercontent.com`, so the repo must be public
+> for this to work. While it's private, every phone keeps its built-in values.
+
+## Privacy: what leaves the phone
+
+No account, and no server of our own. Games, reviews, chats and settings stay on
+the phone. The app only talks to:
+
+| Where | When | What is sent |
+|---|---|---|
+| Gemini | AI explanations, the AI Coach, scans | The question and the positions or photo involved, with your own key |
+| Chess.com, Lichess | You import games | Your username on that site |
+| GitHub | Launch, and back to the app (at most hourly) | Only a plain download of `remote.json` |
+| TelemetryDeck | As you use the app, if the build has an app ID | Anonymous counts: "a game finished at 1400", "a scan worked", "a coach question was rate-limited". Never games, chats, usernames or keys. Turn it off in **Settings → Privacy**. |
+
 ## Running it
 
 Requires Flutter 3.47+.
@@ -175,11 +223,24 @@ flutter run --dart-define-from-file=.env
 In VS Code, the launch configurations in `.vscode/launch.json` pass `.env` for
 you.
 
+**Usage stats (optional):** create a free app at
+[TelemetryDeck](https://dashboard.telemetrydeck.com) and add
+`TELEMETRYDECK_APP_ID` and `TELEMETRYDECK_NAMESPACE` to `.env`. Without them
+nothing is sent and the Settings toggle is hidden. Debug builds send test
+signals, which the dashboard keeps apart. Release builds need the same flag:
+
+```sh
+flutter build appbundle --dart-define-from-file=.env   # or: flutter build ipa
+```
+
+The Gemini key is never compiled into a release build; players add their own.
+
 **Free tier:** playing (against Stockfish or a friend), importing, reviewing
 with Stockfish, stats and reopening saved chats make no AI calls. Explaining a game is 1 call; a coach question is 2–6. Overloads and
 short rate limits are retried with jittered backoff. A busy model, or one whose
-free quota is used up, hands over to a lighter one (`GEMINI_MODEL`,
-`GEMINI_FALLBACK_MODEL` in `.env`).
+free quota is used up, hands over to a lighter one. The models come from
+`remote.json`. For development, setting `GEMINI_MODEL` in `.env` ignores the
+remote models and uses yours (with `GEMINI_FALLBACK_MODEL` as the fallback).
 
 Debug builds compile Stockfish with optimisation (see `ios/Podfile` and
 `android/build.gradle.kts`); without it the engine is about 17× slower.
@@ -198,10 +259,14 @@ Lichess parsing and import, the Gemini client (retries, fallback, tool-call
 format), the coach loop with a fake model (tool cap, forced answer, grounding),
 saved chats (storage and migration, search, reopening without an AI call,
 continuing with earlier moves), the weakness checks, the report card image size,
-and the screens.
+scanning (photo checks, position checks, the daily limit), the analysis board,
+the remote config (parsing, bad values, caching, offline, refresh timing, model
+fallbacks), forced and optional updates, the analytics categories, and the
+screens.
 
 Tools in `tool/` regenerate assets: `render_pieces.dart` (piece PNGs),
-`make_sounds.py` (move sounds).
+`make_sounds.py` (move sounds). `engine_probe.dart` prints Stockfish's UCI
+traffic with timings on a real device.
 Icons and splash come from `flutter_launcher_icons.yaml` and
 `flutter_native_splash.yaml`.
 

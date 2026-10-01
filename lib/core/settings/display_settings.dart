@@ -72,11 +72,6 @@ final hapticsEnabledProvider = NotifierProvider<BoolSetting, bool>(
   () => BoolSetting('haptics', fallback: true),
 );
 
-/// Shows the AI Coach section (the Gemini key) in Settings.
-final developerModeProvider = NotifierProvider<BoolSetting, bool>(
-  () => BoolSetting('developerMode', fallback: false),
-);
-
 class BoolSetting extends StoredSetting<bool> {
   BoolSetting(this.key, {required this.fallback});
 

@@ -187,9 +187,11 @@ flutter run
 ```
 
 **Gemini key:** get a free key from https://aistudio.google.com/apikey and paste
-it in Settings: turn on **Developer mode** at the bottom, and the **AI Coach**
-section appears below it. It's kept in the iOS Keychain / Android encrypted
-storage and never leaves the phone except in requests to Gemini. Without a key
+it in **Settings → AI Coach**. Every place that needs the AI and has no key
+shows a **Turn on AI coach (free)** button and an ⓘ that explains why the key is
+yours and what the free tier covers. A paid key works too, with higher
+limits. The key is kept in the iOS Keychain / Android encrypted storage and
+never leaves the phone except in requests to Gemini. Without a key
 everything works except the AI explanations and the AI Coach.
 
 For development you can also pass a key at build time, used only when none is

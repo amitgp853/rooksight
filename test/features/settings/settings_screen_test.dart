@@ -81,13 +81,12 @@ void main() {
     expect(find.text('import screen'), findsOneWidget);
   });
 
-  group('Gemini key (developer mode)', () {
+  group('Gemini key', () {
     Finder keyField() => find.widgetWithText(TextField, 'Paste your key');
 
-    setUp(() => store = SettingsStore.inMemory({'developerMode': 'true'}));
-
     /// Scrolls down to the AI Coach section, at the bottom.
-    Future<void> toKeyCard(WidgetTester tester) => reveal(tester, find.text('AI Coach key (Gemini)'));
+    Future<void> toKeyCard(WidgetTester tester) =>
+        reveal(tester, find.text('AI Coach key (Gemini)'));
 
     testWidgets('a saved key is masked, and can be shown', (tester) async {
       await pumpSettings(tester);
@@ -155,10 +154,22 @@ void main() {
       expect(find.text('Test key'), findsOneWidget);
     });
 
+    testWidgets('the Key removed snack bar goes away by itself', (tester) async {
+      await pumpSettings(tester);
+      await reveal(tester, find.text('Remove'));
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+      expect(find.text('Key removed'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      expect(find.text('Key removed'), findsNothing);
+    });
+
     testWidgets('without a key the steps are open, with links', (tester) async {
       keys = MemoryGeminiKeyStorage();
       await pumpSettings(tester);
-      await reveal(tester, find.text('About the free-tier limits'));
+      await reveal(tester, find.text('About Google’s free limits'));
       expect(find.text('How to get a free key'), findsOneWidget);
       expect(find.text('aistudio.google.com/apikey'), findsOneWidget);
     });
@@ -182,17 +193,20 @@ void main() {
     expect(container.read(hapticsEnabledProvider), isFalse);
   });
 
-  testWidgets('the AI Coach key setup shows only in developer mode', (tester) async {
-    final container = await pumpSettings(tester);
-    final developer = find.widgetWithText(SwitchListTile, 'Developer mode');
-    await reveal(tester, developer);
-    expect(find.text('AI Coach key (Gemini)'), findsNothing, reason: 'hidden by default');
-
-    await tester.tap(developer);
-    await tester.pumpAndSettle();
-    expect(container.read(developerModeProvider), isTrue);
+  testWidgets('the AI Coach key is in its own section, with why it is free', (tester) async {
+    await pumpSettings(tester);
     await reveal(tester, find.text('AI Coach key (Gemini)'));
+    expect(find.text('Developer mode'), findsNothing);
     expect(find.textContaining('dart-define'), findsNothing, reason: 'no build details');
+
+    await reveal(tester, find.text('Why a key? Is it really free?'));
+    await tester.tap(find.text('Why a key? Is it really free?'));
+    await tester.pumpAndSettle();
+    expect(find.text('Is it really free?'), findsOneWidget);
+    expect(find.text('Turn on AI coach'), findsNothing, reason: 'already in Settings');
+    await tester.tap(find.text('Got it'));
+    await tester.pumpAndSettle();
+    expect(find.text('Is it really free?'), findsNothing);
   });
 
   testWidgets('picking a board theme and a mode', (tester) async {

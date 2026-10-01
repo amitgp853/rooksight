@@ -57,13 +57,16 @@ class _SheetFrame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final media = MediaQuery.of(context);
     return Container(
       width: double.infinity,
+      // Never past the status bar: a taller sheet scrolls inside.
+      constraints: BoxConstraints(maxHeight: media.size.height - media.padding.top - 24),
       padding: EdgeInsets.fromLTRB(
         AppSpacing.gutter,
         10,
         AppSpacing.gutter,
-        28 + MediaQuery.paddingOf(context).bottom,
+        28 + media.padding.bottom,
       ),
       decoration: BoxDecoration(
         color: colors.bgRaised,
@@ -88,7 +91,7 @@ class _SheetFrame extends StatelessWidget {
               ),
             ),
           ),
-          child,
+          Flexible(child: child),
         ],
       ),
     );

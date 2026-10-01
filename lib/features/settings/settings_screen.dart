@@ -22,11 +22,15 @@ import '../../core/widgets/segmented_switch.dart';
 import '../import/domain/importer.dart' show ImportPlatform;
 import '../scan/domain/scan_usage.dart';
 import '../import/import_controller.dart';
+import 'widgets/ai_setup_sheet.dart';
 
 /// Settings (`design/source/Settings.dc.html`). Sound, reduced motion and
 /// review depth aren't in the design; they follow its card style.
 class SettingsScreen extends ConsumerWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.showAi = false});
+
+  /// Opened to set up the AI: scrolls to the AI Coach key.
+  final bool showAi;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,6 +42,10 @@ class SettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(AppSpacing.s4, AppSpacing.s2, AppSpacing.s4, 32),
         children: [
           const _Section(title: 'Game import', child: _ImportCard()),
+          _Section(
+            title: 'AI Coach',
+            child: _AiCoachCard(scrollTo: showAi),
+          ),
           const _Section(title: 'Board theme', child: _BoardThemes()),
           _Section(
             title: 'Appearance',
@@ -57,18 +65,6 @@ class SettingsScreen extends ConsumerWidget {
           // Only builds that send usage stats offer to stop them.
           if (ApiKeys.hasTelemetryDeck) const _Section(title: 'Privacy', child: _UsageStats()),
           const _Section(title: 'Support Rooksight', child: _SupportCard()),
-          _Section(
-            title: 'Developer',
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 10,
-              children: [
-                const _DeveloperCard(),
-                // The Gemini key is a developer setting.
-                if (ref.watch(developerModeProvider)) const _AiCoachCard(),
-              ],
-            ),
-          ),
           Text(
             '${AppInfo.name} ${AppInfo.version} · Stockfish runs on your device',
             textAlign: TextAlign.center,
@@ -254,8 +250,12 @@ class _UsernameRowState extends ConsumerState<_UsernameRow> {
 /// Where a key test stands.
 enum _KeyTest { untested, testing, works, failed }
 
+/// The player's own Gemini key, which the AI features run on.
 class _AiCoachCard extends ConsumerStatefulWidget {
-  const _AiCoachCard();
+  const _AiCoachCard({required this.scrollTo});
+
+  /// Scrolls into view once built.
+  final bool scrollTo;
 
   @override
   ConsumerState<_AiCoachCard> createState() => _AiCoachCardState();
@@ -271,6 +271,11 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
   void initState() {
     super.initState();
     _input.addListener(() => setState(() {}));
+    if (widget.scrollTo) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) Scrollable.ensureVisible(context, alignment: 0.1);
+      });
+    }
   }
 
   @override
@@ -305,6 +310,8 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
       ..showSnackBar(
         SnackBar(
           content: const Text('Key removed'),
+          // With an action, Flutter keeps a snack bar up until it's tapped.
+          persist: false,
           action: removed == null
               ? null
               : SnackBarAction(
@@ -360,6 +367,28 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
             Expanded(child: Text('AI Coach key (Gemini)', style: _fieldLabel(context))),
             if (saved != null && _test == _KeyTest.works) const _KeyWorks(),
           ],
+        ),
+        Text(
+          saved == null
+              ? 'Free. Ask the coach about your games, see your mistakes explained in plain '
+                    'words, and scan a board from a photo.'
+              : 'Ask the coach about your games, see your mistakes explained in plain words, '
+                    'and scan a board from a photo.',
+          style: _help(context),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: () => showAiSetupSheet(context, ref, inSettings: true),
+            style: TextButton.styleFrom(
+              minimumSize: const Size(0, 36),
+              padding: EdgeInsets.zero,
+              foregroundColor: colors.focus,
+              textStyle: type.body.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+            icon: const Icon(Icons.info_outline_rounded, size: 18),
+            label: const Text('Why a key? Is it really free?'),
+          ),
         ),
         if (saved == null) ...[
           TextField(
@@ -812,60 +841,47 @@ class _KeySteps extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Open aistudio.google.com and sign in with a Google account.',
+                      'Open Google’s AI website and sign in with your Google account.',
                       style: _help(context),
                     ),
                     const _Link('aistudio.google.com/apikey', studio),
                   ],
                 ),
               ),
-              step(2, Text('Tap “Get API key”, then “Create API key”.', style: _help(context))),
-              step(3, Text('Copy the key, come back here and tap Paste.', style: _help(context))),
+              step(
+                2,
+                Text(
+                  'Tap “Get API key”, then “Create API key”. If Google asks you to accept its '
+                  'terms, tap Accept.',
+                  style: _help(context),
+                ),
+              ),
+              step(
+                3,
+                Text(
+                  'Copy the key, come back here and tap the paste button in the box above.',
+                  style: _help(context),
+                ),
+              ),
               step(
                 4,
                 Text(
-                  'Tap Save key, then Test key. You should see “Key works”.',
+                  '${AppInfo.name} checks it for you. You’ll see “Key works”.',
                   style: _help(context),
                 ),
               ),
               Text(
-                'The free tier has per-minute and daily request limits. Rooksight sends one '
-                'request per explanation, so everyday use normally fits. Google can change '
-                'these limits; check AI Studio for today’s numbers.',
+                'Covers normal daily use. If you reach the limit, it works again the next day.',
                 style: _help(context),
               ),
               const Align(
                 alignment: Alignment.centerLeft,
-                child: _Link('About the free-tier limits', limits),
+                child: _Link('About Google’s free limits', limits),
               ),
             ],
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Developer mode: off by default. When on, the AI Coach section (the
-/// Gemini key) appears below it.
-class _DeveloperCard extends ConsumerWidget {
-  const _DeveloperCard();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return _Card(
-      children: [
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text('Developer mode', style: _fieldLabel(context)),
-          subtitle: Text(
-            'Shows advanced settings, including your own AI Coach key.',
-            style: _help(context),
-          ),
-          value: ref.watch(developerModeProvider),
-          onChanged: ref.read(developerModeProvider.notifier).set,
-        ),
-      ],
     );
   }
 }

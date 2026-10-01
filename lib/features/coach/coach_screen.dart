@@ -22,6 +22,7 @@ import '../play/domain/pgn_import.dart';
 import '../play/widgets/result_copy.dart' show moveLabel;
 import '../review/domain/game_analysis.dart';
 import '../review/domain/position_eval.dart';
+import '../settings/widgets/ai_setup_sheet.dart';
 import 'chats.dart';
 import 'chats_screen.dart';
 import 'coach_controller.dart';
@@ -260,8 +261,7 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
 
     // Why the composer is off, if it is.
     final String? blocked = !hasKey
-        ? 'The AI Coach isn’t set up on this phone yet. Add your key in Settings › Developer '
-              'mode.'
+        ? 'Turn on the AI coach once, for free.'
         : state.isFull
         ? 'Context memory is full. Please start a new chat.'
         : offline
@@ -314,7 +314,9 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
                     : state.isFull
                     ? Icons.inventory_2_outlined
                     : Icons.wifi_off_rounded,
-                action: state.isFull
+                action: !hasKey
+                    ? const _SetUpAction()
+                    : state.isFull
                     ? NewChatPill(onPressed: _newChat)
                     : offline && hasKey
                     ? TextButton(
@@ -583,6 +585,22 @@ class _Banner extends StatelessWidget {
   }
 }
 
+/// The banner's way to turn the AI on: its ⓘ and "Turn on".
+class _SetUpAction extends StatelessWidget {
+  const _SetUpAction();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const AiInfoButton(),
+        TextButton(onPressed: () => openAiSetup(context), child: const Text('Turn on')),
+      ],
+    );
+  }
+}
+
 /// One question: the player's bubble, the coach's steps, and its answer.
 class _Turn extends StatelessWidget {
   const _Turn({required this.turn, this.onRetry});
@@ -769,7 +787,8 @@ class _Intro extends StatelessWidget {
     final colors = context.colors;
     final type = context.type;
     final text = !hasKey
-        ? 'The AI Coach isn’t set up on this device yet.'
+        ? 'Ask about your games and get answers you can trust: a chess engine checks every '
+              'move. Turn it on once, for free, in about 2 minutes.'
         : withGame
         ? 'Ask anything about this game. The AI Coach sees every move and checks each one '
               'it mentions with Stockfish.'
@@ -806,6 +825,7 @@ class _Intro extends StatelessWidget {
                   ],
                 ),
               ),
+              if (!hasKey) const Center(child: AiSetupActions()),
               // Hidden with a game attached: this chat is about that game.
               if (!withGame) const _PickUp(),
               if (hasKey)

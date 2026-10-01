@@ -59,6 +59,9 @@ abstract final class Routes {
   static const games = '/games';
   static const settings = '/settings';
 
+  /// Settings, scrolled to the AI Coach key.
+  static const settingsAi = '/settings?section=ai';
+
   /// The review of a game, opened [ply] moves in (at the end by default).
   static String review(String gameId, {int? ply}) =>
       ply == null ? '/review/$gameId' : '/review/$gameId?ply=$ply';
@@ -163,7 +166,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           return GamesScreen(title: query['title'], only: GamesScreen.parseIds(query['ids']));
         },
       ),
-      GoRoute(path: Routes.settings, builder: (context, state) => const SettingsScreen()),
+      GoRoute(
+        path: Routes.settings,
+        builder: (context, state) =>
+            SettingsScreen(showAi: state.uri.queryParameters['section'] == 'ai'),
+      ),
     ],
   );
   ref.onDispose(router.dispose);

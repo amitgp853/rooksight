@@ -118,7 +118,8 @@ void main() {
   testWidgets('without a key it says so and can\'t send', (tester) async {
     hasKey = false;
     await pumpCoach(tester);
-    expect(find.text('The AI Coach isn’t set up on this device yet.'), findsOneWidget);
+    expect(find.textContaining('Turn it on once, for free'), findsOneWidget);
+    expect(find.text('Turn on AI coach (free)'), findsOneWidget);
     expect(find.textContaining('.env'), findsNothing, reason: 'no developer wording');
     expect(find.text('Why do I keep losing?'), findsNothing);
     await tester.enterText(find.byType(TextField), 'Hello?');

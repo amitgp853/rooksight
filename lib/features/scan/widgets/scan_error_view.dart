@@ -279,19 +279,19 @@ ScanErrorCopy scanErrorCopy(ScanFailure failure) => switch (failure.kind) {
     coral: false,
   ),
   ScanFailureKind.noKey => (
-    title: 'Scanning needs your AI Coach key',
+    title: 'Scanning needs the AI coach',
     body:
-        'Board scans are read by Gemini using your own key. Add one in Settings › Developer '
-        'mode, or set the position up by hand.',
+        'The AI reads the board from your photo. Turn it on once, for free, in about 2 '
+        'minutes. Or set the position up by hand.',
     tips: const [],
     photoBadge: null,
     icon: Icons.key_rounded,
     coral: false,
   ),
   ScanFailureKind.invalidKey => (
-    title: 'Your AI Coach key was rejected',
+    title: 'Your AI key didn’t work',
     body:
-        'Gemini didn’t accept the key. Check it in Settings › Developer mode, or set the '
+        'Google didn’t accept the key. Check it in Settings › AI Coach, or set the '
         'position up by hand.',
     tips: const [],
     photoBadge: null,

@@ -240,7 +240,7 @@ void main() {
 
       await tester.tap(find.text('Scan board'));
       await tester.pumpAndSettle();
-      expect(find.text('Scanning needs your AI Coach key'), findsOneWidget);
+      expect(find.text('Scanning needs the AI coach'), findsOneWidget);
 
       await tester.tap(find.text('Set up the position by hand'));
       await tester.pumpAndSettle();

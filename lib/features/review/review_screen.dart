@@ -1,3 +1,4 @@
+import '../settings/widgets/ai_setup_sheet.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -1480,7 +1481,12 @@ class _ExplainPanel extends ConsumerWidget {
             'Want these explained in plain words?',
             style: type.body.copyWith(fontWeight: FontWeight.w600),
           ),
-          Text('AI explanations aren’t set up on this device yet.', style: caption),
+          Text(
+            'Turn on the free AI coach once, and every review can explain your mistakes in '
+            'plain words.',
+            style: caption,
+          ),
+          const Align(alignment: Alignment.centerLeft, child: AiSetupActions()),
         ]);
       case ExplainPhase.none:
         return panel([

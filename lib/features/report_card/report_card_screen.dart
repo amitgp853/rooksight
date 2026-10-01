@@ -10,6 +10,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../review/domain/game_analysis.dart';
 import '../review/review_controller.dart';
+import '../settings/widgets/ai_setup_sheet.dart';
 import 'data/image_sharer.dart';
 import 'domain/game_report.dart';
 import 'widgets/report_card.dart';
@@ -274,7 +275,21 @@ class _AiVerdict extends ConsumerWidget {
     final caption = type.label.copyWith(color: colors.textSecondary, fontWeight: FontWeight.w400);
     final player = state.saved!.record.playerSide;
     final hasMoments = state.analysis!.keyMoments(player).isNotEmpty;
-    if (!ref.watch(llmConfiguredProvider) || !hasMoments) return const SizedBox.shrink();
+    if (!hasMoments) return const SizedBox.shrink();
+    if (!ref.watch(llmConfiguredProvider)) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 6,
+        children: [
+          const AiSetupActions(),
+          Text(
+            'Turn on the free AI coach for a one-line verdict on this game',
+            textAlign: TextAlign.center,
+            style: caption.copyWith(fontSize: 12, color: colors.textTertiary),
+          ),
+        ],
+      );
+    }
 
     return switch (state.explainPhase) {
       ExplainPhase.running => Row(

@@ -1,3 +1,4 @@
+import '../settings/widgets/ai_setup_sheet.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -11,7 +12,6 @@ import '../../core/analytics/analytics.dart';
 import '../../core/llm/gemini_client.dart';
 import '../../core/motion/reduce_motion.dart';
 import '../../core/routing/app_router.dart';
-import '../../core/settings/display_settings.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/dialog_buttons.dart';
 import 'domain/board_reader.dart';
@@ -334,8 +334,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   void _byHand() => context.push(Routes.scanCheck, extra: const ScanCheckArgs(edit: true));
 
   Future<void> _addKey(_Failed failed) async {
-    ref.read(developerModeProvider.notifier).set(true);
-    await context.push(Routes.settings);
+    await openAiSetup(context);
     if (!mounted || !ref.read(llmConfiguredProvider)) return;
     // Key added: carry on with the photo.
     final photo = failed.photo;
@@ -376,7 +375,12 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       ),
       ScanFailureKind.offline => (byHand, again),
       ScanFailureKind.noKey || ScanFailureKind.invalidKey => (
-        (label: 'Add key in Settings', onPressed: () => _addKey(failed)),
+        (
+          label: failed.failure.kind == ScanFailureKind.noKey
+              ? 'Turn on AI coach'
+              : 'Check key in Settings',
+          onPressed: () => _addKey(failed),
+        ),
         byHand,
       ),
       ScanFailureKind.limit ||

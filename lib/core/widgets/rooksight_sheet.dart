@@ -17,9 +17,10 @@ Future<T?> showRooksightSheet<T>(
   required bool reduceMotion,
   required WidgetBuilder builder,
 }) {
-  // Read here: inside a bottom sheet Flutter drops the top padding, so the
-  // sheet can't see the status bar or the Dynamic Island.
-  final topInset = MediaQuery.paddingOf(context).top;
+  // From the screen itself: a SafeArea around the caller, or the sheet's
+  // own route, hides the top padding, and with it the status bar or the
+  // Dynamic Island.
+  final topInset = MediaQueryData.fromView(View.of(context)).padding.top;
   if (reduceMotion) {
     return showGeneralDialog<T>(
       context: context,

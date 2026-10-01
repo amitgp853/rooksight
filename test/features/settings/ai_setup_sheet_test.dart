@@ -21,7 +21,10 @@ void main() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (_, _) => const Scaffold(body: Center(child: AiSetupActions())),
+          // In a SafeArea, as on the real screens.
+          builder: (_, _) => const Scaffold(
+            body: SafeArea(child: Center(child: AiSetupActions())),
+          ),
         ),
         GoRoute(
           path: Routes.settings,

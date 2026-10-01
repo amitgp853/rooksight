@@ -7,7 +7,8 @@ then come back to that chat later. Every move the AI mentions is checked against
 engine and the rules before you see it.
 
 Flutter · Android and iOS · no login, no backend, free to run ·
-[support it on Ko-fi](https://ko-fi.com/amitgp853).
+[support it on Ko-fi](https://ko-fi.com/amitgp853) · if you like it,
+[give it a ⭐ on GitHub](https://github.com/amitgp853/rooksight).
 
 <p align="center">
   <img src="design/banner.png" alt="Rooksight: play Stockfish, scan a board, review your games, ask the AI Coach">
@@ -260,9 +261,15 @@ The piece set and the logo, the analyst's rook, are custom.
 
 ## Support
 
-Rooksight is free, open source and has no ads. If it has helped you improve at
-chess, you can [buy me a coffee on Ko-fi](https://ko-fi.com/amitgp853). The same
-link is in the app under **Settings → Support Rooksight**. Thank you!
+Rooksight is free, open source and has no ads. If you like it:
+
+- **Star the repo.** A ⭐ [on GitHub](https://github.com/amitgp853/rooksight) costs
+  nothing and helps other chess players find it.
+- **Buy me a coffee.** If it has helped you improve at chess, you can
+  [support it on Ko-fi](https://ko-fi.com/amitgp853). The same link is in the app
+  under **Settings → Support Rooksight**.
+
+Thank you!
 
 ## Licence
 

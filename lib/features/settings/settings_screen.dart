@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/analytics/analytics.dart';
 import '../../core/board/rooksight_board.dart';
+import '../../core/backend/backend.dart';
 import '../../core/config/api_keys.dart';
 import '../../core/config/app_info.dart';
 import '../../core/llm/gemini_client.dart';
@@ -44,7 +45,14 @@ class SettingsScreen extends ConsumerWidget {
           const _Section(title: 'Game import', child: _ImportCard()),
           _Section(
             title: 'AI Coach',
-            child: _AiCoachCard(scrollTo: showAi),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 10,
+              children: [
+                if (ref.watch(llmViaServerProvider)) const _AiAllowanceCard(),
+                _AiCoachCard(scrollTo: showAi),
+              ],
+            ),
           ),
           const _Section(title: 'Board theme', child: _BoardThemes()),
           _Section(
@@ -131,6 +139,39 @@ class _Card extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Free AI uses left this week, when the AI runs through Rooksight's
+/// server. Not in the design; follows its card style.
+class _AiAllowanceCard extends ConsumerWidget {
+  const _AiAllowanceCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _Card(
+      children: [
+        Text('Free AI uses this week', style: _fieldLabel(context)),
+        Text(switch (ref.watch(aiAllowanceProvider)) {
+          AsyncData(:final value?) => allowanceText(value),
+          AsyncError() => 'Couldn’t check right now.',
+          _ => 'Checking…',
+        }, style: _help(context)),
+      ],
+    );
+  }
+}
+
+/// "Game reviews: 2 of 3 · …", then when they come back, credits and any
+/// pause.
+@visibleForTesting
+String allowanceText(AiAllowance allowance) {
+  String count(LlmActionKind kind, String name) =>
+      '$name: ${allowance.free[kind]} of ${allowance.freePerWeek[kind]}';
+  return [
+    '${[count(LlmActionKind.review, 'Game reviews'), count(LlmActionKind.scan, 'Board scans'), count(LlmActionKind.coach, 'Coach questions')].join(' · ')}. They come back each Monday.',
+    if (allowance.credits > 0) 'Credits: ${allowance.credits}.',
+    if (allowance.paused) 'Free uses are paused for the rest of today.',
+  ].join(' ');
 }
 
 TextStyle _fieldLabel(BuildContext context) =>
@@ -345,6 +386,7 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
     final colors = context.colors;
     final type = context.type;
     final saved = ref.watch(savedGeminiKeyProvider);
+    final server = ref.watch(backendProvider) != null && saved == null;
     final field = BoxDecoration(
       color: colors.bgElevated,
       borderRadius: AppRadius.smAll,
@@ -364,12 +406,20 @@ class _AiCoachCardState extends ConsumerState<_AiCoachCard> {
       children: [
         Row(
           children: [
-            Expanded(child: Text('AI Coach key (Gemini)', style: _fieldLabel(context))),
+            Expanded(
+              child: Text(
+                server ? 'Your own Gemini key (optional)' : 'AI Coach key (Gemini)',
+                style: _fieldLabel(context),
+              ),
+            ),
             if (saved != null && _test == _KeyTest.works) const _KeyWorks(),
           ],
         ),
         Text(
-          saved == null
+          server
+              ? 'With your own free key, the AI has no weekly limit here. Ask the coach about '
+                    'your games, see your mistakes explained, and scan a board from a photo.'
+              : saved == null
               ? 'Free. Ask the coach about your games, see your mistakes explained in plain '
                     'words, and scan a board from a photo.'
               : 'Ask the coach about your games, see your mistakes explained in plain words, '

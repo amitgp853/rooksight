@@ -379,6 +379,84 @@ void main() {
     });
   });
 
+  group('through Rooksight\'s server', () {
+    GeminiClient proxy(MockClient client) => GeminiClient.proxy(
+      endpoint: Uri.parse('https://us-central1-rooksight.cloudfunctions.net/ai/'),
+      authHeaders: () async => {'Authorization': 'Bearer id', 'X-Firebase-AppCheck': 'check'},
+      model: 'gemini-test',
+      client: client,
+      wait: (_) async {},
+    );
+
+    test('posts to the server with sign-in and action headers, never a key', () async {
+      late http.Request sent;
+      final client = proxy(
+        MockClient((r) async {
+          sent = r;
+          return reply(
+            answer([
+              {'text': 'ok'},
+            ]),
+          );
+        }),
+      );
+
+      const action = LlmAction(LlmActionKind.coach, 'abcdef0123456789');
+      await client.generate(const LlmRequest(messages: [LlmMessage.user('Hi')], action: action));
+      expect(
+        sent.url.toString(),
+        'https://us-central1-rooksight.cloudfunctions.net/ai/models/gemini-test:generateContent',
+      );
+      expect(sent.headers['Authorization'], 'Bearer id');
+      expect(sent.headers['X-Firebase-AppCheck'], 'check');
+      expect(sent.headers['X-Rooksight-Action'], 'coach:abcdef0123456789');
+      expect(sent.headers, isNot(contains('x-goog-api-key')));
+    });
+
+    Future<void> expectFailure(http.Response response, Matcher matcher) =>
+        expectLater(proxy(MockClient((_) async => response)).generate(request), throwsA(matcher));
+
+    test('no free uses or credits left', () {
+      return expectFailure(
+        reply({
+          'error': {'code': 402, 'status': 'OUT_OF_USES'},
+        }, 402),
+        isA<LlmOutOfUses>(),
+      );
+    });
+
+    test('paused for today', () {
+      return expectFailure(
+        reply({
+          'error': {'code': 402, 'status': 'PAUSED'},
+        }, 402),
+        isA<LlmPaused>(),
+      );
+    });
+
+    test('a refused sign-in is not a bad key', () {
+      return expectFailure(reply({}, 401), isA<LlmUnavailable>());
+    });
+
+    test('a sign-in failure stops the request', () {
+      final client = GeminiClient.proxy(
+        endpoint: Uri.parse('https://example.com/ai/'),
+        authHeaders: () async => throw const LlmOffline(),
+        model: 'm',
+        client: MockClient((_) async => fail('nothing should be sent')),
+      );
+      return expectLater(client.generate(request), throwsA(isA<LlmOffline>()));
+    });
+  });
+
+  test('a new action gets a fresh 32-character id each time', () {
+    final first = LlmAction.start(LlmActionKind.scan);
+    final second = LlmAction.start(LlmActionKind.scan);
+    expect(first.id, matches(RegExp(r'^[0-9a-f]{32}$')));
+    expect(first.id, isNot(second.id));
+    expect(first.header, 'scan:${first.id}');
+  });
+
   group('usage', () {
     test('the tokens a reply used are read from its metadata', () {
       final parsed = GeminiClient.parseReply(

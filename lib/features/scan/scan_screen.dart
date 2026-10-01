@@ -384,7 +384,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
         byHand,
       ),
       ScanFailureKind.limit ||
-      ScanFailureKind.dailyCap => (byHand, (label: 'OK', onPressed: _close)),
+      ScanFailureKind.dailyCap ||
+      ScanFailureKind.outOfUses ||
+      ScanFailureKind.paused => (byHand, (label: 'OK', onPressed: _close)),
       ScanFailureKind.failed => (again, byHand),
     };
   }

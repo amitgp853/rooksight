@@ -64,6 +64,12 @@ enum ScanFailureKind {
 
   /// The app's own daily scan limit (see `ScanUsage`).
   dailyCap,
+
+  /// This week's free scans are used and there are no credits left.
+  outOfUses,
+
+  /// Rooksight's server has paused AI use for today.
+  paused,
 }
 
 class ScanFailure implements Exception {
@@ -120,6 +126,8 @@ class BoardReader {
     final steps = <ScanStep>[const ScanStep('Finding the board…')];
     void report() => onSteps(List.unmodifiable(steps));
     report();
+    // The first look and the second are one scan.
+    final action = LlmAction.start(LlmActionKind.scan);
 
     final reading = await _ask(
       LlmRequest(
@@ -130,6 +138,7 @@ class BoardReader {
         jsonSchema: _readSchema,
         temperature: 0.1,
         light: true,
+        action: action,
       ),
     );
     if (cancelled()) return null;
@@ -228,6 +237,7 @@ class BoardReader {
         jsonSchema: _recheckSchema,
         temperature: 0.1,
         mediaResolution: closeUp == null ? null : resolutionFor(box),
+        action: action,
       ),
     );
     if (cancelled()) return null;
@@ -330,6 +340,10 @@ class BoardReader {
       throw const ScanFailure(ScanFailureKind.invalidKey);
     } on LlmRateLimited {
       throw const ScanFailure(ScanFailureKind.limit);
+    } on LlmOutOfUses {
+      throw const ScanFailure(ScanFailureKind.outOfUses);
+    } on LlmPaused {
+      throw const ScanFailure(ScanFailureKind.paused);
     } on LlmOffline {
       throw const ScanFailure(ScanFailureKind.offline);
     } on LlmFailure {

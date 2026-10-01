@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// Only the backend (the Admin SDK, which skips these rules) reads or writes
+// the database. The app never touches it directly, so players can't give
+// themselves credits.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

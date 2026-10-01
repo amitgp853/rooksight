@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 
 /// One turn of a conversation with a language model.
@@ -95,6 +97,31 @@ enum LlmToolMode {
   none,
 }
 
+/// The things a player can ask the AI for, each paid for once however many
+/// model calls it makes.
+enum LlmActionKind { review, scan, coach }
+
+/// One review, scan or coach question. Every request it makes carries it, so
+/// Rooksight's server charges the first and lets the rest through.
+@immutable
+class LlmAction {
+  const LlmAction(this.kind, this.id);
+
+  /// A new action with a random id.
+  LlmAction.start(this.kind) : id = _randomId();
+
+  final LlmActionKind kind;
+  final String id;
+
+  /// `<kind>:<id>`, as the server reads it.
+  String get header => '${kind.name}:$id';
+
+  static final _random = Random.secure();
+
+  static String _randomId() =>
+      [for (var i = 0; i < 16; i++) _random.nextInt(256).toRadixString(16).padLeft(2, '0')].join();
+}
+
 /// A request to a language model. [jsonSchema] asks for JSON matching it.
 @immutable
 class LlmRequest {
@@ -107,7 +134,11 @@ class LlmRequest {
     this.toolMode = LlmToolMode.auto,
     this.mediaResolution,
     this.light = false,
+    this.action,
   });
+
+  /// What the player asked for, when it's paid for per use (see [LlmAction]).
+  final LlmAction? action;
 
   /// A quick, simple task (reading a photo, not reasoning about chess): the
   /// provider's lighter, faster model first, its usual one if that fails.
@@ -203,6 +234,18 @@ class LlmInvalidKey extends LlmFailure {
 /// Too many requests (e.g. the free tier's limit).
 class LlmRateLimited extends LlmFailure {
   const LlmRateLimited();
+}
+
+/// This week's free uses of the feature are gone, and there are no credits
+/// left to pay for it.
+class LlmOutOfUses extends LlmFailure {
+  const LlmOutOfUses();
+}
+
+/// Rooksight's server has paused AI use for the rest of the day (its daily
+/// spend limit).
+class LlmPaused extends LlmFailure {
+  const LlmPaused();
 }
 
 /// No connection, or no answer in time.

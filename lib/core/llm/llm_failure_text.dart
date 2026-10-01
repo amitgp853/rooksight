@@ -6,6 +6,8 @@ String llmFailureText(Object? failure) => switch (failure) {
     'The AI coach isn’t turned on yet. Turn it on for free in Settings › AI Coach.',
   LlmInvalidKey() => 'The AI key was rejected, so AI features aren’t available right now.',
   LlmRateLimited() => 'The AI limit is used up for now. Try again in a minute or two.',
+  LlmOutOfUses() => 'You’ve used this week’s free AI uses. They come back on Monday.',
+  LlmPaused() => 'The AI is resting for the rest of today. Try again tomorrow.',
   LlmOffline() => 'Couldn’t reach the AI. Check your connection.',
   _ => 'The AI didn’t give a usable answer.',
 };

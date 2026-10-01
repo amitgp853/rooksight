@@ -59,3 +59,8 @@ CLAUDE.md
 
 # Design handoff and prompts: local only
 docs/
+
+# Firebase CLI
+.firebase/
+firebase-debug.log
+firestore-debug.log

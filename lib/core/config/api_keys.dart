@@ -41,6 +41,12 @@ abstract final class ApiKeys {
     defaultValue: 'low',
   );
 
+  /// A Firebase App Check debug token, so debug builds (which can't pass
+  /// Play Integrity or App Attest) may use Rooksight's server. Register it in
+  /// the Firebase console under App Check › Manage debug tokens. Empty: the
+  /// SDK makes one and prints it to the log.
+  static const appCheckDebugToken = String.fromEnvironment('APP_CHECK_DEBUG_TOKEN');
+
   /// TelemetryDeck, for anonymous usage counts (see `core/analytics`). Both
   /// come from the TelemetryDeck dashboard. Without them nothing is sent.
   static const telemetryDeckAppId = String.fromEnvironment('TELEMETRYDECK_APP_ID');

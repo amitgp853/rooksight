@@ -6,12 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
+import '../backend/backend.dart';
 import '../config/api_keys.dart';
 import '../config/remote_config.dart';
 import 'gemini_key.dart';
 import 'llm_client.dart';
 
-/// Gemini over its REST API (`generateContent`), using the user's own key.
+/// Gemini over its REST API (`generateContent`): straight to Google with the
+/// player's own key, or through Rooksight's server ([GeminiClient.proxy]),
+/// which holds the developer's key and charges each [LlmAction].
 ///
 /// Brief failures (server errors, timeouts, dropped connections, short rate
 /// limits) are retried with exponential backoff and jitter, up to
@@ -25,6 +28,54 @@ import 'llm_client.dart';
 class GeminiClient implements LlmClient {
   GeminiClient({
     required String apiKey,
+    required String model,
+    List<String> fallbackModels = const [],
+    String? thinkingLevel,
+    String? lightModel,
+    http.Client? client,
+    Future<void> Function(Duration)? wait,
+    Random? random,
+  }) : this._(
+         apiKey: apiKey,
+         endpoint: _google,
+         model: model,
+         fallbackModels: fallbackModels,
+         thinkingLevel: thinkingLevel,
+         lightModel: lightModel,
+         client: client,
+         wait: wait,
+         random: random,
+       );
+
+  /// Through Rooksight's server at [endpoint], which mirrors Gemini's API:
+  /// [authHeaders] identify the app and player instead of a key.
+  GeminiClient.proxy({
+    required Uri endpoint,
+    required Future<Map<String, String>> Function() authHeaders,
+    required String model,
+    List<String> fallbackModels = const [],
+    String? thinkingLevel,
+    String? lightModel,
+    http.Client? client,
+    Future<void> Function(Duration)? wait,
+    Random? random,
+  }) : this._(
+         apiKey: '',
+         endpoint: endpoint,
+         authHeaders: authHeaders,
+         model: model,
+         fallbackModels: fallbackModels,
+         thinkingLevel: thinkingLevel,
+         lightModel: lightModel,
+         client: client,
+         wait: wait,
+         random: random,
+       );
+
+  GeminiClient._({
+    required String apiKey,
+    required this.endpoint,
+    this.authHeaders,
     required this.model,
     this.fallbackModels = const [],
     this.thinkingLevel,
@@ -39,6 +90,13 @@ class GeminiClient implements LlmClient {
        _random = random ?? Random();
 
   final String _apiKey;
+
+  /// The base that `models/{model}:generateContent` is found under.
+  final Uri endpoint;
+
+  /// Rooksight's server's sign-in headers; null when calling Google directly.
+  final Future<Map<String, String>> Function()? authHeaders;
+
   final http.Client _client;
   final Future<void> Function(Duration) _wait;
   final Random _random;
@@ -76,8 +134,9 @@ class GeminiClient implements LlmClient {
   /// A 429 asking to wait longer than this is treated as "limit reached".
   static const maxRetryDelay = Duration(seconds: 20);
 
-  static Uri _url(String model) =>
-      Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent');
+  static final _google = Uri.parse('https://generativelanguage.googleapis.com/v1beta/');
+
+  Uri _url(String model) => endpoint.resolve('models/$model:generateContent');
 
   @override
   Future<String> generate(LlmRequest request) async {
@@ -88,20 +147,16 @@ class GeminiClient implements LlmClient {
 
   @override
   Future<LlmReply> respond(LlmRequest request) async {
-    if (_apiKey.isEmpty) throw const LlmMissingKey();
+    if (_apiKey.isEmpty && authHeaders == null) throw const LlmMissingKey();
 
-    final models = {
-      if (request.light) ?lightModel,
-      _primary,
-      ...fallbackModels,
-    }.toList();
+    final models = {if (request.light) ?lightModel, _primary, ...fallbackModels}.toList();
     for (final (i, candidate) in models.indexed) {
       final body = requestBody(
         request,
         thinkingLevel: candidate == _primary ? thinkingLevel : null,
       );
       try {
-        final reply = await _withRetries(candidate, jsonEncode(body));
+        final reply = await _withRetries(candidate, jsonEncode(body), request.action);
         model = candidate;
         if (reply.usage case final usage?) debugPrint('Gemini $candidate: $usage');
         return reply;
@@ -183,10 +238,10 @@ class GeminiClient implements LlmClient {
     };
   }
 
-  Future<LlmReply> _withRetries(String model, String body) async {
+  Future<LlmReply> _withRetries(String model, String body, LlmAction? action) async {
     for (var attempt = 1; ; attempt++) {
       try {
-        return await _attempt(model, body);
+        return await _attempt(model, body, action);
       } on _Retryable catch (retry) {
         if (attempt >= (retry.once ? 2 : maxAttempts)) throw retry.failure;
         await _wait(retry.after ?? backoff(attempt));
@@ -195,16 +250,15 @@ class GeminiClient implements LlmClient {
   }
 
   /// One request. Throws [_Retryable] for failures worth another try.
-  Future<LlmReply> _attempt(String model, String body) async {
+  Future<LlmReply> _attempt(String model, String body, LlmAction? action) async {
+    final headers = {
+      'Content-Type': 'application/json',
+      if (authHeaders case final auth?) ...await auth() else 'x-goog-api-key': _apiKey,
+      if (action != null) 'X-Rooksight-Action': action.header,
+    };
     final http.Response response;
     try {
-      response = await _client
-          .post(
-            _url(model),
-            headers: {'x-goog-api-key': _apiKey, 'Content-Type': 'application/json'},
-            body: body,
-          )
-          .timeout(_timeout);
+      response = await _client.post(_url(model), headers: headers, body: body).timeout(_timeout);
     } on TimeoutException {
       // Already a long wait: trying again would keep the player waiting more.
       throw const LlmOffline();
@@ -217,6 +271,12 @@ class GeminiClient implements LlmClient {
     switch (response.statusCode) {
       case 200:
         return parseReply(utf8.decode(response.bodyBytes));
+      // Rooksight's server didn't accept the app's sign-in: not a key problem.
+      case 401 || 403 when authHeaders != null:
+        throw LlmUnavailable('HTTP ${response.statusCode}');
+      // Rooksight's server: no free uses or credits left, or paused for today.
+      case 402:
+        throw response.body.contains('PAUSED') ? const LlmPaused() : const LlmOutOfUses();
       case 400
           when response.body.contains('API_KEY_INVALID') ||
               response.body.contains('API key not valid'):
@@ -314,21 +374,40 @@ class _Retryable implements Exception {
   final bool once;
 }
 
-/// The app's language model: Gemini with the player's key, on the models
-/// [geminiModels] picks. A new key (saved or removed in Settings) or a new
-/// remote config builds a new client.
+/// The app's language model: Gemini with the player's own key when they've
+/// added one, else through Rooksight's server, on the models [geminiModels]
+/// picks. A new key (saved or removed in Settings) or a new remote config
+/// builds a new client.
 final llmClientProvider = Provider<LlmClient>((ref) {
   final (:model, :fallbacks, :thinkingLevel) = geminiModels(
     ApiKeys.geminiModelOverridden ? null : ref.watch(remoteConfigProvider.select((c) => c.models)),
   );
+  final key = ref.watch(geminiKeyProvider);
+  final backend = ref.watch(backendProvider);
+  if (key.isEmpty && backend != null) {
+    return GeminiClient.proxy(
+      endpoint: backend.aiEndpoint,
+      authHeaders: backend.authHeaders,
+      model: model,
+      thinkingLevel: thinkingLevel,
+      fallbackModels: fallbacks,
+      lightModel: ApiKeys.geminiFallbackModel,
+    );
+  }
   return GeminiClient(
-    apiKey: ref.watch(geminiKeyProvider),
+    apiKey: key,
     model: model,
     thinkingLevel: thinkingLevel,
     fallbackModels: fallbacks,
     lightModel: ApiKeys.geminiFallbackModel,
   );
 });
+
+/// Whether AI requests go through Rooksight's server (no key of the
+/// player's own), so each use counts against their allowance.
+final llmViaServerProvider = Provider<bool>(
+  (ref) => ref.watch(geminiKeyProvider).isEmpty && ref.watch(backendProvider) != null,
+);
 
 /// The models to use: the [remote] ones where given, else the built-in ones.
 /// The built-in models always stay as fallbacks, so a remote model name that
@@ -347,5 +426,7 @@ final llmClientProvider = Provider<LlmClient>((ref) {
   );
 }
 
-/// Whether there's a key; the AI features are offered only then.
-final llmConfiguredProvider = Provider<bool>((ref) => ref.watch(geminiKeyProvider).isNotEmpty);
+/// Whether the AI features can run: with a key, or through the server.
+final llmConfiguredProvider = Provider<bool>(
+  (ref) => ref.watch(geminiKeyProvider).isNotEmpty || ref.watch(backendProvider) != null,
+);

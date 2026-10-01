@@ -318,6 +318,26 @@ ScanErrorCopy scanErrorCopy(ScanFailure failure) => switch (failure.kind) {
     icon: Icons.event_busy_rounded,
     coral: false,
   ),
+  ScanFailureKind.outOfUses => (
+    title: 'That’s this week’s free scans',
+    body:
+        'Free scans come back on Monday. You can still set the position up by hand, and '
+        'Stockfish works as usual.',
+    tips: const [],
+    photoBadge: null,
+    icon: Icons.event_busy_rounded,
+    coral: false,
+  ),
+  ScanFailureKind.paused => (
+    title: 'Scanning is resting today',
+    body:
+        'A lot of players used the AI today, so it’s paused until tomorrow. You can still set '
+        'the position up by hand, and Stockfish works as usual.',
+    tips: const [],
+    photoBadge: null,
+    icon: Icons.schedule_rounded,
+    coral: false,
+  ),
   ScanFailureKind.failed => (
     title: 'The scan didn’t work',
     body:

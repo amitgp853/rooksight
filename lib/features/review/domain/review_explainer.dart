@@ -161,6 +161,7 @@ Reply with JSON only.''';
           LlmMessage.user(prompt(record, facts, opening: namedOpening(record, analysis.game))),
         ],
         jsonSchema: schema,
+        action: LlmAction.start(LlmActionKind.review),
       ),
     );
     if (reply.usage case final usage?) {

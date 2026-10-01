@@ -147,6 +147,8 @@ Reply with JSON only:
     var toolCalls = 0;
     var llmCalls = 0;
     var usage = LlmUsage.zero;
+    // Every call for this question is one coach use.
+    final action = LlmAction.start(LlmActionKind.coach);
 
     final prompt = StringBuffer(await tools.context());
     if (tools.focus case final focus?) {
@@ -175,6 +177,7 @@ Reply with JSON only:
           tools: CoachTools.declarations,
           toolMode: mustAnswer ? LlmToolMode.none : LlmToolMode.auto,
           jsonSchema: answerSchema,
+          action: action,
         ),
       );
       llmCalls++;

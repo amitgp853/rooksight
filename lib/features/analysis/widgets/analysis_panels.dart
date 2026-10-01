@@ -56,23 +56,30 @@ class WdlStrip extends ConsumerWidget {
                     color: const Color(0xFF1E2530),
                     border: Border.all(color: colors.bgElevated),
                   ),
+                  // White drawn over white-plus-draw, both from the left: the
+                  // two animate separately, and side by side their widths
+                  // could briefly add up to more than the bar.
                   child: LayoutBuilder(
-                    builder: (context, constraints) => Row(
-                      children: [
-                        AnimatedContainer(
-                          duration: duration,
-                          curve: Curves.easeOutCubic,
-                          width: constraints.maxWidth * (w?.white ?? 0) / 100,
-                          color: const Color(0xFFEEF1F5),
-                        ),
-                        AnimatedContainer(
-                          duration: duration,
-                          curve: Curves.easeOutCubic,
-                          width: constraints.maxWidth * (w?.draw ?? 0) / 100,
-                          color: const Color(0xFF7C8898),
-                        ),
-                      ],
-                    ),
+                    builder: (context, constraints) {
+                      double width(int percent) =>
+                          constraints.maxWidth * percent.clamp(0, 100) / 100;
+                      return Stack(
+                        children: [
+                          AnimatedContainer(
+                            duration: duration,
+                            curve: Curves.easeOutCubic,
+                            width: width((w?.white ?? 0) + (w?.draw ?? 0)),
+                            color: const Color(0xFF7C8898),
+                          ),
+                          AnimatedContainer(
+                            duration: duration,
+                            curve: Curves.easeOutCubic,
+                            width: width(w?.white ?? 0),
+                            color: const Color(0xFFEEF1F5),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),

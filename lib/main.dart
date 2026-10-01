@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'app.dart';
+import 'core/backend/backend.dart';
 import 'core/board/board_style.dart';
 import 'core/llm/gemini_key.dart';
 import 'core/storage/database.dart';
@@ -19,10 +20,11 @@ Future<void> main() async {
   final database = AppDatabase();
   final keyStorage = SecureGeminiKeyStorage();
   // Settings load before the first frame, so the saved theme shows at once.
-  final (settings, geminiKey, package, _) = await (
+  final (settings, geminiKey, package, backend, _) = await (
     SettingsStore.load(database),
     keyStorage.read(),
     PackageInfo.fromPlatform(),
+    Backend.start(),
     precachePieces(),
   ).wait;
 
@@ -34,6 +36,7 @@ Future<void> main() async {
         geminiKeyStorageProvider.overrideWithValue(keyStorage),
         savedGeminiKeyAtStartProvider.overrideWithValue(geminiKey),
         appBuildProvider.overrideWithValue(int.tryParse(package.buildNumber) ?? 0),
+        backendProvider.overrideWithValue(backend),
       ],
       child: const RooksightApp(),
     ),

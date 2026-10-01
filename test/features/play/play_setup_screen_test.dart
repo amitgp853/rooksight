@@ -97,11 +97,11 @@ void main() {
       expect(container.read(unfinishedGameProvider), isNotNull);
     });
 
-    testWidgets('Start new game drops it and starts', (tester) async {
+    testWidgets('Start new drops it and starts', (tester) async {
       final (container, _) = await pumpWithSavedGame(tester);
       await tester.tap(find.text('Start game'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Start new game'));
+      await tester.tap(find.text('Start new'));
       await tester.pumpAndSettle();
       expect(find.text('game started'), findsOneWidget);
       expect(container.read(unfinishedGameProvider), isNull);

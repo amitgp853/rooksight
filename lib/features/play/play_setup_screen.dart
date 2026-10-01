@@ -68,7 +68,7 @@ class _PlaySetupScreenState extends ConsumerState<PlaySetupScreen> {
               cancelLabel: 'Keep it',
               onCancel: () => Navigator.of(context).pop(false),
               action: DestructiveButton(
-                label: 'Start new game',
+                label: 'Start new',
                 onPressed: () => Navigator.of(context).pop(true),
               ),
             ),

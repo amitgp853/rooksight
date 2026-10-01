@@ -10,19 +10,20 @@ import 'package:move_wise/features/games/games_screen.dart';
 
 import '../../support/fake_game_repository.dart';
 
-GameRecord record(String result, {int elo = 1600, bool practice = false}) => GameRecord(
-  source: GameSource.stockfish,
-  pgn: '[Result "$result"]\n\n1. f3 e5 2. g4 Qh4# $result',
-  playerSide: Side.white,
-  result: result,
-  endReason: 'checkmate',
-  engineElo: elo,
-  timeControl: '600+0',
-  practice: practice,
-  plyCount: 4,
-  startedAt: DateTime(2026, 9, 28),
-  endedAt: DateTime(2026, 9, 28),
-);
+GameRecord record(String result, {int elo = 1600, bool practice = false, DateTime? ended}) =>
+    GameRecord(
+      source: GameSource.stockfish,
+      pgn: '[Result "$result"]\n\n1. f3 e5 2. g4 Qh4# $result',
+      playerSide: Side.white,
+      result: result,
+      endReason: 'checkmate',
+      engineElo: elo,
+      timeControl: '600+0',
+      practice: practice,
+      plyCount: 4,
+      startedAt: ended ?? DateTime(2026, 9, 28),
+      endedAt: ended ?? DateTime(2026, 9, 28),
+    );
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
@@ -182,5 +183,99 @@ void main() {
     await tester.tap(find.text('Delete game'));
     await tester.pumpAndSettle();
     expect(games.games, isEmpty);
+  });
+
+  group('GameSearch', () {
+    SavedGame game(int id, {int elo = 1600, DateTime? ended}) =>
+        SavedGame(id, record('1-0', elo: elo, ended: ended));
+
+    test('finds the opponent by part of the name, any case', () {
+      const search = GameSearch(text: 'fish 8');
+      expect(search.matches(game(1, elo: 800)), isTrue);
+      expect(search.matches(game(2, elo: 1600)), isFalse);
+    });
+
+    test('keeps games that ended on the chosen days, both ends included', () {
+      final search = GameSearch(
+        dates: DateTimeRange(start: DateTime(2026, 9, 10), end: DateTime(2026, 9, 12)),
+      );
+      expect(search.matches(game(1, ended: DateTime(2026, 9, 10, 0, 5))), isTrue);
+      expect(search.matches(game(2, ended: DateTime(2026, 9, 12, 23, 59))), isTrue);
+      expect(search.matches(game(3, ended: DateTime(2026, 9, 13, 0, 1))), isFalse);
+      expect(search.matches(game(4, ended: DateTime(2026, 9, 9, 23, 59))), isFalse);
+    });
+
+    test('labels a range, adding the year only when it is not this one', () {
+      final now = DateTime(2026, 10, 1);
+      expect(
+        dateRangeLabel(
+          DateTimeRange(start: DateTime(2026, 9, 12), end: DateTime(2026, 9, 28)),
+          now: now,
+        ),
+        '12 Sep – 28 Sep',
+      );
+      expect(
+        dateRangeLabel(
+          DateTimeRange(start: DateTime(2025, 9, 28), end: DateTime(2025, 9, 28)),
+          now: now,
+        ),
+        '28 Sep 2025',
+      );
+    });
+  });
+
+  testWidgets('searching by opponent narrows the list, and can be cleared', (tester) async {
+    final games = FakeGameRepository();
+    await games.save(record('1-0', elo: 800));
+    await games.save(record('0-1', elo: 2400));
+    await pumpGames(tester, games);
+    expect(find.text('Stockfish 800'), findsOneWidget);
+    expect(find.text('Stockfish 2400'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), '2400');
+    await tester.pumpAndSettle();
+    expect(find.text('Stockfish 800'), findsNothing);
+    expect(find.text('Stockfish 2400'), findsOneWidget);
+    expect(find.text('1 game found'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'magnus');
+    await tester.pumpAndSettle();
+    expect(find.text('No games match your search.'), findsOneWidget);
+
+    await tester.tap(find.text('Clear search'));
+    await tester.pumpAndSettle();
+    expect(find.text('Stockfish 800'), findsOneWidget);
+    expect(find.text('Stockfish 2400'), findsOneWidget);
+  });
+
+  testWidgets('picking dates shows them as a chip that clears', (tester) async {
+    final games = FakeGameRepository();
+    final today = DateTime.now();
+    await games.save(record('1-0', elo: 800, ended: today));
+    await games.save(record('0-1', elo: 2400, ended: today.subtract(const Duration(days: 40))));
+    await pumpGames(tester, games);
+
+    await tester.tap(find.byTooltip('Filter by date'));
+    await tester.pumpAndSettle();
+    expect(find.text('Games played between'), findsOneWidget);
+    // Today only, typed in (the calendar scrolls).
+    await tester.tap(find.byTooltip('Switch to input'));
+    await tester.pumpAndSettle();
+    final typed =
+        '${today.month.toString().padLeft(2, '0')}/'
+        '${today.day.toString().padLeft(2, '0')}/${today.year}';
+    final fields = find.descendant(of: find.byType(Dialog), matching: find.byType(TextField));
+    await tester.enterText(fields.first, typed);
+    await tester.enterText(fields.last, typed);
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Stockfish 800'), findsOneWidget);
+    expect(find.text('Stockfish 2400'), findsNothing);
+    expect(find.text(shortDate(today)), findsWidgets);
+
+    await tester.tap(find.byTooltip('Clear dates'));
+    await tester.pumpAndSettle();
+    expect(find.text('Stockfish 2400'), findsOneWidget);
   });
 }

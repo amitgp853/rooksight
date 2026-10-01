@@ -207,11 +207,7 @@ class _PassSetupScreenState extends ConsumerState<PassSetupScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       textStyle: type.heading,
                     ),
-                    child: Text(
-                      'Start · $whiteName plays White',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: Text('Start · $whiteName plays White', textAlign: TextAlign.center),
                   ),
                 ],
               ),

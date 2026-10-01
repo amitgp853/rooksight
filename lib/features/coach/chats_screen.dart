@@ -7,6 +7,7 @@ import '../../core/routing/app_router.dart';
 import '../../core/storage/chat_repository.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/pill_search_field.dart';
 import '../play/domain/game_controller.dart' show nowProvider;
 import 'chats.dart';
 import 'widgets/chat_options_sheet.dart';
@@ -100,7 +101,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 12, AppSpacing.gutter, 4),
-                child: _SearchField(controller: _search),
+                child: PillSearchField(controller: _search, hint: 'Search chats'),
               ),
               Expanded(
                 child: _List(
@@ -325,49 +326,6 @@ class ChatThumbnail extends StatelessWidget {
         chat.gameId == null ? Icons.bar_chart_rounded : Icons.chat_bubble_outline_rounded,
         size: size * 0.5,
         color: colors.focus,
-      ),
-    );
-  }
-}
-
-class _SearchField extends StatelessWidget {
-  const _SearchField({required this.controller});
-
-  final TextEditingController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final type = context.type;
-    final pill = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(22),
-      borderSide: BorderSide(color: colors.border),
-    );
-    return SizedBox(
-      height: 44,
-      child: TextField(
-        controller: controller,
-        textInputAction: TextInputAction.search,
-        style: type.body,
-        decoration: InputDecoration(
-          hintText: 'Search chats',
-          hintStyle: type.body.copyWith(color: colors.textTertiary),
-          prefixIcon: Icon(Icons.search_rounded, size: 20, color: colors.textTertiary),
-          suffixIcon: controller.text.isEmpty
-              ? null
-              : IconButton(
-                  tooltip: 'Clear search',
-                  onPressed: controller.clear,
-                  color: colors.textTertiary,
-                  icon: const Icon(Icons.close_rounded, size: 18),
-                ),
-          filled: true,
-          fillColor: colors.bgRaised,
-          contentPadding: EdgeInsets.zero,
-          border: pill,
-          enabledBorder: pill,
-          focusedBorder: pill.copyWith(borderSide: BorderSide(color: colors.focus)),
-        ),
       ),
     );
   }

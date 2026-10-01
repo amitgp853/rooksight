@@ -11,7 +11,6 @@ import '../../core/llm/gemini_client.dart';
 import '../../core/motion/reduce_motion.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/settings/display_settings.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/dialog_buttons.dart';
 import 'domain/board_reader.dart';
@@ -224,22 +223,13 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           ),
           actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
           actions: [
-            Row(
-              spacing: AppSpacing.s3,
-              children: [
-                Expanded(
-                  child: CancelButton(
-                    label: 'Adjust crop',
-                    onPressed: () => Navigator.of(context).pop(false),
-                  ),
-                ),
-                Expanded(
-                  child: ConfirmButton(
-                    label: 'Scan anyway',
-                    onPressed: () => Navigator.of(context).pop(true),
-                  ),
-                ),
-              ],
+            ConfirmRow(
+              cancelLabel: 'Adjust crop',
+              onCancel: () => Navigator.of(context).pop(false),
+              action: ConfirmButton(
+                label: 'Scan anyway',
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
             ),
           ],
         );

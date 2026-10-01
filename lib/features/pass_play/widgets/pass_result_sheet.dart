@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/routing/app_router.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/button_row.dart';
 import '../../games/games_screen.dart' show shortDate;
 import '../../play/widgets/result_copy.dart';
 import '../domain/pass_controller.dart';
@@ -121,8 +122,9 @@ class PassResultSheet extends ConsumerWidget {
                 ),
                 child: const Text('Review with AI Coach'),
               ),
-              Row(
+              ButtonRow(
                 spacing: 10,
+                mainLast: false,
                 children: [
                   for (final (label, action) in [
                     (
@@ -137,18 +139,16 @@ class PassResultSheet extends ConsumerWidget {
                       savedId == null ? null : () => open(Routes.reportCard('$savedId')),
                     ),
                   ])
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: action,
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
-                          backgroundColor: colors.bgElevated,
-                          shape: buttonShape,
-                          textStyle: type.heading.copyWith(fontSize: 14),
-                        ),
-                        child: Text(label, textAlign: TextAlign.center),
+                    OutlinedButton(
+                      onPressed: action,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(0, 48),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
+                        backgroundColor: colors.bgElevated,
+                        shape: buttonShape,
+                        textStyle: type.heading.copyWith(fontSize: 14),
                       ),
+                      child: Text(label, textAlign: TextAlign.center),
                     ),
                 ],
               ),

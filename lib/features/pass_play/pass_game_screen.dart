@@ -16,6 +16,7 @@ import '../../core/widgets/move_wise_sheet.dart';
 import '../play/domain/move_feedback.dart';
 import '../play/widgets/clock_view.dart';
 import '../play/widgets/game_actions.dart';
+import '../play/widgets/game_message.dart';
 import '../play/widgets/move_strip.dart';
 import 'domain/pass_controller.dart';
 import 'domain/pass_session.dart';
@@ -255,7 +256,7 @@ class _Standard extends ConsumerWidget {
 
   static const _actionBarHeight = 8.0 + 64 + 24;
   static const _reservedHeight =
-      2 * PassPlayerRow.height + MoveStrip.height + _actionBarHeight + 56;
+      2 * PassPlayerRow.height + MoveStrip.height + _actionBarHeight + messageMinHeight;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -311,15 +312,23 @@ class _Standard extends ConsumerWidget {
                 ),
                 MoveStrip(game: game),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.gutter,
-                      vertical: 10,
-                    ),
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 150),
-                        child: message ?? const SizedBox.shrink(),
+                  // Centred when it fits; scrolls rather than overflows.
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.gutter,
+                        vertical: 4,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: (constraints.maxHeight - 8).clamp(0, double.infinity),
+                        ),
+                        child: Center(
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 150),
+                            child: message ?? const SizedBox.shrink(),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -652,7 +661,12 @@ class _Notice extends StatelessWidget {
     final colors = context.colors;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: AppSpacing.s3),
+      padding: EdgeInsets.fromLTRB(
+        14,
+        action == null ? AppSpacing.s3 : 6,
+        action == null ? 14 : 6,
+        action == null ? AppSpacing.s3 : 6,
+      ),
       decoration: BoxDecoration(
         color: colors.bgRaised,
         borderRadius: BorderRadius.circular(14),
@@ -664,7 +678,8 @@ class _Notice extends StatelessWidget {
           Expanded(
             child: Text(text, style: context.type.body.copyWith(fontSize: 14, height: 20 / 14)),
           ),
-          ?action,
+          if (action case final action?)
+            TextButtonTheme(data: compactActionTheme(context), child: action),
         ],
       ),
     );

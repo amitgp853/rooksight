@@ -159,6 +159,48 @@ void main() {
       expect(tester.widget<SetupBoard>(find.byType(SetupBoard)).board.fen, '8/8/8/8/8/8/8/3Q4');
     });
 
+    testWidgets('editing: the photo can stand in for the board, and squares pick from it', (
+      tester,
+    ) async {
+      final photo = img.encodeJpg(img.Image(width: 64, height: 64));
+      await pump(
+        tester,
+        ScanCheckScreen(
+          args: ScanCheckArgs(
+            result: ScanResult(setup: BoardSetup.fromFen(Chess.initial.fen), unsure: const {}),
+            photo: photo,
+          ),
+        ),
+      );
+      await tester.tap(find.text('Edit'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Tap the photo to compare.'), findsOneWidget);
+
+      await tester.tap(find.bySemanticsLabel('Compare with your photo'));
+      await tester.pumpAndSettle();
+      expect(find.bySemanticsLabel('Your photo, in place of the board'), findsOneWidget);
+      expect(find.byType(SetupBoard), findsNothing);
+      expect(find.textContaining('Your photo, lined up with the board'), findsOneWidget);
+
+      // g1 on the photo (bottom row, column 6), then its piece.
+      final rect = tester.getRect(find.bySemanticsLabel('Your photo, in place of the board'));
+      final cell = rect.width / 8;
+      await tester.tapAt(Offset(rect.left + cell * 6.5, rect.top + cell * 7.5));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Choose the piece for g1'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('White king'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('White has two, on e1 and g1'), findsOneWidget);
+
+      // Back to the board, with the change on it.
+      await tester.tap(find.bySemanticsLabel('Show the board'));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<SetupBoard>(find.byType(SetupBoard)).board.fen,
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBKR',
+      );
+    });
+
     testWidgets('by hand: starts empty in edit mode', (tester) async {
       await pump(tester, const ScanCheckScreen());
       expect(find.text('Edit position'), findsOneWidget);

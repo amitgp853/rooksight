@@ -67,6 +67,10 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
   late bool _editing = widget.args.edit || widget.args.result == null;
   bool _comparing = false;
 
+  /// While editing: the photo stands in for the board (tap the thumbnail),
+  /// so squares can be checked against it and still be picked.
+  bool _photoOnBoard = false;
+
   /// The square being edited. Tapping the board only ever selects; the
   /// palette then sets what's on the selected square.
   Square? _selected;
@@ -156,6 +160,7 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
                     onEdit: () => _change(() {
                       _editing = !_editing;
                       _comparing = false;
+                      _photoOnBoard = false;
                       if (!_editing) _selected = null;
                     }),
                   ),
@@ -166,8 +171,17 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
                         children: [
                           _Banner(
                             state: _bannerState(problem),
-                            photo: !_editing && !_comparing ? _photo : null,
-                            onPhoto: () => setState(() => _comparing = true),
+                            photo: _comparing ? null : _photo,
+                            photoShown: _editing && _photoOnBoard,
+                            onPhoto: () => setState(() {
+                              // Editing: swap board and photo in place.
+                              // Checking: the side-by-side comparison.
+                              if (_editing) {
+                                _photoOnBoard = !_photoOnBoard;
+                              } else {
+                                _comparing = true;
+                              }
+                            }),
                           ),
                           AnimatedSwitcher(
                             duration: Duration(milliseconds: reduce ? 150 : 200),
@@ -178,6 +192,19 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
                                     setup: _setup,
                                     unsure: _unsure,
                                     onClose: () => setState(() => _comparing = false),
+                                  )
+                                : _editing && _photoOnBoard && _photo != null
+                                ? Center(
+                                    key: const ValueKey('photo'),
+                                    child: _PhotoBoard(
+                                      photo: _photo!,
+                                      size: boardSize,
+                                      // The setup shows White at the bottom.
+                                      turned: !_whiteAtBottom,
+                                      unsure: _unsure,
+                                      selected: _selected,
+                                      onTap: _onTapSquare,
+                                    ),
                                   )
                                 : Center(
                                     key: const ValueKey('board'),
@@ -264,7 +291,15 @@ class _ScanCheckScreenState extends ConsumerState<ScanCheckScreen> {
   _BannerState _bannerState(PositionProblem? problem) {
     if (problem != null && !_setup.isEmpty) return _BannerState.problem(problem.message);
     if (_editing) {
-      return const _BannerState.editing('Editing. Tap a square, then choose its piece below.');
+      if (_photoOnBoard && _photo != null) {
+        return const _BannerState.editing(
+          'Your photo, lined up with the board. Tap a square on it, then choose its piece.',
+        );
+      }
+      return _BannerState.editing(
+        'Editing. Tap a square, then choose its piece below.'
+        '${_photo != null ? ' Tap the photo to compare.' : ''}',
+      );
     }
     final unsure = [for (final s in _unsure) s.name]..sort();
     if (_comparing) {
@@ -392,11 +427,20 @@ class _Header extends StatelessWidget {
 
 /// The line above the board: what to check, what's wrong, or that it's fine.
 class _Banner extends StatelessWidget {
-  const _Banner({required this.state, required this.photo, required this.onPhoto});
+  const _Banner({
+    required this.state,
+    required this.photo,
+    required this.onPhoto,
+    this.photoShown = false,
+  });
 
   final _BannerState state;
   final Uint8List? photo;
   final VoidCallback onPhoto;
+
+  /// The photo is on the board: its thumbnail is ringed, and tapping it
+  /// brings the board back.
+  final bool photoShown;
 
   @override
   Widget build(BuildContext context) {
@@ -448,8 +492,11 @@ class _Banner extends StatelessWidget {
             ),
             if (photo != null)
               Semantics(
+                // Its own node: a button, not part of the banner's text.
+                container: true,
                 button: true,
-                label: 'Compare with your photo',
+                toggled: photoShown,
+                label: photoShown ? 'Show the board' : 'Compare with your photo',
                 excludeSemantics: true,
                 child: InkWell(
                   onTap: onPhoto,
@@ -460,7 +507,10 @@ class _Banner extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colors.border, width: 1.5),
+                      border: Border.all(
+                        color: photoShown ? colors.focus : colors.border,
+                        width: photoShown ? 2 : 1.5,
+                      ),
                     ),
                     child: Image.memory(photo!, fit: BoxFit.cover, gaplessPlayback: true),
                   ),
@@ -477,6 +527,97 @@ class _Banner extends StatelessWidget {
 abstract final class _Ink {
   static const ink = Color(0xFF0B1224);
   static const brassInk = Color(0xFF1A1204);
+}
+
+/// The photo in the board's place while editing, lined up square for square:
+/// a faint grid, the selected square ringed, and taps pick squares.
+class _PhotoBoard extends StatelessWidget {
+  const _PhotoBoard({
+    required this.photo,
+    required this.size,
+    required this.turned,
+    required this.unsure,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final Uint8List photo;
+  final double size;
+
+  /// Taken from Black's side: shown upside down so it matches the board.
+  final bool turned;
+  final Set<Square> unsure;
+  final Square? selected;
+  final ValueChanged<Square> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final cell = size / 8;
+    Widget ring(Square s, Color color) => Positioned(
+      left: s.file * cell,
+      top: (7 - s.rank) * cell,
+      width: cell,
+      height: cell,
+      child: Container(
+        margin: const EdgeInsets.all(2),
+        decoration: BoxDecoration(
+          border: Border.all(color: color, width: 3),
+          borderRadius: BorderRadius.circular(4),
+        ),
+      ),
+    );
+    return Semantics(
+      label: 'Your photo, in place of the board',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapUp: (details) {
+          final pos = details.localPosition;
+          final file = (pos.dx / cell).floor().clamp(0, 7);
+          final rank = 7 - (pos.dy / cell).floor().clamp(0, 7);
+          onTap(Square.fromCoords(File(file), Rank(rank)));
+        },
+        child: SizedBox.square(
+          dimension: size,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: RotatedBox(
+                  quarterTurns: turned ? 2 : 0,
+                  child: Image.memory(photo, fit: BoxFit.fill, gaplessPlayback: true),
+                ),
+              ),
+              Positioned.fill(
+                child: IgnorePointer(child: CustomPaint(painter: _GridPainter())),
+              ),
+              for (final s in unsure)
+                if (s != selected) ring(s, colors.brass),
+              if (selected case final s?) ring(s, colors.focus),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Faint lines between the squares, so the photo reads as a board.
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0x59F5F7FA)
+      ..strokeWidth = 1;
+    final cell = size.width / 8;
+    for (var i = 1; i < 8; i++) {
+      canvas
+        ..drawLine(Offset(i * cell, 0), Offset(i * cell, size.height), paint)
+        ..drawLine(Offset(0, i * cell), Offset(size.width, i * cell), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GridPainter oldDelegate) => false;
 }
 
 /// The photo and the board side by side.

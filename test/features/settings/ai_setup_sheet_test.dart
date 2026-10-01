@@ -72,6 +72,17 @@ void main() {
     expect(find.text('Want more?'), findsOneWidget);
   });
 
+  testWidgets('the sheet stays below the Dynamic Island', (tester) async {
+    // An iPhone: 59 points of top safe area that the sheet must not cover.
+    tester.view.padding = const FakeViewPadding(top: 59 * 3, bottom: 34 * 3);
+    addTearDown(tester.view.resetPadding);
+    await pumpActions(tester, size: const Size(393, 852));
+    await openSheet(tester);
+
+    expect(tester.getTopLeft(find.text('Turn on your AI coach')).dy, greaterThan(59 + 24));
+    expect(tester.getBottomLeft(find.text('Not now')).dy, lessThan(852 - 34));
+  });
+
   testWidgets('Turn on AI coach opens Settings at the AI Coach key', (tester) async {
     await pumpActions(tester);
     await openSheet(tester);

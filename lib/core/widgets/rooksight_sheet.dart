@@ -17,6 +17,9 @@ Future<T?> showRooksightSheet<T>(
   required bool reduceMotion,
   required WidgetBuilder builder,
 }) {
+  // Read here: inside a bottom sheet Flutter drops the top padding, so the
+  // sheet can't see the status bar or the Dynamic Island.
+  final topInset = MediaQuery.paddingOf(context).top;
   if (reduceMotion) {
     return showGeneralDialog<T>(
       context: context,
@@ -28,7 +31,7 @@ Future<T?> showRooksightSheet<T>(
         alignment: Alignment.bottomCenter,
         child: Material(
           type: MaterialType.transparency,
-          child: _SheetFrame(child: builder(context)),
+          child: _SheetFrame(topInset: topInset, child: builder(context)),
         ),
       ),
       transitionBuilder: (context, animation, _, child) =>
@@ -45,12 +48,15 @@ Future<T?> showRooksightSheet<T>(
       curve: _sheetCurve,
       reverseDuration: Duration(milliseconds: 200),
     ),
-    builder: (context) => _SheetFrame(child: builder(context)),
+    builder: (context) => _SheetFrame(topInset: topInset, child: builder(context)),
   );
 }
 
 class _SheetFrame extends StatelessWidget {
-  const _SheetFrame({required this.child});
+  const _SheetFrame({required this.topInset, required this.child});
+
+  /// The screen's top safe area (status bar, notch or Dynamic Island).
+  final double topInset;
 
   final Widget child;
 
@@ -61,7 +67,7 @@ class _SheetFrame extends StatelessWidget {
     return Container(
       width: double.infinity,
       // Never past the status bar: a taller sheet scrolls inside.
-      constraints: BoxConstraints(maxHeight: media.size.height - media.padding.top - 24),
+      constraints: BoxConstraints(maxHeight: media.size.height - topInset - 24),
       padding: EdgeInsets.fromLTRB(
         AppSpacing.gutter,
         10,

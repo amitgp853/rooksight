@@ -1,8 +1,8 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/engine/uci.dart';
-import 'package:move_wise/features/review/domain/position_eval.dart';
-import 'package:move_wise/features/review/widgets/eval_bar.dart';
+import 'package:rooksight/engine/uci.dart';
+import 'package:rooksight/features/review/domain/position_eval.dart';
+import 'package:rooksight/features/review/widgets/eval_bar.dart';
 
 PositionEval score(EngineScore score) => PositionEval(score: score, bestLine: const []);
 

@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/engine/chess_engine.dart';
-import 'package:move_wise/engine/elo_levels.dart';
-import 'package:move_wise/engine/stockfish_engine.dart';
+import 'package:rooksight/engine/chess_engine.dart';
+import 'package:rooksight/engine/elo_levels.dart';
+import 'package:rooksight/engine/stockfish_engine.dart';
 
 const _startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 

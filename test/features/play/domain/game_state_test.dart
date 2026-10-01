@@ -1,8 +1,8 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/features/play/domain/game_result.dart';
-import 'package:move_wise/features/play/domain/game_rules.dart';
-import 'package:move_wise/features/play/domain/game_state.dart';
+import 'package:rooksight/features/play/domain/game_result.dart';
+import 'package:rooksight/features/play/domain/game_rules.dart';
+import 'package:rooksight/features/play/domain/game_state.dart';
 
 GameState fromFen(String fen) => GameState.start(Chess.fromSetup(Setup.parseFen(fen)));
 

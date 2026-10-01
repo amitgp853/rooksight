@@ -1,6 +1,6 @@
 # Remote config
 
-`remote.json` is read by every installed copy of MoveWise from
+`remote.json` is read by every installed copy of Rooksight from
 `https://raw.githubusercontent.com/amitgp853/move_wise/main/config/remote.json`.
 Push a change to `main` and phones pick it up within about an hour: they check
 at launch and when brought back to the front, at most once an hour. GitHub

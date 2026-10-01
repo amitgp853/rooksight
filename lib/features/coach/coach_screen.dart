@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/board/move_wise_board.dart';
+import '../../core/board/rooksight_board.dart';
 import '../../core/llm/gemini_client.dart';
 import '../../core/llm/llm_client.dart';
 import '../../core/llm/llm_failure_text.dart';
@@ -182,7 +182,7 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
       case SpeechStart.listening:
         setState(() => _listening = true);
       case SpeechStart.denied:
-        _tell('To ask by voice, allow MoveWise to use the microphone in your phone’s Settings.');
+        _tell('To ask by voice, allow Rooksight to use the microphone in your phone’s Settings.');
       case SpeechStart.unavailable:
         setState(() => _voiceUnavailable = true);
         _tell('Voice input isn’t available on this phone.');
@@ -440,7 +440,7 @@ class _ContextRow extends ConsumerWidget {
                       spacing: AppSpacing.s2,
                       children: [
                         if (fen != null && exists)
-                          MoveWiseStaticBoard(
+                          RooksightStaticBoard(
                             fen: fen,
                             size: 22,
                             coordinates: false,

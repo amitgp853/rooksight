@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/storage/saved_position_repository.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/engine/engine_provider.dart';
-import 'package:move_wise/engine/uci.dart';
-import 'package:move_wise/features/analysis/analysis_screen.dart';
-import 'package:move_wise/features/analysis/domain/analysis_args.dart';
+import 'package:rooksight/core/storage/saved_position_repository.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/engine/engine_provider.dart';
+import 'package:rooksight/engine/uci.dart';
+import 'package:rooksight/features/analysis/analysis_screen.dart';
+import 'package:rooksight/features/analysis/domain/analysis_args.dart';
 
 import '../../support/fake_engine.dart';
 

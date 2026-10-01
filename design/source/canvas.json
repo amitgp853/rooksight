@@ -742,7 +742,7 @@
     "t1": {
       "kind": "title1",
       "maxW": 3070,
-      "text": "MoveWise — design system",
+      "text": "Rooksight — design system",
       "w": 240,
       "x": 0,
       "y": -300
@@ -750,7 +750,7 @@
     "t2": {
       "kind": "title1",
       "maxW": 4150,
-      "text": "MoveWise — screens",
+      "text": "Rooksight — screens",
       "w": 240,
       "x": 0,
       "y": 3100
@@ -815,5 +815,5 @@
       "name": "Game interactions"
     }
   ],
-  "title": "MoveWise"
+  "title": "Rooksight"
 }

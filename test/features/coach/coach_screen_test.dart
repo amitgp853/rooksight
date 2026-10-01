@@ -5,17 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/llm/gemini_client.dart';
-import 'package:move_wise/core/llm/llm_client.dart';
-import 'package:move_wise/core/speech/speech_input.dart';
-import 'package:move_wise/core/storage/analysis_repository.dart';
-import 'package:move_wise/core/storage/chat_repository.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/engine/engine_provider.dart';
-import 'package:move_wise/features/coach/chats_screen.dart';
-import 'package:move_wise/features/coach/coach_screen.dart';
-import 'package:move_wise/features/coach/domain/coach_tools.dart';
+import 'package:rooksight/core/llm/gemini_client.dart';
+import 'package:rooksight/core/llm/llm_client.dart';
+import 'package:rooksight/core/speech/speech_input.dart';
+import 'package:rooksight/core/storage/analysis_repository.dart';
+import 'package:rooksight/core/storage/chat_repository.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/engine/engine_provider.dart';
+import 'package:rooksight/features/coach/chats_screen.dart';
+import 'package:rooksight/features/coach/coach_screen.dart';
+import 'package:rooksight/features/coach/domain/coach_tools.dart';
 
 import '../../support/fake_analysis_repository.dart';
 import '../../support/fake_chat_repository.dart';
@@ -355,7 +355,7 @@ void main() {
       await pumpCoach(tester);
       await tester.tap(find.byTooltip('Ask by voice'));
       await tester.pump();
-      expect(find.textContaining('allow MoveWise to use the microphone'), findsOneWidget);
+      expect(find.textContaining('allow Rooksight to use the microphone'), findsOneWidget);
       expect(find.byTooltip('Ask by voice'), findsOneWidget, reason: 'they may allow it later');
     });
 

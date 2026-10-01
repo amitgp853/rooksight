@@ -1,9 +1,9 @@
 /// A Chess.com archive game as the API returns it (trimmed to the fields
-/// MoveWise reads). The PGN carries clock comments, as real ones do.
+/// Rooksight reads). The PGN carries clock comments, as real ones do.
 Map<String, Object?> chessComGame({
   String url = 'https://www.chess.com/game/live/100',
   String rules = 'chess',
-  String white = 'MoveWiseFan',
+  String white = 'RooksightFan',
   String black = 'opponent42',
   String whiteResult = 'checkmated',
   String blackResult = 'win',

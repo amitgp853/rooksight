@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:move_wise/core/config/app_info.dart';
-import 'package:move_wise/features/import/data/chess_com_api.dart';
-import 'package:move_wise/features/import/data/chess_com_models.dart';
+import 'package:rooksight/core/config/app_info.dart';
+import 'package:rooksight/features/import/data/chess_com_api.dart';
+import 'package:rooksight/features/import/data/chess_com_models.dart';
 
 import 'chess_com_fixtures.dart';
 
@@ -19,7 +19,7 @@ http.Response json(Object body, {int status = 200, Map<String, String> headers =
 final march = ArchiveMonth.fromUrl('https://api.chess.com/pub/player/fan/games/2026/03')!;
 
 void main() {
-  test('sends the MoveWise User-Agent', () async {
+  test('sends the Rooksight User-Agent', () async {
     late http.Request seen;
     final api = HttpChessComApi(
       client: MockClient((request) async {
@@ -64,7 +64,7 @@ void main() {
       ),
     );
     final month = await api.monthGames(march);
-    expect(month.games!.single.white.username, 'MoveWiseFan');
+    expect(month.games!.single.white.username, 'RooksightFan');
     expect(month.etag, 'W/"abc"');
   });
 

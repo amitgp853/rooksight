@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/llm/gemini_client.dart';
-import 'package:move_wise/core/llm/gemini_key.dart';
+import 'package:rooksight/core/llm/gemini_client.dart';
+import 'package:rooksight/core/llm/gemini_key.dart';
 
 void main() {
   ProviderContainer containerWith(MemoryGeminiKeyStorage storage) {

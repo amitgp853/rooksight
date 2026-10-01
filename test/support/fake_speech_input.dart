@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:move_wise/core/speech/speech_input.dart';
+import 'package:rooksight/core/speech/speech_input.dart';
 
 /// Speech recognition for tests: [start] answers with [result]; while
 /// listening, [hear] sends words and [finish] ends it, as a pause would or

@@ -10,13 +10,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/board/landing_square.dart';
-import '../../core/board/move_wise_board.dart';
+import '../../core/board/rooksight_board.dart';
 import '../../core/motion/reduce_motion.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/storage/saved_position_repository.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/widgets/move_wise_sheet.dart';
+import '../../core/widgets/rooksight_sheet.dart';
 import '../../engine/engine_provider.dart';
 import '../games/games_screen.dart' show shortDate;
 import '../report_card/data/image_sharer.dart';
@@ -335,7 +335,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
         .read(imageSharerProvider)
         .sharePng(
           png,
-          fileName: 'movewise-position.png',
+          fileName: 'rooksight-position.png',
           origin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
         );
   }
@@ -359,7 +359,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       (Icons.content_copy_rounded, 'Copy FEN', _copyFen, null),
       (Icons.ios_share, 'Share position image', _sharePosition, null),
     ];
-    final chosen = await showMoveWiseSheet<VoidCallback>(
+    final chosen = await showRooksightSheet<VoidCallback>(
       context,
       reduceMotion: shouldReduceMotion(context, ref),
       // ListTiles paint their ink on a Material, not on the sheet's box.
@@ -534,7 +534,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                 ),
                 RepaintBoundary(
                   key: _boardKey,
-                  child: MoveWiseBoard(
+                  child: RooksightBoard(
                     controller: _board,
                     orientation: _orientation,
                     size: math.max(boardSize, 200),

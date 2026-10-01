@@ -2,7 +2,7 @@ import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/board/move_wise_board.dart';
+import '../../../core/board/rooksight_board.dart';
 import '../../../core/motion/reduce_motion.dart';
 import '../../../core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,7 +96,7 @@ class SetupBoard extends ConsumerWidget {
                 final rank = 7 - (pos.dy / square).floor().clamp(0, 7);
                 onTap!(Square.fromCoords(File(file), Rank(rank)));
               },
-        child: MoveWiseStaticBoard(
+        child: RooksightStaticBoard(
           fen: board.fen,
           size: size,
           shapes: shapes,

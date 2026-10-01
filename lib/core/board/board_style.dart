@@ -5,9 +5,9 @@ import 'package:flutter/widgets.dart';
 import '../theme/app_colors.dart';
 import '../theme/board_themes.dart';
 
-/// The MoveWise piece set, rendered from `design/pieces/` by
+/// The Rooksight piece set, rendered from `design/pieces/` by
 /// `tool/render_pieces.dart`.
-final PieceAssets moveWisePieceAssets = {
+final PieceAssets rooksightPieceAssets = {
   for (final kind in PieceKind.values)
     kind: AssetImage(
       'assets/pieces/${kind.side == Side.white ? 'w' : 'b'}${kind.role.uppercaseLetter}.png',
@@ -18,7 +18,7 @@ final PieceAssets moveWisePieceAssets = {
 /// renders without pieces popping in.
 Future<void> precachePieces() {
   final dpr = WidgetsBinding.instance.platformDispatcher.implicitView?.devicePixelRatio ?? 1.0;
-  return ChessgroundImages.instance.loadAll(moveWisePieceAssets, devicePixelRatio: dpr);
+  return ChessgroundImages.instance.loadAll(rooksightPieceAssets, devicePixelRatio: dpr);
 }
 
 /// Hint arrow: brass at 92%, shaft 20% of a square (chessground's 1.0 is 25%).
@@ -32,14 +32,14 @@ const moveSlide = Duration(milliseconds: 200);
 /// Board settings matching the design (`design/design-spec.md` > Board and
 /// Motion). Where chessground can't match the spec, it uses the closest
 /// setting; the gaps are listed in the Phase 1 plan.
-ChessboardSettings moveWiseBoardSettings({
+ChessboardSettings rooksightBoardSettings({
   required BoardTheme theme,
   required AppColors colors,
   required bool reduceMotion,
 }) {
   return ChessboardSettings(
     colorScheme: _colorScheme(theme, colors),
-    pieceAssets: moveWisePieceAssets,
+    pieceAssets: rooksightPieceAssets,
     enableCoordinates: true,
     // Moves slide in 200ms. With reduced motion nothing travels; chessground
     // can't crossfade, so moves are instant.

@@ -201,7 +201,7 @@ class SavedPositions extends Table {
 )
 class AppDatabase extends _$AppDatabase {
   /// Opens the app's database file, or [executor] (e.g. in-memory for tests).
-  AppDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'movewise'));
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? driftDatabase(name: 'rooksight'));
 
   /// Bump when the schema changes, and add a step to [migration].
   @override

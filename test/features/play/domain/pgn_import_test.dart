@@ -1,6 +1,6 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/features/play/domain/pgn_import.dart';
+import 'package:rooksight/features/play/domain/pgn_import.dart';
 
 void main() {
   test('replays the main line', () {

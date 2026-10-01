@@ -1,11 +1,11 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/engine/uci.dart';
-import 'package:move_wise/features/analysis/domain/analysis_args.dart';
-import 'package:move_wise/features/analysis/domain/analysis_session.dart';
-import 'package:move_wise/features/analysis/domain/analysis_text.dart';
-import 'package:move_wise/features/analysis/domain/analysis_tree.dart';
-import 'package:move_wise/features/review/domain/move_review.dart';
+import 'package:rooksight/engine/uci.dart';
+import 'package:rooksight/features/analysis/domain/analysis_args.dart';
+import 'package:rooksight/features/analysis/domain/analysis_session.dart';
+import 'package:rooksight/features/analysis/domain/analysis_text.dart';
+import 'package:rooksight/features/analysis/domain/analysis_tree.dart';
+import 'package:rooksight/features/review/domain/move_review.dart';
 
 import '../../support/fake_engine.dart';
 

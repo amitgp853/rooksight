@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/features/scan/domain/focus_point.dart';
+import 'package:rooksight/features/scan/domain/focus_point.dart';
 
 void main() {
   const view = Size(400, 800);

@@ -35,7 +35,7 @@ class _IntroGateState extends State<IntroGate> {
               opacity: _finished ? 0 : 1,
               duration: const Duration(milliseconds: 200),
               onEnd: () => setState(() => _gone = true),
-              child: MoveWiseIntro(onDone: () => setState(() => _finished = true)),
+              child: RooksightIntro(onDone: () => setState(() => _finished = true)),
             ),
           ),
       ],
@@ -43,7 +43,7 @@ class _IntroGateState extends State<IntroGate> {
   }
 }
 
-/// The animated intro (design: SplashIntro, design/splash/movewise_intro.dart),
+/// The animated intro (design: SplashIntro, design/splash/rooksight_intro.dart),
 /// about 1.2 s plus a short hold: the tower appears, the three battlements
 /// rise one by one, the AI spark pops in and the wordmark fades up.
 ///
@@ -52,8 +52,8 @@ class _IntroGateState extends State<IntroGate> {
 /// splash drew it, so the hand-off is seamless. If the app's Appearance
 /// setting differs, the colours then blend into it, so Home appears in the
 /// right theme. With reduced motion it shows the final frame, with a fade.
-class MoveWiseIntro extends ConsumerStatefulWidget {
-  const MoveWiseIntro({super.key, required this.onDone});
+class RooksightIntro extends ConsumerStatefulWidget {
+  const RooksightIntro({super.key, required this.onDone});
 
   final VoidCallback onDone;
 
@@ -68,10 +68,10 @@ class MoveWiseIntro extends ConsumerStatefulWidget {
   static const logoSize = 148.0;
 
   @override
-  ConsumerState<MoveWiseIntro> createState() => _MoveWiseIntroState();
+  ConsumerState<RooksightIntro> createState() => _RooksightIntroState();
 }
 
-class _MoveWiseIntroState extends ConsumerState<MoveWiseIntro> with SingleTickerProviderStateMixin {
+class _RooksightIntroState extends ConsumerState<RooksightIntro> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this);
   bool _started = false;
   bool _reduced = false;
@@ -83,7 +83,7 @@ class _MoveWiseIntroState extends ConsumerState<MoveWiseIntro> with SingleTicker
     _started = true;
     _reduced = shouldReduceMotion(context, ref);
     // With reduced motion the clock only times the hold; the logo is whole.
-    _controller.duration = _reduced ? MoveWiseIntro.still : MoveWiseIntro.total;
+    _controller.duration = _reduced ? RooksightIntro.still : RooksightIntro.total;
     _controller.forward().whenComplete(() {
       if (mounted) widget.onDone();
     });
@@ -98,8 +98,8 @@ class _MoveWiseIntroState extends ConsumerState<MoveWiseIntro> with SingleTicker
   double get _t => _reduced
       ? 1
       : (_controller.value *
-                MoveWiseIntro.total.inMilliseconds /
-                MoveWiseIntro.drawing.inMilliseconds)
+                RooksightIntro.total.inMilliseconds /
+                RooksightIntro.drawing.inMilliseconds)
             .clamp(0.0, 1.0);
 
   @override
@@ -148,7 +148,7 @@ class _MoveWiseIntroState extends ConsumerState<MoveWiseIntro> with SingleTicker
                       children: [
                         Center(
                           child: SizedBox.square(
-                            dimension: MoveWiseIntro.logoSize,
+                            dimension: RooksightIntro.logoSize,
                             child: CustomPaint(
                               painter: RookPainter(_t, darkness: darkness, background: background),
                             ),
@@ -156,7 +156,7 @@ class _MoveWiseIntroState extends ConsumerState<MoveWiseIntro> with SingleTicker
                         ),
                         Center(
                           child: Padding(
-                            padding: const EdgeInsets.only(top: MoveWiseIntro.logoSize + 110),
+                            padding: const EdgeInsets.only(top: RooksightIntro.logoSize + 110),
                             child: Opacity(
                               opacity: word,
                               child: Transform.translate(
@@ -167,7 +167,7 @@ class _MoveWiseIntroState extends ConsumerState<MoveWiseIntro> with SingleTicker
                                   spacing: 4,
                                   children: [
                                     Text(
-                                      'MoveWise',
+                                      'Rooksight',
                                       style: type.title.copyWith(
                                         fontSize: 30,
                                         letterSpacing: -0.75,

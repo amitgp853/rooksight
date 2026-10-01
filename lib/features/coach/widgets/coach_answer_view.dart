@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/board/move_wise_board.dart';
+import '../../../core/board/rooksight_board.dart';
 import '../../../core/routing/app_router.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -98,7 +98,7 @@ class CoachMoveCard extends StatelessWidget {
           child: Row(
             spacing: AppSpacing.s3,
             children: [
-              MoveWiseStaticBoard(
+              RooksightStaticBoard(
                 fen: move.fen,
                 size: 52,
                 lastMove: move.lastMove,

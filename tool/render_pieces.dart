@@ -1,4 +1,4 @@
-// Renders the MoveWise piece set from `design/pieces/*.svg` to the PNGs that
+// Renders the Rooksight piece set from `design/pieces/*.svg` to the PNGs that
 // chessground needs (it only accepts raster images).
 //
 // Run from the project root whenever the SVGs change:

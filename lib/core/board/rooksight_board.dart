@@ -9,10 +9,10 @@ import '../theme/app_theme.dart';
 import '../theme/board_themes.dart';
 import 'board_style.dart';
 
-/// Interactive board in the MoveWise style. Fills the available width, edge to
+/// Interactive board in the Rooksight style. Fills the available width, edge to
 /// edge (boards ignore the screen gutter).
-class MoveWiseBoard extends ConsumerWidget {
-  const MoveWiseBoard({
+class RooksightBoard extends ConsumerWidget {
+  const RooksightBoard({
     super.key,
     required this.controller,
     required this.orientation,
@@ -41,7 +41,7 @@ class MoveWiseBoard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final settings = moveWiseBoardSettings(
+    final settings = rooksightBoardSettings(
       theme: ref.watch(boardThemeProvider),
       colors: context.colors,
       reduceMotion: shouldReduceMotion(context, ref),
@@ -64,8 +64,8 @@ class MoveWiseBoard extends ConsumerWidget {
 }
 
 /// Non-interactive board, for thumbnails, review positions and report cards.
-class MoveWiseStaticBoard extends ConsumerWidget {
-  const MoveWiseStaticBoard({
+class RooksightStaticBoard extends ConsumerWidget {
+  const RooksightStaticBoard({
     super.key,
     required this.fen,
     this.size,
@@ -92,7 +92,7 @@ class MoveWiseStaticBoard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final base = moveWiseBoardSettings(
+    final base = rooksightBoardSettings(
       theme: theme ?? ref.watch(boardThemeProvider),
       colors: context.colors,
       reduceMotion: shouldReduceMotion(context, ref),

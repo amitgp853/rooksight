@@ -1,4 +1,4 @@
-# MoveWise — Manual Test Plan
+# Rooksight — Manual Test Plan
 
 Tick each box as you go. **Expect** is what should happen; anything else is a bug.
 IDs (e.g. `PLAY-07`) are there so you can note bugs as "PLAY-07 fails: …".
@@ -27,7 +27,7 @@ IDs (e.g. `PLAY-07`) are there so you can note bugs as "PLAY-07 fails: …".
 
 ## 2. Launch, splash and intro
 
-- [ ] **LAUNCH-01** Cold start in phone dark mode. **Expect:** the native splash and the intro's first frame have the same background (no flash), and the intro is about 1.5 s: tower, battlements rise, spark, "MoveWise" / "Your AI Chess Coach".
+- [ ] **LAUNCH-01** Cold start in phone dark mode. **Expect:** the native splash and the intro's first frame have the same background (no flash), and the intro is about 1.5 s: tower, battlements rise, spark, "Rooksight" / "Your AI Chess Coach".
 - [ ] **LAUNCH-02** Cold start in phone light mode. **Expect:** light splash → light intro, no flash.
 - [ ] **LAUNCH-03** Set in-app Appearance to Dark while the phone is in Light, then relaunch. **Expect:** the intro starts light and blends to dark, and Home is dark.
 - [ ] **LAUNCH-04** Turn on the phone's reduce-motion setting (iOS: Reduce Motion; Android: Remove animations), then relaunch. **Expect:** the finished logo shows briefly (~0.4 s) with a fade and no drawing animation.
@@ -191,7 +191,7 @@ Start Pass & Play with "Flip board after each move" **off**, so it's easier to t
 ## 10. Games list
 
 - [ ] **GAMES-01** Empty state: "No games yet" with "Play vs Computer" and "Import from Chess.com or Lichess" buttons.
-- [ ] **GAMES-02** Newest first. Each row shows opponent, source (MoveWise / Chess.com / Lichess), result colour, time control, end reason, date and move count.
+- [ ] **GAMES-02** Newest first. Each row shows opponent, source (Rooksight / Chess.com / Lichess), result colour, time control, end reason, date and move count.
 - [ ] **GAMES-03** The All / Won / Lost filters work. Empty filters show "No wins here yet." / "No losses here."
 - [ ] **GAMES-04** Tap a game: its review opens.
 - [ ] **GAMES-05** Delete (swipe or menu) opens the "Delete this game?" sheet, which says its review and AI notes are deleted and it won't count in stats. "Cancel" keeps it; "Delete game" removes it.
@@ -294,7 +294,7 @@ Start Pass & Play with "Flip board after each move" **off**, so it's easier to t
 
 **Voice**
 - [ ] **COACH-20** Tap the mic and allow permission. **Expect:** "Listening… tap ■ to stop", and the words appear in the field.
-- [ ] **COACH-21** Deny mic permission. **Expect:** "To ask by voice, allow MoveWise to use the microphone in your phone's Settings."
+- [ ] **COACH-21** Deny mic permission. **Expect:** "To ask by voice, allow Rooksight to use the microphone in your phone's Settings."
 - [ ] **COACH-22** Say nothing. **Expect:** "I didn't catch that. Tap the mic and try again."
 - [ ] **COACH-23** Offline voice (Android). **Expect:** "Voice input needs an internet connection on this phone."
 
@@ -330,9 +330,9 @@ Start Pass & Play with "Flip board after each move" **off**, so it's easier to t
 ## 14. Report card
 
 - [ ] **CARD-01** Open for an unreviewed game. **Expect:** "Analysing your game… N%" first, then the card.
-- [ ] **CARD-02** The card shows the MoveWise logo, "GAME REPORT", accuracy %, best move, worst blunder (or "None"), a summary and the date. It is always dark, even in light mode.
+- [ ] **CARD-02** The card shows the Rooksight logo, "GAME REPORT", accuracy %, best move, worst blunder (or "None"), a summary and the date. It is always dark, even in light mode.
 - [ ] **CARD-03** "Get AI verdict" replaces the summary with a one-line quoted verdict ("AI Coach verdict"). Reopening the card keeps it (cached).
-- [ ] **CARD-04** "Share image" opens the share sheet with `movewise-report-<id>.png` (1080×1350). Share to Photos/WhatsApp and check it looks right.
+- [ ] **CARD-04** "Share image" opens the share sheet with `rooksight-report-<id>.png` (1080×1350). Share to Photos/WhatsApp and check it looks right.
 - [ ] **CARD-05** "Copy PGN" shows "PGN copied". Paste into lichess.org/paste: the game loads correctly with the right result.
 - [ ] **CARD-06** Verdict offline: an error with "Try again".
 
@@ -350,7 +350,7 @@ Start Pass & Play with "Flip board after each move" **off**, so it's easier to t
 - [ ] **SET-10** "Remove" shows "Key removed" with Undo. Undo restores the key.
 - [ ] **SET-11** "How to get a free key": the link opens aistudio.google.com in the browser. If the browser can't open, "Link copied."
 - [ ] **SET-12** The key survives an app restart (secure storage) and is **not** in any exported PGN or shared image.
-- [ ] **SET-13** The footer reads "MoveWise 0.1.0 · Stockfish runs on your device".
+- [ ] **SET-13** The footer reads "Rooksight 0.1.0 · Stockfish runs on your device".
 - [ ] **SET-14** Every setting survives a force-kill and restart.
 
 ## 16. Motion, sound and haptics (compare with `design/design-spec.md`)

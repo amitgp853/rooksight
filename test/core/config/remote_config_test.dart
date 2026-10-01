@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/config/api_keys.dart';
-import 'package:move_wise/core/config/remote_config.dart';
-import 'package:move_wise/core/llm/gemini_client.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
+import 'package:rooksight/core/config/api_keys.dart';
+import 'package:rooksight/core/config/remote_config.dart';
+import 'package:rooksight/core/llm/gemini_client.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
 
 void main() {
   String body({Object? update, Object? llm, int schema = 1}) =>

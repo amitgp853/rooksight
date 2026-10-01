@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/features/scan/domain/low_light.dart';
+import 'package:rooksight/features/scan/domain/low_light.dart';
 
 void main() {
   group('LowLightDetector', () {

@@ -1,4 +1,4 @@
-# MoveWise
+# Rooksight
 
 **An AI chess coach you can trust: every move is verified by Stockfish.** Play Stockfish at your level, play a
 friend on the same phone, or import your Chess.com and Lichess games. Every move is
@@ -10,7 +10,7 @@ Flutter · Android and iOS · no login, no backend, free to run ·
 [support it on Ko-fi](https://ko-fi.com/amitgp853).
 
 <p align="center">
-  <img src="design/banner.png" alt="MoveWise: play Stockfish, scan a board, review your games, ask the AI Coach">
+  <img src="design/banner.png" alt="Rooksight: play Stockfish, scan a board, review your games, ask the AI Coach">
 </p>
 
 <p align="center"><b><a href="design/screenshots/README.md">See all screenshots →</a></b></p>
@@ -50,7 +50,7 @@ flowchart TB
     chesscom["ChessComApi · LichessApi<br/>(public APIs, one request at a time)"]
     repo["GameRepository · AnalysisRepository · ChatRepository<br/>(Drift / SQLite)"]
     rules["dartchess<br/>(rules, SAN, PGN)"]
-    board["chessground board<br/>+ MoveWise theme"]
+    board["chessground board<br/>+ Rooksight theme"]
     remote["RemoteConfig<br/>(remote.json on GitHub, cached on the phone)"]
     analytics["Analytics<br/>(TelemetryDeck, anonymous, opt-out)"]
   end
@@ -258,15 +258,15 @@ The piece set and the logo, the analyst's rook, are custom.
 
 ## Support
 
-MoveWise is free, open source and has no ads. If it has helped you improve at
+Rooksight is free, open source and has no ads. If it has helped you improve at
 chess, you can [buy me a coffee on Ko-fi](https://ko-fi.com/amitgp853). The same
-link is in the app under **Settings → Support MoveWise**. Thank you!
+link is in the app under **Settings → Support Rooksight**. Thank you!
 
 ## Licence
 
 Copyright (C) 2026 amitgp853
 
-MoveWise is free software: you can redistribute it and/or modify it under the
+Rooksight is free software: you can redistribute it and/or modify it under the
 terms of the [GNU General Public License v3.0](LICENSE) (GPL-3.0-only).
 
 In short: you may run, study and change it. If you share it or a modified
@@ -274,7 +274,7 @@ version, in any form, you must share its full source under the same licence,
 keep this copyright notice, and state what you changed. It comes with no
 warranty.
 
-It builds on these GPL-3.0 projects, which is why MoveWise uses the same
+It builds on these GPL-3.0 projects, which is why Rooksight uses the same
 licence:
 
 - [Stockfish](https://stockfishchess.org), via
@@ -283,5 +283,5 @@ licence:
   [chessground](https://github.com/lichess-org/flutter-chessground) from Lichess
 - [sound_effect](https://github.com/lichess-org/flutter-sound-effect)
 
-The MoveWise piece set, logo, design and board sounds are part of this
+The Rooksight piece set, logo, design and board sounds are part of this
 repository and covered by the same licence.

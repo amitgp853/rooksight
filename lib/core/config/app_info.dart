@@ -1,6 +1,6 @@
 /// Public facts about the app, used where services ask who is calling.
 abstract final class AppInfo {
-  static const name = 'MoveWise';
+  static const name = 'Rooksight';
   static const version = '0.1.0';
 
   /// Where the Chess.com API team can find the developer.
@@ -17,7 +17,7 @@ abstract final class AppInfo {
 
   /// The store page, when `remote.json` doesn't give one.
   static const playStoreUrl =
-      'https://play.google.com/store/apps/details?id=com.amitgp853.movewise';
+      'https://play.google.com/store/apps/details?id=com.amitgp853.rooksight';
 
   /// Sent with every Chess.com request, as their API guidelines ask.
   static const userAgent = '$name/$version (+$contactUrl)';

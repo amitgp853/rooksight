@@ -1,4 +1,4 @@
-import 'package:move_wise/core/storage/analysis_repository.dart';
+import 'package:rooksight/core/storage/analysis_repository.dart';
 
 /// In-memory [AnalysisRepository] for tests.
 class FakeAnalysisRepository implements AnalysisRepository {

@@ -7,13 +7,13 @@ import '../../../core/storage/chat_repository.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/dialog_buttons.dart';
-import '../../../core/widgets/move_wise_sheet.dart';
+import '../../../core/widgets/rooksight_sheet.dart';
 import '../domain/coach_chat.dart';
 
 /// A saved chat's options (`CoachHistoryDelete.dc.html`): Rename, and
 /// Delete with its confirmation right there. Returns true if it was deleted.
 Future<bool> showChatOptions(BuildContext context, WidgetRef ref, StoredChat chat) async {
-  final action = await showMoveWiseSheet<_Action>(
+  final action = await showRooksightSheet<_Action>(
     context,
     reduceMotion: shouldReduceMotion(context, ref),
     builder: (_) => _ChatOptions(chat: chat),

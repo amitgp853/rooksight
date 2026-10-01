@@ -1,7 +1,7 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/features/play/domain/game_clock.dart';
-import 'package:move_wise/features/play/domain/game_config.dart';
+import 'package:rooksight/features/play/domain/game_clock.dart';
+import 'package:rooksight/features/play/domain/game_config.dart';
 
 void main() {
   final t0 = DateTime(2026);

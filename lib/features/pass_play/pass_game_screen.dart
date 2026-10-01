@@ -12,7 +12,7 @@ import '../../core/settings/display_settings.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/dialog_buttons.dart';
-import '../../core/widgets/move_wise_sheet.dart';
+import '../../core/widgets/rooksight_sheet.dart';
 import '../play/domain/move_feedback.dart';
 import '../play/widgets/clock_view.dart';
 import '../play/widgets/game_actions.dart';
@@ -83,7 +83,7 @@ class _PassGameScreenState extends ConsumerState<PassGameScreen> {
   static Side _restingOrientation(PassSession session) =>
       session.config.autoFlip ? session.game.turn : session.config.firstSide;
 
-  void _showResult() => showMoveWiseSheet<void>(
+  void _showResult() => showRooksightSheet<void>(
     context,
     reduceMotion: _reduceMotion,
     builder: (_) => const PassResultSheet(),

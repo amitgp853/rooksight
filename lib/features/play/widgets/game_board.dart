@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/board/board_style.dart';
-import '../../../core/board/move_wise_board.dart';
+import '../../../core/board/rooksight_board.dart';
 import '../../../core/feedback/haptics.dart';
 import '../../../core/theme/app_theme.dart';
 import '../domain/game_controller.dart';
@@ -88,7 +88,7 @@ class _GameBoardState extends ConsumerState<GameBoard> {
     });
     final hint = ref.watch(gameControllerProvider.select((session) => session.hint));
 
-    return MoveWiseBoard(
+    return RooksightBoard(
       controller: _board,
       orientation: widget.orientation,
       size: widget.size,

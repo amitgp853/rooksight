@@ -7,16 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/board/move_wise_board.dart';
-import 'package:move_wise/core/board/board_style.dart';
-import 'package:move_wise/core/feedback/sound_player.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/settings/display_settings.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/engine/engine_provider.dart';
-import 'package:move_wise/features/play/domain/game_config.dart';
-import 'package:move_wise/features/play/domain/game_controller.dart';
-import 'package:move_wise/features/play/game_screen.dart';
+import 'package:rooksight/core/board/rooksight_board.dart';
+import 'package:rooksight/core/board/board_style.dart';
+import 'package:rooksight/core/feedback/sound_player.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/settings/display_settings.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/engine/engine_provider.dart';
+import 'package:rooksight/features/play/domain/game_config.dart';
+import 'package:rooksight/features/play/domain/game_controller.dart';
+import 'package:rooksight/features/play/game_screen.dart';
 
 import '../../support/fake_engine.dart';
 import '../../support/fake_game_repository.dart';
@@ -144,7 +144,7 @@ void main() {
 
   group('looking back', () {
     String boardFen(WidgetTester tester) =>
-        tester.widget<MoveWiseBoard>(find.byType(MoveWiseBoard)).controller.fen;
+        tester.widget<RooksightBoard>(find.byType(RooksightBoard)).controller.fen;
 
     testWidgets('steps back through the moves, read-only, then back to the game', (tester) async {
       final container = await pumpGame(tester);

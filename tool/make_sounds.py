@@ -1,4 +1,4 @@
-"""Synthesises MoveWise's board sounds into assets/sounds/*.wav.
+"""Synthesises Rooksight's board sounds into assets/sounds/*.wav.
 
 A wooden piece set down on a wooden board, by modal synthesis: a short,
 felt-softened contact burst rings two sets of resonators, the piece's own

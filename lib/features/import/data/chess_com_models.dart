@@ -148,7 +148,7 @@ class ChessComGame {
       ? '0-1'
       : '1/2-1/2';
 
-  /// Chess.com result codes as MoveWise end reasons. The loser's code says
+  /// Chess.com result codes as Rooksight end reasons. The loser's code says
   /// why a decisive game ended; both sides share the code for a draw.
   String? _endReason() {
     final code = white.result == 'win' ? black.result : white.result;

@@ -12,8 +12,8 @@ String exportPassPgn(PassSession session, {required DateTime date}) {
   final timeControl = config.timeControl;
 
   final headers = <String, String>{
-    'Event': 'MoveWise pass & play',
-    'Site': 'MoveWise',
+    'Event': 'Rooksight pass & play',
+    'Site': 'Rooksight',
     'Date': '${date.year}.${_two(date.month)}.${_two(date.day)}',
     'Round': '-',
     'White': config.nameOf(Side.white),

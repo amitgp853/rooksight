@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/features/games/games_screen.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/features/games/games_screen.dart';
 
 import '../../support/fake_game_repository.dart';
 
@@ -92,7 +92,7 @@ void main() {
     ]);
     await pumpGames(tester, games);
 
-    expect(find.text('MoveWise'), findsOneWidget);
+    expect(find.text('Rooksight'), findsOneWidget);
     expect(find.text('Chess.com'), findsOneWidget);
     expect(find.text('opponent42 (1544)'), findsOneWidget);
     expect(find.text('2 moves · 3+2'), findsNothing, reason: '1 move pair here');

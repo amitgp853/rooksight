@@ -3,12 +3,12 @@ import 'dart:io' as io;
 import 'package:dartchess/dartchess.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/storage/analysis_repository.dart';
-import 'package:move_wise/core/storage/database.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/storage/import_log.dart';
-import 'package:move_wise/core/storage/saved_position_repository.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
+import 'package:rooksight/core/storage/analysis_repository.dart';
+import 'package:rooksight/core/storage/database.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/storage/import_log.dart';
+import 'package:rooksight/core/storage/saved_position_repository.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
 
 GameRecord record({
   DateTime? endedAt,

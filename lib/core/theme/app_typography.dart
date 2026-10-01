@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// The MoveWise type scale (`design/design-spec.md`).
+/// The Rooksight type scale (`design/design-spec.md`).
 ///
 /// Fonts are bundled in `assets/google_fonts/`; runtime fetching is disabled
 /// in `main.dart`, so these never hit the network.

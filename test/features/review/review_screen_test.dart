@@ -7,18 +7,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/board/move_wise_board.dart';
-import 'package:move_wise/core/llm/gemini_client.dart';
-import 'package:move_wise/core/llm/llm_client.dart';
-import 'package:move_wise/core/storage/analysis_repository.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/engine/engine_provider.dart';
-import 'package:move_wise/engine/uci.dart';
-import 'package:move_wise/features/review/review_screen.dart';
-import 'package:move_wise/features/review/widgets/eval_bar.dart';
-import 'package:move_wise/features/review/widgets/key_moment_card.dart';
-import 'package:move_wise/features/review/widgets/move_table.dart';
+import 'package:rooksight/core/board/rooksight_board.dart';
+import 'package:rooksight/core/llm/gemini_client.dart';
+import 'package:rooksight/core/llm/llm_client.dart';
+import 'package:rooksight/core/storage/analysis_repository.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/engine/engine_provider.dart';
+import 'package:rooksight/engine/uci.dart';
+import 'package:rooksight/features/review/review_screen.dart';
+import 'package:rooksight/features/review/widgets/eval_bar.dart';
+import 'package:rooksight/features/review/widgets/key_moment_card.dart';
+import 'package:rooksight/features/review/widgets/move_table.dart';
 
 import '../../support/fake_analysis_repository.dart';
 import '../../support/fake_engine.dart';
@@ -65,7 +65,7 @@ List<EngineLine> stockfish(String fen) => switch (fen.split(' ').first) {
 
 /// The position on the review board.
 String boardFen(WidgetTester tester) =>
-    tester.widget<MoveWiseBoard>(find.byType(MoveWiseBoard)).controller.fen;
+    tester.widget<RooksightBoard>(find.byType(RooksightBoard)).controller.fen;
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
@@ -630,12 +630,12 @@ void main() {
       await tester.tap(find.text('Best move'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      expect(find.byType(MoveWiseBoard), findsOneWidget);
+      expect(find.byType(RooksightBoard), findsOneWidget);
 
       await tester.tap(find.byTooltip('Previous move'));
       await tester.pumpAndSettle();
       expect(
-        tester.widget<MoveWiseBoard>(find.byType(MoveWiseBoard)).shapes.whereType<Arrow>(),
+        tester.widget<RooksightBoard>(find.byType(RooksightBoard)).shapes.whereType<Arrow>(),
         isNotEmpty,
       );
     });
@@ -644,7 +644,7 @@ void main() {
       await pumpReview(tester);
       await tester.tap(find.byTooltip('First move'));
       await tester.pumpAndSettle();
-      Set<Shape> shapes() => tester.widget<MoveWiseBoard>(find.byType(MoveWiseBoard)).shapes;
+      Set<Shape> shapes() => tester.widget<RooksightBoard>(find.byType(RooksightBoard)).shapes;
       expect(shapes().whereType<Arrow>(), isEmpty);
 
       await tester.tap(find.text('Best move'));

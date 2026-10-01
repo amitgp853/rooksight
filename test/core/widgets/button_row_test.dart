@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/core/widgets/dialog_buttons.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/core/widgets/dialog_buttons.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);

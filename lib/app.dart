@@ -7,13 +7,13 @@ import 'core/theme/app_theme.dart';
 import 'core/update/update_gate.dart';
 import 'features/splash/intro.dart';
 
-class MoveWiseApp extends ConsumerWidget {
-  const MoveWiseApp({super.key});
+class RooksightApp extends ConsumerWidget {
+  const RooksightApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      title: 'MoveWise',
+      title: 'Rooksight',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),

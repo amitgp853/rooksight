@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/board/move_wise_board.dart';
+import '../../core/board/rooksight_board.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/storage/chat_repository.dart';
 import '../../core/theme/app_spacing.dart';
@@ -308,7 +308,7 @@ class ChatThumbnail extends StatelessWidget {
     final colors = context.colors;
     final fen = chat.thumbFen;
     if (fen != null) {
-      return MoveWiseStaticBoard(
+      return RooksightStaticBoard(
         fen: fen,
         size: size,
         coordinates: false,

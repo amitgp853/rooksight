@@ -35,7 +35,7 @@ Future<void> main() async {
         savedGeminiKeyAtStartProvider.overrideWithValue(geminiKey),
         appBuildProvider.overrideWithValue(int.tryParse(package.buildNumber) ?? 0),
       ],
-      child: const MoveWiseApp(),
+      child: const RooksightApp(),
     ),
   );
 }

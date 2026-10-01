@@ -147,7 +147,7 @@ class _ReadyState extends ConsumerState<_Ready> {
           .read(imageSharerProvider)
           .sharePng(
             png,
-            fileName: 'movewise-report-${widget.gameId}.png',
+            fileName: 'rooksight-report-${widget.gameId}.png',
             origin: box == null ? null : box.localToGlobal(Offset.zero) & box.size,
           );
     } on Object catch (error) {

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/app.dart';
-import 'package:move_wise/core/feedback/sound_player.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
-import 'package:move_wise/core/routing/app_router.dart';
-import 'package:move_wise/core/settings/display_settings.dart';
-import 'package:move_wise/engine/engine_provider.dart';
+import 'package:rooksight/app.dart';
+import 'package:rooksight/core/feedback/sound_player.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
+import 'package:rooksight/core/routing/app_router.dart';
+import 'package:rooksight/core/settings/display_settings.dart';
+import 'package:rooksight/engine/engine_provider.dart';
 
 import 'support/fake_engine.dart';
 import 'support/fake_game_repository.dart';
@@ -25,17 +25,17 @@ void main() {
           soundPlayerProvider.overrideWithValue(FakeSoundPlayer()),
           gameRepositoryProvider.overrideWithValue(FakeGameRepository()),
         ],
-        child: const MoveWiseApp(),
+        child: const RooksightApp(),
       ),
     );
     await tester.pumpAndSettle();
-    return ProviderScope.containerOf(tester.element(find.byType(MoveWiseApp)));
+    return ProviderScope.containerOf(tester.element(find.byType(RooksightApp)));
   }
 
   testWidgets('starts on Home in dark mode', (tester) async {
     await pumpApp(tester);
 
-    expect(find.text('MoveWise'), findsOneWidget);
+    expect(find.text('Rooksight'), findsOneWidget);
     expect(find.text('Play vs Computer'), findsOneWidget);
     final context = tester.element(find.text('Play vs Computer'));
     expect(Theme.of(context).brightness, Brightness.dark);
@@ -104,11 +104,11 @@ void main() {
           gameRepositoryProvider.overrideWithValue(FakeGameRepository()),
           settingsStoreProvider.overrideWithValue(store),
         ],
-        child: const MoveWiseApp(),
+        child: const RooksightApp(),
       ),
     );
     await tester.pumpAndSettle();
-    final container = ProviderScope.containerOf(tester.element(find.byType(MoveWiseApp)));
+    final container = ProviderScope.containerOf(tester.element(find.byType(RooksightApp)));
 
     container.read(themeModeProvider.notifier).set(ThemeMode.light);
     expect(store.get('themeMode'), 'light');
@@ -123,7 +123,7 @@ void main() {
           gameRepositoryProvider.overrideWithValue(FakeGameRepository()),
           settingsStoreProvider.overrideWithValue(SettingsStore.inMemory({'themeMode': 'light'})),
         ],
-        child: const MoveWiseApp(),
+        child: const RooksightApp(),
       ),
     );
     await tester.pumpAndSettle();

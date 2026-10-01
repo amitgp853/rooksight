@@ -4,10 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
-import 'package:move_wise/core/theme/app_colors.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/features/splash/intro.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
+import 'package:rooksight/core/theme/app_colors.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/features/splash/intro.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);
@@ -39,13 +39,13 @@ void main() {
 
   testWidgets('plays for 1.5 s at most, then gives way to the app', (tester) async {
     await pumpGate(tester);
-    expect(find.byType(MoveWiseIntro), findsOneWidget);
+    expect(find.byType(RooksightIntro), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 1200));
     expect(find.text('Your AI Chess Coach'), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 300));
     await tester.pumpAndSettle();
-    expect(find.byType(MoveWiseIntro), findsNothing);
+    expect(find.byType(RooksightIntro), findsNothing);
     expect(find.text('home'), findsOneWidget);
   });
 
@@ -54,21 +54,21 @@ void main() {
     await tester.pump();
     final painter = tester
         .widgetList<CustomPaint>(
-          find.descendant(of: find.byType(MoveWiseIntro), matching: find.byType(CustomPaint)),
+          find.descendant(of: find.byType(RooksightIntro), matching: find.byType(CustomPaint)),
         )
         .map((paint) => paint.painter)
         .whereType<RookPainter>()
         .single;
     expect(painter.t, 1, reason: 'no drawing in: the final frame');
 
-    await tester.pump(MoveWiseIntro.still);
+    await tester.pump(RooksightIntro.still);
     await tester.pumpAndSettle();
-    expect(find.byType(MoveWiseIntro), findsNothing);
+    expect(find.byType(RooksightIntro), findsNothing);
   });
 
   Color background(WidgetTester tester) => tester
       .widget<ColoredBox>(
-        find.descendant(of: find.byType(MoveWiseIntro), matching: find.byType(ColoredBox)).first,
+        find.descendant(of: find.byType(RooksightIntro), matching: find.byType(ColoredBox)).first,
       )
       .color;
 
@@ -88,7 +88,7 @@ void main() {
   testWidgets('its text has no "missing Material" underline', (tester) async {
     await pumpGate(tester);
     await tester.pump(const Duration(milliseconds: 1300));
-    for (final text in ['MoveWise', 'Your AI Chess Coach']) {
+    for (final text in ['Rooksight', 'Your AI Chess Coach']) {
       final style = tester.renderObject<RenderParagraph>(find.text(text)).text.style;
       expect(style?.decoration ?? TextDecoration.none, TextDecoration.none, reason: text);
     }
@@ -99,7 +99,7 @@ void main() {
     Brightness? icons() => tester
         .widget<AnnotatedRegion<SystemUiOverlayStyle>>(
           find.descendant(
-            of: find.byType(MoveWiseIntro),
+            of: find.byType(RooksightIntro),
             matching: find.byType(AnnotatedRegion<SystemUiOverlayStyle>),
           ),
         )
@@ -135,7 +135,7 @@ void main() {
     await pumpGate(tester, reduceMotion: true, platform: Brightness.light, app: ThemeMode.dark);
     await tester.pump();
     expect(background(tester), AppColors.light.bgBase);
-    await tester.pump(MoveWiseIntro.still - const Duration(milliseconds: 1));
+    await tester.pump(RooksightIntro.still - const Duration(milliseconds: 1));
     expect(background(tester), isNot(AppColors.light.bgBase));
     await tester.pumpAndSettle();
   });
@@ -143,7 +143,7 @@ void main() {
   testWidgets('its background follows the phone, like the native splash', (tester) async {
     await pumpGate(tester, platform: Brightness.light);
     final box = tester.widget<ColoredBox>(
-      find.descendant(of: find.byType(MoveWiseIntro), matching: find.byType(ColoredBox)).first,
+      find.descendant(of: find.byType(RooksightIntro), matching: find.byType(ColoredBox)).first,
     );
     expect(box.color, AppColors.light.bgBase);
     await tester.pumpAndSettle();

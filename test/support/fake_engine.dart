@@ -1,6 +1,6 @@
 import 'package:dartchess/dartchess.dart';
-import 'package:move_wise/engine/chess_engine.dart';
-import 'package:move_wise/engine/uci.dart';
+import 'package:rooksight/engine/chess_engine.dart';
+import 'package:rooksight/engine/uci.dart';
 
 /// A [ChessEngine] for tests: answers after [delay] with the lines from
 /// [reply], or by default with the first legal move.

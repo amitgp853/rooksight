@@ -4,14 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/board/move_wise_board.dart';
+import '../../core/board/rooksight_board.dart';
 import '../../core/motion/reduce_motion.dart';
 import '../../core/storage/saved_position_repository.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/dialog_buttons.dart';
-import '../../core/widgets/move_wise_sheet.dart';
+import '../../core/widgets/rooksight_sheet.dart';
 import '../games/games_screen.dart' show shortDate;
 import 'domain/analysis_args.dart';
 
@@ -109,7 +109,7 @@ class _PositionTile extends ConsumerWidget {
             spacing: AppSpacing.s3,
             children: [
               ExcludeSemantics(
-                child: MoveWiseStaticBoard(
+                child: RooksightStaticBoard(
                   fen: position.fen,
                   size: 64,
                   coordinates: false,
@@ -153,7 +153,7 @@ class _PositionTile extends ConsumerWidget {
   }
 
   Future<void> _showOptions(BuildContext context, WidgetRef ref) async {
-    final choice = await showMoveWiseSheet<_Action>(
+    final choice = await showRooksightSheet<_Action>(
       context,
       reduceMotion: shouldReduceMotion(context, ref),
       builder: (_) => _PositionOptions(position: position),

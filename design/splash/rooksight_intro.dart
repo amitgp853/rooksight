@@ -1,17 +1,17 @@
-// MoveWise animated intro — shown right after the native splash (same background colour,
+// Rooksight animated intro — shown right after the native splash (same background colour,
 // same logo position, so the hand-off is seamless). ~1.2 s, then calls [onDone].
 // Honors reduced motion: if MediaQuery.disableAnimations is true it shows the final frame.
 import 'package:flutter/material.dart';
 
-class MoveWiseIntro extends StatefulWidget {
-  const MoveWiseIntro({super.key, required this.onDone});
+class RooksightIntro extends StatefulWidget {
+  const RooksightIntro({super.key, required this.onDone});
   final VoidCallback onDone;
 
   @override
-  State<MoveWiseIntro> createState() => _MoveWiseIntroState();
+  State<RooksightIntro> createState() => _RooksightIntroState();
 }
 
-class _MoveWiseIntroState extends State<MoveWiseIntro> with SingleTickerProviderStateMixin {
+class _RooksightIntroState extends State<RooksightIntro> with SingleTickerProviderStateMixin {
   late final AnimationController _c =
       AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
 
@@ -60,7 +60,7 @@ class _MoveWiseIntroState extends State<MoveWiseIntro> with SingleTickerProvider
               child: SlideTransition(
                 position: Tween(begin: const Offset(0, 0.25), end: Offset.zero).animate(word),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Text('MoveWise',
+                  Text('Rooksight',
                       style: TextStyle(
                           fontFamily: 'Sora', fontWeight: FontWeight.w600, fontSize: 30, letterSpacing: -0.75,
                           color: dark ? const Color(0xFFE9EDF2) : const Color(0xFF121820))),

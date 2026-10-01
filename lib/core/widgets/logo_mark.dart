@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// The MoveWise mark, "the analyst's rook" (design/logo): a rook whose
+/// The Rooksight mark, "the analyst's rook" (design/logo): a rook whose
 /// battlements rise like a bar chart, the tallest in brass (the best move),
 /// with the AI coach's spark cut through the tower.
 class LogoMark extends StatelessWidget {
@@ -19,7 +19,7 @@ class LogoMark extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = isDark ? _dark : _light;
     return Semantics(
-      label: 'MoveWise',
+      label: 'Rooksight',
       image: true,
       child: SvgPicture.string(svg(colors.tower, colors.best), width: size, height: size),
     );

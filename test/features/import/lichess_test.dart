@@ -4,12 +4,12 @@ import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
-import 'package:move_wise/features/import/data/import_failure.dart';
-import 'package:move_wise/features/import/data/lichess_api.dart';
-import 'package:move_wise/features/import/data/lichess_models.dart';
-import 'package:move_wise/features/import/domain/importer.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
+import 'package:rooksight/features/import/data/import_failure.dart';
+import 'package:rooksight/features/import/data/lichess_api.dart';
+import 'package:rooksight/features/import/data/lichess_models.dart';
+import 'package:rooksight/features/import/domain/importer.dart';
 
 import '../../support/fake_game_repository.dart';
 import '../../support/fake_lichess.dart';
@@ -28,7 +28,7 @@ LichessGame game({
 void main() {
   group('reading a game', () {
     test('a finished standard game, from the player’s side', () {
-      final record = game().toRecord('movewisefan')!;
+      final record = game().toRecord('rooksightfan')!;
       expect(record.source, GameSource.lichess);
       expect(record.externalId, 'https://lichess.org/abcd1234');
       expect(record.playerSide, Side.white);
@@ -42,10 +42,10 @@ void main() {
     });
 
     test('variants, custom starts and unfinished games are skipped', () {
-      expect(game(variant: 'chess960').toRecord('movewisefan'), isNull);
-      expect(game(variant: 'fromPosition').toRecord('movewisefan'), isNull);
-      expect(game(status: 'aborted').toRecord('movewisefan'), isNull);
-      expect(game(status: 'started').toRecord('movewisefan'), isNull);
+      expect(game(variant: 'chess960').toRecord('rooksightfan'), isNull);
+      expect(game(variant: 'fromPosition').toRecord('rooksightfan'), isNull);
+      expect(game(status: 'aborted').toRecord('rooksightfan'), isNull);
+      expect(game(status: 'started').toRecord('rooksightfan'), isNull);
     });
 
     test('a game the player didn’t play is skipped', () {
@@ -53,12 +53,12 @@ void main() {
     });
 
     test('Lichess’s computer opponent gets a name', () {
-      expect(game(black: null).toRecord('movewisefan')!.opponentName, 'Lichess AI level 3');
+      expect(game(black: null).toRecord('rooksightfan')!.opponentName, 'Lichess AI level 3');
     });
 
-    test('end reasons and time classes in MoveWise’s terms', () {
+    test('end reasons and time classes in Rooksight’s terms', () {
       GameRecord from(Map<String, Object?> json) =>
-          LichessGame.fromJson(json).toRecord('movewisefan')!;
+          LichessGame.fromJson(json).toRecord('rooksightfan')!;
       expect(from(lichessGame(status: 'outoftime')).endReason, 'timeout');
       expect(from(lichessGame(status: 'timeout')).endReason, 'abandoned');
       final draw = from(lichessGame(status: 'draw', winner: null));
@@ -84,15 +84,15 @@ void main() {
         }),
       );
       final games = await api
-          .games('MoveWiseFan', since: DateTime.fromMillisecondsSinceEpoch(1000, isUtc: true))
+          .games('RooksightFan', since: DateTime.fromMillisecondsSinceEpoch(1000, isUtc: true))
           .toList();
 
       expect(games.map((g) => g.id), ['one', 'two']);
-      expect(sent.url.path, '/api/games/user/movewisefan');
+      expect(sent.url.path, '/api/games/user/rooksightfan');
       expect(sent.url.queryParameters['since'], '1000');
       expect(sent.url.queryParameters['pgnInJson'], 'true');
       expect(sent.headers['Accept'], 'application/x-ndjson');
-      expect(sent.headers['User-Agent'], contains('MoveWise'));
+      expect(sent.headers['User-Agent'], contains('Rooksight'));
     });
 
     test('an unknown or closed account is "not found"', () async {
@@ -147,7 +147,7 @@ void main() {
         game(id: 'b', createdAt: daysAgo(3), variant: 'chess960'),
         game(id: 'c', createdAt: daysAgo(4)),
       ]);
-      final last = await importer(api).run('MoveWiseFan', ImportRange.lastMonth).last;
+      final last = await importer(api).run('RooksightFan', ImportRange.lastMonth).last;
 
       expect(last.phase, ImportPhase.done);
       expect(last.platform, ImportPlatform.lichess);
@@ -158,16 +158,16 @@ void main() {
 
     test('next time, only games after the newest imported one', () async {
       final api = FakeLichess([game(id: 'a', createdAt: daysAgo(2))]);
-      await importer(api).run('MoveWiseFan', ImportRange.lastMonth).last;
-      await importer(api).run('MoveWiseFan', ImportRange.lastMonth).last;
+      await importer(api).run('RooksightFan', ImportRange.lastMonth).last;
+      await importer(api).run('RooksightFan', ImportRange.lastMonth).last;
 
       expect(api.sinceAsked.last!.millisecondsSinceEpoch, daysAgo(2) + 1);
     });
 
     test('a range reaching further back than before fetches all of it', () async {
       final api = FakeLichess([game(id: 'a', createdAt: daysAgo(2))]);
-      await importer(api).run('MoveWiseFan', ImportRange.lastMonth).last;
-      await importer(api).run('MoveWiseFan', ImportRange.everything).last;
+      await importer(api).run('RooksightFan', ImportRange.lastMonth).last;
+      await importer(api).run('RooksightFan', ImportRange.everything).last;
 
       expect(api.sinceAsked.last, isNull, reason: 'everything, from the start');
     });

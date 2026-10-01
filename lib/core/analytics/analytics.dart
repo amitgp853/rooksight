@@ -37,7 +37,7 @@ class TelemetryDeckAnalytics implements Analytics {
         TelemetryManagerConfiguration(
           appID: appId,
           namespace: namespace,
-          defaultSignalPrefix: 'MoveWise.',
+          defaultSignalPrefix: 'Rooksight.',
         ),
       ).catchError((Object error) => debugPrint('Analytics off: $error'));
 

@@ -1,9 +1,9 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/storage/analysis_repository.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/features/play/domain/pgn_import.dart';
-import 'package:move_wise/features/stats/domain/player_stats.dart';
+import 'package:rooksight/core/storage/analysis_repository.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/features/play/domain/pgn_import.dart';
+import 'package:rooksight/features/stats/domain/player_stats.dart';
 
 import '../../support/fake_analysis_repository.dart';
 import '../../support/fake_game_repository.dart';

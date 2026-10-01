@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/llm/llm_client.dart';
-import 'package:move_wise/engine/uci.dart';
-import 'package:move_wise/features/coach/domain/coach_agent.dart';
-import 'package:move_wise/features/coach/domain/coach_tools.dart';
+import 'package:rooksight/core/llm/llm_client.dart';
+import 'package:rooksight/engine/uci.dart';
+import 'package:rooksight/features/coach/domain/coach_agent.dart';
+import 'package:rooksight/features/coach/domain/coach_tools.dart';
 
 import '../../support/fake_analysis_repository.dart';
 import '../../support/fake_engine.dart';

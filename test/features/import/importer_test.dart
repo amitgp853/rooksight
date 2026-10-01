@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/storage/import_log.dart';
-import 'package:move_wise/features/import/data/chess_com_api.dart';
-import 'package:move_wise/features/import/domain/importer.dart';
+import 'package:rooksight/core/storage/import_log.dart';
+import 'package:rooksight/features/import/data/chess_com_api.dart';
+import 'package:rooksight/features/import/domain/importer.dart';
 
 import '../../support/fake_game_repository.dart';
 import '../../support/fake_chess_com.dart';

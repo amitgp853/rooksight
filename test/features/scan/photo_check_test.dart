@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:move_wise/features/scan/domain/photo_check.dart';
+import 'package:rooksight/features/scan/domain/photo_check.dart';
 
 /// A board [size] pixels wide: squares in [light] / [dark], with round
 /// "pieces" on [pieces] of them.

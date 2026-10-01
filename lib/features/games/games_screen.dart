@@ -522,7 +522,7 @@ class SourceTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final (label, icon, tint) = switch (source) {
-      GameSource.stockfish || GameSource.passAndPlay => ('MoveWise', null, colors.focus),
+      GameSource.stockfish || GameSource.passAndPlay => ('Rooksight', null, colors.focus),
       GameSource.chesscom => ('Chess.com', Icons.download_rounded, colors.textSecondary),
       GameSource.lichess => ('Lichess', Icons.download_rounded, colors.textSecondary),
     };

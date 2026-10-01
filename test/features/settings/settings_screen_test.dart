@@ -3,15 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/llm/gemini_client.dart';
-import 'package:move_wise/core/llm/gemini_key.dart';
-import 'package:move_wise/core/llm/llm_client.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/core/theme/board_themes.dart';
-import 'package:move_wise/core/settings/display_settings.dart';
-import 'package:move_wise/features/import/import_controller.dart';
-import 'package:move_wise/features/settings/settings_screen.dart';
+import 'package:rooksight/core/llm/gemini_client.dart';
+import 'package:rooksight/core/llm/gemini_key.dart';
+import 'package:rooksight/core/llm/llm_client.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/core/theme/board_themes.dart';
+import 'package:rooksight/core/settings/display_settings.dart';
+import 'package:rooksight/features/import/import_controller.dart';
+import 'package:rooksight/features/settings/settings_screen.dart';
 
 import '../../support/fake_llm.dart';
 
@@ -215,7 +215,7 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text('MoveWise 0.1.0 · Stockfish runs on your device'), findsOneWidget);
+    expect(find.text('Rooksight 0.1.0 · Stockfish runs on your device'), findsOneWidget);
   });
 
   testWidgets('one username per site, each with its own Import', (tester) async {

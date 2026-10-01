@@ -699,7 +699,7 @@ class _Compare extends StatelessWidget {
                   ),
                   SizedBox(
                     width: side,
-                    child: Text('What MoveWise saw', textAlign: TextAlign.center, style: caption),
+                    child: Text('What Rooksight saw', textAlign: TextAlign.center, style: caption),
                   ),
                 ],
               ),

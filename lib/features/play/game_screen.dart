@@ -12,7 +12,7 @@ import '../../core/motion/reduce_motion.dart';
 import '../../core/settings/display_settings.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/widgets/move_wise_sheet.dart';
+import '../../core/widgets/rooksight_sheet.dart';
 import 'domain/game_controller.dart';
 import 'domain/game_session.dart';
 import 'domain/move_feedback.dart';
@@ -93,13 +93,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   bool get _reduceMotion => shouldReduceMotion(context, ref);
 
-  void _showOptions() => showMoveWiseSheet<void>(
+  void _showOptions() => showRooksightSheet<void>(
     context,
     reduceMotion: _reduceMotion,
     builder: (_) => const OptionsSheet(),
   );
 
-  void _showResult() => showMoveWiseSheet<void>(
+  void _showResult() => showRooksightSheet<void>(
     context,
     reduceMotion: _reduceMotion,
     builder: (_) => const ResultSheet(),

@@ -4,13 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/features/play/domain/game_config.dart';
-import 'package:move_wise/features/play/domain/game_session.dart';
-import 'package:move_wise/features/play/domain/game_state.dart';
-import 'package:move_wise/features/play/domain/unfinished_game.dart';
-import 'package:move_wise/features/play/play_setup_screen.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/features/play/domain/game_config.dart';
+import 'package:rooksight/features/play/domain/game_session.dart';
+import 'package:rooksight/features/play/domain/game_state.dart';
+import 'package:rooksight/features/play/domain/unfinished_game.dart';
+import 'package:rooksight/features/play/play_setup_screen.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);

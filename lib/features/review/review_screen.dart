@@ -11,7 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/chess/uci.dart';
 import '../../core/board/board_style.dart';
 import '../../core/board/landing_square.dart';
-import '../../core/board/move_wise_board.dart';
+import '../../core/board/rooksight_board.dart';
 import '../../core/llm/gemini_client.dart';
 import '../../core/llm/llm_failure_text.dart';
 import '../../core/motion/reduce_motion.dart';
@@ -535,7 +535,7 @@ class _ReviewBodyState extends ConsumerState<_ReviewBody> {
       children: [
         _Header(record: record, analysis: analysis),
         EvalBar(eval: eval, toMove: evalTurn, orientation: _player),
-        MoveWiseBoard(controller: _board, orientation: _player, shapes: shapes, onMove: _onMove),
+        RooksightBoard(controller: _board, orientation: _player, shapes: shapes, onMove: _onMove),
         if (line != null && !line.yours)
           _ReplayBar(
             title: line.step <= 1

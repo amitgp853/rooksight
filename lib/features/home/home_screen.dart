@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/board/move_wise_board.dart';
+import '../../core/board/rooksight_board.dart';
 import '../../core/routing/app_router.dart';
 import '../../core/storage/analysis_repository.dart';
 import '../../core/storage/saved_position_repository.dart';
@@ -63,7 +63,7 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'MoveWise',
+                      'Rooksight',
                       style: type.title.copyWith(fontSize: 20, letterSpacing: -0.2),
                     ),
                   ),
@@ -287,7 +287,7 @@ class _ContinueCard extends StatelessWidget {
         child: Row(
           spacing: AppSpacing.s4,
           children: [
-            MoveWiseStaticBoard(
+            RooksightStaticBoard(
               fen: game.position.fen,
               size: 124,
               lastMove: game.lastMove,

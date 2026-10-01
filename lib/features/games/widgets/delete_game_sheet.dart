@@ -5,18 +5,18 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/dialog_buttons.dart';
-import '../../../core/widgets/move_wise_sheet.dart';
+import '../../../core/widgets/rooksight_sheet.dart';
 import '../games_screen.dart'
     show OutcomeBadge, endReasonLabel, movesLabel, opponentName, shortDate, timeControlLabel;
 
-/// Asks before deleting [game], in a MoveWise sheet that shows which game it
+/// Asks before deleting [game], in a Rooksight sheet that shows which game it
 /// is and what goes with it. True if the player chose Delete.
 Future<bool> confirmDeleteGame(
   BuildContext context,
   GameRecord game, {
   required bool reduceMotion,
 }) async {
-  final deleted = await showMoveWiseSheet<bool>(
+  final deleted = await showRooksightSheet<bool>(
     context,
     reduceMotion: reduceMotion,
     builder: (context) => _DeleteGameSheet(game: game),

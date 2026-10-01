@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:move_wise/core/storage/game_repository.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
 
 /// In-memory [GameRepository] for widget and controller tests.
 class FakeGameRepository implements GameRepository {

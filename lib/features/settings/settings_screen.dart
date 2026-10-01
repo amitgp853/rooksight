@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/analytics/analytics.dart';
-import '../../core/board/move_wise_board.dart';
+import '../../core/board/rooksight_board.dart';
 import '../../core/config/api_keys.dart';
 import '../../core/config/app_info.dart';
 import '../../core/llm/gemini_client.dart';
@@ -56,7 +56,7 @@ class SettingsScreen extends ConsumerWidget {
           const _Section(title: 'Game review', child: _ReviewDepth()),
           // Only builds that send usage stats offer to stop them.
           if (ApiKeys.hasTelemetryDeck) const _Section(title: 'Privacy', child: _UsageStats()),
-          const _Section(title: 'Support MoveWise', child: _SupportCard()),
+          const _Section(title: 'Support Rooksight', child: _SupportCard()),
           _Section(
             title: 'Developer',
             child: Column(
@@ -551,7 +551,7 @@ class _BoardThemes extends ConsumerWidget {
                       spacing: 6,
                       children: [
                         LayoutBuilder(
-                          builder: (context, constraints) => MoveWiseStaticBoard(
+                          builder: (context, constraints) => RooksightStaticBoard(
                             fen: '8/8/8/3k4/8/4K3/8/8 w - - 0 1',
                             size: constraints.maxWidth,
                             theme: theme,
@@ -829,7 +829,7 @@ class _KeySteps extends StatelessWidget {
                 ),
               ),
               Text(
-                'The free tier has per-minute and daily request limits. MoveWise sends one '
+                'The free tier has per-minute and daily request limits. Rooksight sends one '
                 'request per explanation, so everyday use normally fits. Google can change '
                 'these limits; check AI Studio for today’s numbers.',
                 style: _help(context),

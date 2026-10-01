@@ -4,7 +4,7 @@ import 'package:chessground/chessground.dart';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/board/move_wise_board.dart';
+import '../../../core/board/rooksight_board.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/board_themes.dart';
 import '../../../core/widgets/logo_mark.dart';
@@ -67,7 +67,7 @@ class ReportCard extends StatelessWidget {
                       const LogoMark(size: 72),
                       const SizedBox(width: 16),
                       Text(
-                        'MoveWise',
+                        'Rooksight',
                         style: type.title.copyWith(fontSize: 36, letterSpacing: -0.36),
                       ),
                       const Spacer(),
@@ -177,7 +177,7 @@ class ReportCard extends StatelessWidget {
                         children: [
                           Text(report.aiVerdict ? 'AI Coach verdict' : 'Game summary'),
                           const Spacer(),
-                          Text('MoveWise · AI chess coach · ${reportDate(report.playedAt)}'),
+                          Text('Rooksight · AI chess coach · ${reportDate(report.playedAt)}'),
                         ],
                       ),
                     ),
@@ -226,7 +226,7 @@ class _MoveBox extends StatelessWidget {
               child: ColoredBox(color: colors.bgElevated),
             )
           else
-            MoveWiseStaticBoard(
+            RooksightStaticBoard(
               fen: move.fen,
               size: _board,
               lastMove: move.lastMove,

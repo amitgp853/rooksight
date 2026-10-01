@@ -1,6 +1,6 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/chess/move_check.dart';
+import 'package:rooksight/core/chess/move_check.dart';
 
 Position fen(String fen) => Chess.fromSetup(Setup.parseFen(fen));
 

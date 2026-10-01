@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/analytics/analytics.dart';
-import 'package:move_wise/core/llm/llm_client.dart';
+import 'package:rooksight/core/analytics/analytics.dart';
+import 'package:rooksight/core/llm/llm_client.dart';
 
 void main() {
   test('without a TelemetryDeck app ID nothing is sent', () {

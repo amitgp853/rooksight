@@ -1,6 +1,6 @@
 import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/theme/board_themes.dart';
+import 'package:rooksight/core/theme/board_themes.dart';
 
 /// Largest per-channel difference (0–255) between two colours.
 int _distance(Color a, Color b) {

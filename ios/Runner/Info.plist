@@ -7,7 +7,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>MoveWise</string>
+		<string>Rooksight</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>move_wise</string>
+		<string>rooksight</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -69,12 +69,12 @@
 		<key>UIStatusBarHidden</key>
 		<false/>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>MoveWise listens when you tap the mic, so you can ask the AI Coach a question by voice.</string>
+		<string>Rooksight listens when you tap the mic, so you can ask the AI Coach a question by voice.</string>
 		<key>NSSpeechRecognitionUsageDescription</key>
-		<string>MoveWise turns your voice question to the AI Coach into text.</string>
+		<string>Rooksight turns your voice question to the AI Coach into text.</string>
 		<key>NSCameraUsageDescription</key>
-		<string>MoveWise uses the camera when you scan a chess board, to read the position.</string>
+		<string>Rooksight uses the camera when you scan a chess board, to read the position.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
-		<string>MoveWise opens a photo you pick of a chess board or diagram, to read the position.</string>
+		<string>Rooksight opens a photo you pick of a chess board or diagram, to read the position.</string>
 	</dict>
 </plist>

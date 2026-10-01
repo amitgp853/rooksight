@@ -7,10 +7,10 @@ import 'dart:io';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:move_wise/engine/elo_levels.dart';
-import 'package:move_wise/engine/stockfish_engine.dart';
-import 'package:move_wise/features/play/domain/game_config.dart';
-import 'package:move_wise/features/play/domain/game_controller.dart';
+import 'package:rooksight/engine/elo_levels.dart';
+import 'package:rooksight/engine/stockfish_engine.dart';
+import 'package:rooksight/features/play/domain/game_config.dart';
+import 'package:rooksight/features/play/domain/game_controller.dart';
 
 const _fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
 

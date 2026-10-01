@@ -60,7 +60,7 @@ class EngineLine {
   String toString() => 'EngineLine(#$rank d$depth $score ${pv.join(' ')})';
 }
 
-/// Parses the few UCI output lines MoveWise needs.
+/// Parses the few UCI output lines Rooksight needs.
 abstract final class UciParser {
   /// Parses an `info` line that carries a score and a principal variation.
   /// Returns null for any other line (e.g. `info string ...`, `info currmove`).

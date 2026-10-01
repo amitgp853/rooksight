@@ -76,7 +76,7 @@ def main():
     canvas.alpha_composite(icon, (x, 250))
 
     d = ImageDraw.Draw(canvas)
-    d.text((x, 460), "MoveWise", font=font("Sora-SemiBold.ttf", 132), fill=TEXT)
+    d.text((x, 460), "Rooksight", font=font("Sora-SemiBold.ttf", 132), fill=TEXT)
     d.text(
         (x, 640),
         "An AI chess coach\nyou can trust: every move\nis verified by Stockfish.",

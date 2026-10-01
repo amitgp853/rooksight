@@ -1,4 +1,4 @@
-# MoveWise screenshots
+# Rooksight screenshots
 
 [← Back to the README](../../README.md)
 

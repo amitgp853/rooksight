@@ -1,4 +1,4 @@
-# MoveWise Design Spec (from Claude Design, "Night Study" v0.1)
+# Rooksight Design Spec (from Claude Design, "Night Study" v0.1)
 
 Source files from Claude Design are in `design/source/` (templated `.dc.html`,
 `motion.css`, `canvas.json`). They are the reference; this file is the summary
@@ -75,7 +75,7 @@ lg 24 (sheets), full (pills). **Chess boards ignore gutters: full width, edge to
   dots (rgba(14,18,23,0.32), 30% of square); captures = rings; castling via
   rook = dashed brass ring; hint = brass arrow (opacity 0.92); best move in
   review = focus-blue ring; check = coral glow; quality badge = symbol disc top-right.
-- Pieces: custom MoveWise set, `design/pieces/*.svg` (48-unit grid, drawn at
+- Pieces: custom Rooksight set, `design/pieces/*.svg` (48-unit grid, drawn at
   90% of the square, centred, drop shadow 0 1.5 1.5 rgba(0,0,0,0.35)).
   White = porcelain #F5F7FA with 1.5px ink outline; black = ink #1E2530 with pale rim.
 

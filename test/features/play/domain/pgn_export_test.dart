@@ -1,11 +1,11 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/engine/elo_levels.dart';
-import 'package:move_wise/features/play/domain/game_config.dart';
-import 'package:move_wise/features/play/domain/game_result.dart';
-import 'package:move_wise/features/play/domain/game_session.dart';
-import 'package:move_wise/features/play/domain/game_state.dart';
-import 'package:move_wise/features/play/domain/pgn_export.dart';
+import 'package:rooksight/engine/elo_levels.dart';
+import 'package:rooksight/features/play/domain/game_config.dart';
+import 'package:rooksight/features/play/domain/game_result.dart';
+import 'package:rooksight/features/play/domain/game_session.dart';
+import 'package:rooksight/features/play/domain/game_state.dart';
+import 'package:rooksight/features/play/domain/pgn_export.dart';
 
 GameState playAll(GameState state, List<String> uci) {
   for (final move in uci) {
@@ -29,7 +29,7 @@ void main() {
       date: date,
     );
 
-    expect(pgn, contains('[Event "MoveWise vs Stockfish"]'));
+    expect(pgn, contains('[Event "Rooksight vs Stockfish"]'));
     expect(pgn, contains('[Date "2026.09.28"]'));
     expect(pgn, contains('[White "Stockfish 1600"]'));
     expect(pgn, contains('[Black "You"]'));

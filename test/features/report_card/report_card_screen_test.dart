@@ -4,14 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/board/board_style.dart';
-import 'package:move_wise/core/llm/gemini_client.dart';
-import 'package:move_wise/core/storage/analysis_repository.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/engine/engine_provider.dart';
-import 'package:move_wise/features/report_card/data/image_sharer.dart';
-import 'package:move_wise/features/report_card/report_card_screen.dart';
+import 'package:rooksight/core/board/board_style.dart';
+import 'package:rooksight/core/llm/gemini_client.dart';
+import 'package:rooksight/core/storage/analysis_repository.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/engine/engine_provider.dart';
+import 'package:rooksight/features/report_card/data/image_sharer.dart';
+import 'package:rooksight/features/report_card/report_card_screen.dart';
 
 import '../../support/fake_analysis_repository.dart';
 import '../../support/fake_engine.dart';
@@ -110,7 +110,7 @@ void main() {
     await tester.pumpAndSettle();
 
     final (png, name) = sharer.shared.single;
-    expect(name, 'movewise-report-$id.png');
+    expect(name, 'rooksight-report-$id.png');
     expect(pngSize(png), (1080, 1350));
   });
 

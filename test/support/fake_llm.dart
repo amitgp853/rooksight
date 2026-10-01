@@ -1,4 +1,4 @@
-import 'package:move_wise/core/llm/llm_client.dart';
+import 'package:rooksight/core/llm/llm_client.dart';
 
 /// A language model for tests: answers with [reply] (or throws [failure])
 /// and records the requests.

@@ -3,7 +3,7 @@ import 'package:dartchess/dartchess.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/board/move_wise_board.dart';
+import '../../../core/board/rooksight_board.dart';
 import '../../../core/feedback/haptics.dart';
 import '../domain/pass_controller.dart';
 import '../domain/pass_session.dart';
@@ -69,7 +69,7 @@ class _PassBoardState extends ConsumerState<PassBoard> {
       }
     });
 
-    return MoveWiseBoard(
+    return RooksightBoard(
       controller: _board,
       orientation: widget.orientation,
       size: widget.size,

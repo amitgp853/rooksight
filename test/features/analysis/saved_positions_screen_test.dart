@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/storage/saved_position_repository.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/features/analysis/saved_positions_screen.dart';
+import 'package:rooksight/core/storage/saved_position_repository.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/features/analysis/saved_positions_screen.dart';
 
 void main() {
   setUpAll(() => GoogleFonts.config.allowRuntimeFetching = false);

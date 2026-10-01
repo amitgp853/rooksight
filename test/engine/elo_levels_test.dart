@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/engine/elo_levels.dart';
-import 'package:move_wise/engine/uci.dart';
+import 'package:rooksight/engine/elo_levels.dart';
+import 'package:rooksight/engine/uci.dart';
 
 import '../support/fake_engine.dart';
 

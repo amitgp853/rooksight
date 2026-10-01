@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/config/app_info.dart';
-import 'package:move_wise/core/config/remote_config.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/core/update/app_update.dart';
-import 'package:move_wise/core/update/update_gate.dart';
+import 'package:rooksight/core/config/app_info.dart';
+import 'package:rooksight/core/config/remote_config.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/core/update/app_update.dart';
+import 'package:rooksight/core/update/update_gate.dart';
 
 void main() {
   const info = UpdateInfo(latestBuild: 12, minBuild: 9);

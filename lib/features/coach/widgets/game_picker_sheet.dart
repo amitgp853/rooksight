@@ -6,7 +6,7 @@ import '../../../core/storage/game_repository.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/widgets/move_wise_sheet.dart';
+import '../../../core/widgets/rooksight_sheet.dart';
 import '../../../core/widgets/segmented_switch.dart';
 import '../../games/games_screen.dart'
     show OutcomeBadge, ResultFilter, movesLabel, opponentName, savedGamesProvider;
@@ -24,7 +24,7 @@ final reviewedGameIdsProvider = FutureProvider.autoDispose<Set<int>>((ref) async
 
 /// Lets the player pick one of their games to ask the coach about.
 Future<SavedGame?> pickGame(BuildContext context, {required bool reduceMotion}) =>
-    showMoveWiseSheet<SavedGame>(
+    showRooksightSheet<SavedGame>(
       context,
       reduceMotion: reduceMotion,
       builder: (context) => const _GamePicker(),
@@ -129,7 +129,7 @@ class _GameRow extends StatelessWidget {
       playedWhen(record.endedAt, DateTime.now()),
       movesLabel(record),
       switch (record.source) {
-        GameSource.stockfish => 'MoveWise',
+        GameSource.stockfish => 'Rooksight',
         GameSource.passAndPlay => 'Pass & Play',
         GameSource.chesscom => 'Chess.com',
         GameSource.lichess => 'Lichess',

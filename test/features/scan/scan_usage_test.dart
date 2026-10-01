@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
-import 'package:move_wise/features/scan/domain/scan_usage.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
+import 'package:rooksight/features/scan/domain/scan_usage.dart';
 
 void main() {
   test('counts scans per day, starts again the next day, and stops at the limit', () {

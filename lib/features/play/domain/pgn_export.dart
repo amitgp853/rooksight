@@ -14,8 +14,8 @@ String exportPgn(GameSession session, {required DateTime date}) {
   final timeControl = config.timeControl;
 
   final headers = <String, String>{
-    'Event': 'MoveWise vs Stockfish',
-    'Site': 'MoveWise',
+    'Event': 'Rooksight vs Stockfish',
+    'Site': 'Rooksight',
     'Date': _pgnDate(date),
     'Round': '-',
     'White': config.playerSide == Side.white ? 'You' : engine,

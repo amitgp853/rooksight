@@ -4,11 +4,11 @@ import 'dart:typed_data';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
-import 'package:move_wise/core/llm/llm_client.dart';
-import 'package:move_wise/features/scan/domain/board_reader.dart';
-import 'package:move_wise/features/scan/domain/board_setup.dart';
-import 'package:move_wise/features/scan/domain/position_check.dart';
-import 'package:move_wise/features/scan/domain/scan_photo.dart';
+import 'package:rooksight/core/llm/llm_client.dart';
+import 'package:rooksight/features/scan/domain/board_reader.dart';
+import 'package:rooksight/features/scan/domain/board_setup.dart';
+import 'package:rooksight/features/scan/domain/position_check.dart';
+import 'package:rooksight/features/scan/domain/scan_photo.dart';
 
 import '../../support/fake_llm.dart';
 

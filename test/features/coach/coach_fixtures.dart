@@ -1,8 +1,8 @@
 import 'package:dartchess/dartchess.dart';
-import 'package:move_wise/core/storage/analysis_repository.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/engine/uci.dart';
-import 'package:move_wise/features/review/domain/position_eval.dart';
+import 'package:rooksight/core/storage/analysis_repository.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/engine/uci.dart';
+import 'package:rooksight/features/review/domain/position_eval.dart';
 
 /// Fool's mate played as White: 1. f3 e5 2. g4?? Qh4#.
 final foolsMate = GameRecord(

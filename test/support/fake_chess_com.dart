@@ -1,6 +1,6 @@
-import 'package:move_wise/core/storage/import_log.dart';
-import 'package:move_wise/features/import/data/chess_com_api.dart';
-import 'package:move_wise/features/import/data/chess_com_models.dart';
+import 'package:rooksight/core/storage/import_log.dart';
+import 'package:rooksight/features/import/data/chess_com_api.dart';
+import 'package:rooksight/features/import/data/chess_com_models.dart';
 
 import '../features/import/chess_com_fixtures.dart';
 

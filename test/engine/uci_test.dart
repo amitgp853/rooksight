@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/engine/uci.dart';
+import 'package:rooksight/engine/uci.dart';
 
 void main() {
   group('parseInfo', () {

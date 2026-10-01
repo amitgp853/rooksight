@@ -9,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/motion/reduce_motion.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/widgets/move_wise_sheet.dart';
+import '../../../core/widgets/rooksight_sheet.dart';
 import '../domain/focus_point.dart';
 import '../domain/low_light.dart';
 
@@ -124,7 +124,7 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
       setState(
         () => _error = switch (e.code) {
           'CameraAccessDenied' || 'CameraAccessDeniedWithoutPrompt' || 'CameraAccessRestricted' =>
-            'MoveWise isn’t allowed to use the camera. You can allow it in your phone’s '
+            'Rooksight isn’t allowed to use the camera. You can allow it in your phone’s '
                 'settings, or upload a photo instead.',
           _ => 'The camera couldn’t start. You can upload a photo instead.',
         },
@@ -261,7 +261,7 @@ class _ScanCameraViewState extends ConsumerState<ScanCameraView> with WidgetsBin
 
   void _showTips() {
     unawaited(
-      showMoveWiseSheet<void>(
+      showRooksightSheet<void>(
         context,
         reduceMotion: shouldReduceMotion(context, ref),
         builder: (context) => const ScanTipsSheet(),

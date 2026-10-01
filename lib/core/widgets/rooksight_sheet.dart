@@ -10,9 +10,9 @@ const _scrim = Color(0x8C080B0F);
 /// Sheet motion from the spec: slide up over 320ms.
 const _sheetCurve = Cubic(0.2, 0.9, 0.3, 1);
 
-/// Shows a bottom sheet in the MoveWise style. With [reduceMotion] it fades
+/// Shows a bottom sheet in the Rooksight style. With [reduceMotion] it fades
 /// in (200ms) instead of sliding.
-Future<T?> showMoveWiseSheet<T>(
+Future<T?> showRooksightSheet<T>(
   BuildContext context, {
   required bool reduceMotion,
   required WidgetBuilder builder,

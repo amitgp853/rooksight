@@ -1,8 +1,8 @@
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/features/import/data/import_pause.dart';
-import 'package:move_wise/features/play/domain/game_controller.dart' show nowProvider;
+import 'package:rooksight/features/import/data/import_pause.dart';
+import 'package:rooksight/features/play/domain/game_controller.dart' show nowProvider;
 
 void main() {
   ProviderContainer containerFor(FakeAsync async) {

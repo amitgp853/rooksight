@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:move_wise/core/theme/app_colors.dart';
-import 'package:move_wise/core/theme/app_theme.dart';
-import 'package:move_wise/core/theme/app_typography.dart';
+import 'package:rooksight/core/theme/app_colors.dart';
+import 'package:rooksight/core/theme/app_theme.dart';
+import 'package:rooksight/core/theme/app_typography.dart';
 
 void main() {
   // google_fonts loads the bundled font files through the asset bundle.

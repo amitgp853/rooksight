@@ -1,12 +1,12 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/engine/uci.dart';
-import 'package:move_wise/features/play/domain/pgn_import.dart';
-import 'package:move_wise/features/review/domain/game_analysis.dart';
-import 'package:move_wise/features/review/domain/position_eval.dart';
-import 'package:move_wise/features/stats/domain/player_stats.dart';
-import 'package:move_wise/features/stats/domain/weaknesses.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/engine/uci.dart';
+import 'package:rooksight/features/play/domain/pgn_import.dart';
+import 'package:rooksight/features/review/domain/game_analysis.dart';
+import 'package:rooksight/features/review/domain/position_eval.dart';
+import 'package:rooksight/features/stats/domain/player_stats.dart';
+import 'package:rooksight/features/stats/domain/weaknesses.dart';
 
 /// Scores from the side to move, one per position.
 List<PositionEval> evals(List<(int?, int?, String)> scores) => [

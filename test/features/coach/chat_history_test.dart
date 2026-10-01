@@ -1,13 +1,13 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/storage/chat_repository.dart';
-import 'package:move_wise/features/coach/chats.dart';
-import 'package:move_wise/features/coach/coach_controller.dart';
-import 'package:move_wise/features/coach/domain/coach_agent.dart';
-import 'package:move_wise/features/coach/domain/coach_chat.dart';
-import 'package:move_wise/features/coach/domain/coach_move.dart';
-import 'package:move_wise/features/coach/domain/coach_tools.dart';
-import 'package:move_wise/features/review/domain/move_review.dart';
+import 'package:rooksight/core/storage/chat_repository.dart';
+import 'package:rooksight/features/coach/chats.dart';
+import 'package:rooksight/features/coach/coach_controller.dart';
+import 'package:rooksight/features/coach/domain/coach_agent.dart';
+import 'package:rooksight/features/coach/domain/coach_chat.dart';
+import 'package:rooksight/features/coach/domain/coach_move.dart';
+import 'package:rooksight/features/coach/domain/coach_tools.dart';
+import 'package:rooksight/features/review/domain/move_review.dart';
 
 void main() {
   // A Tuesday.

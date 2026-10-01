@@ -6,8 +6,8 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:move_wise/core/llm/gemini_client.dart';
-import 'package:move_wise/core/llm/llm_client.dart';
+import 'package:rooksight/core/llm/gemini_client.dart';
+import 'package:rooksight/core/llm/llm_client.dart';
 
 const request = LlmRequest(
   system: 'Be brief.',

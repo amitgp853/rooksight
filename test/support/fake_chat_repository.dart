@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:move_wise/core/storage/chat_repository.dart';
+import 'package:rooksight/core/storage/chat_repository.dart';
 
 /// In-memory [ChatRepository] for widget and controller tests.
 class FakeChatRepository implements ChatRepository {

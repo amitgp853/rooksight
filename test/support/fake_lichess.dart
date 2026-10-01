@@ -1,6 +1,6 @@
-import 'package:move_wise/features/import/data/import_failure.dart';
-import 'package:move_wise/features/import/data/lichess_api.dart';
-import 'package:move_wise/features/import/data/lichess_models.dart';
+import 'package:rooksight/features/import/data/import_failure.dart';
+import 'package:rooksight/features/import/data/lichess_api.dart';
+import 'package:rooksight/features/import/data/lichess_models.dart';
 
 /// A [LichessApi] for tests: [played] newest first, filtered by `since` on
 /// their creation time, as Lichess does.

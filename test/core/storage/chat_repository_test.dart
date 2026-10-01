@@ -2,9 +2,9 @@ import 'dart:io' as io;
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/storage/chat_repository.dart';
-import 'package:move_wise/core/storage/database.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
+import 'package:rooksight/core/storage/chat_repository.dart';
+import 'package:rooksight/core/storage/database.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
 
 import 'storage_test.dart' show record;
 

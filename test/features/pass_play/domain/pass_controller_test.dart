@@ -2,15 +2,15 @@ import 'package:dartchess/dartchess.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/core/storage/game_repository.dart';
-import 'package:move_wise/core/storage/settings_store.dart';
-import 'package:move_wise/features/pass_play/domain/pass_config.dart';
-import 'package:move_wise/features/pass_play/domain/pass_controller.dart';
-import 'package:move_wise/features/pass_play/domain/pass_session.dart';
-import 'package:move_wise/features/pass_play/domain/unfinished_pass_game.dart';
-import 'package:move_wise/features/play/domain/game_config.dart';
-import 'package:move_wise/features/play/domain/game_controller.dart' show nowProvider;
-import 'package:move_wise/features/play/domain/game_result.dart';
+import 'package:rooksight/core/storage/game_repository.dart';
+import 'package:rooksight/core/storage/settings_store.dart';
+import 'package:rooksight/features/pass_play/domain/pass_config.dart';
+import 'package:rooksight/features/pass_play/domain/pass_controller.dart';
+import 'package:rooksight/features/pass_play/domain/pass_session.dart';
+import 'package:rooksight/features/pass_play/domain/unfinished_pass_game.dart';
+import 'package:rooksight/features/play/domain/game_config.dart';
+import 'package:rooksight/features/play/domain/game_controller.dart' show nowProvider;
+import 'package:rooksight/features/play/domain/game_result.dart';
 
 import '../../../support/fake_game_repository.dart';
 

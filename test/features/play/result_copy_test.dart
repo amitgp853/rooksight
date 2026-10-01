@@ -1,10 +1,10 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/features/play/domain/game_config.dart';
-import 'package:move_wise/features/play/domain/game_result.dart';
-import 'package:move_wise/features/play/domain/game_session.dart';
-import 'package:move_wise/features/play/domain/game_state.dart';
-import 'package:move_wise/features/play/widgets/result_copy.dart';
+import 'package:rooksight/features/play/domain/game_config.dart';
+import 'package:rooksight/features/play/domain/game_result.dart';
+import 'package:rooksight/features/play/domain/game_session.dart';
+import 'package:rooksight/features/play/domain/game_state.dart';
+import 'package:rooksight/features/play/widgets/result_copy.dart';
 
 GameSession finished(GameState game, {Side player = Side.white}) => GameSession(
   config: GameConfig.initial.copyWith(playerSide: player),

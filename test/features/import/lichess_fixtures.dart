@@ -1,12 +1,12 @@
 /// A Lichess export game as the API returns it with `pgnInJson` and
-/// `opening` (trimmed to the fields MoveWise reads).
+/// `opening` (trimmed to the fields Rooksight reads).
 Map<String, Object?> lichessGame({
   String id = 'abcd1234',
   String variant = 'standard',
   String speed = 'blitz',
   String status = 'mate',
   String? winner = 'black',
-  String white = 'MoveWiseFan',
+  String white = 'RooksightFan',
   String? black = 'opponent42',
   int? blackAiLevel,
   int createdAt = 1759000000000,

@@ -1,11 +1,11 @@
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:move_wise/features/pass_play/domain/pass_config.dart';
-import 'package:move_wise/features/pass_play/domain/pass_session.dart';
-import 'package:move_wise/features/pass_play/widgets/pass_copy.dart';
-import 'package:move_wise/features/play/domain/game_result.dart';
-import 'package:move_wise/features/play/domain/game_state.dart';
-import 'package:move_wise/features/play/widgets/result_copy.dart';
+import 'package:rooksight/features/pass_play/domain/pass_config.dart';
+import 'package:rooksight/features/pass_play/domain/pass_session.dart';
+import 'package:rooksight/features/pass_play/widgets/pass_copy.dart';
+import 'package:rooksight/features/play/domain/game_result.dart';
+import 'package:rooksight/features/play/domain/game_state.dart';
+import 'package:rooksight/features/play/widgets/result_copy.dart';
 
 GameState _played(List<String> moves) {
   var game = GameState.start();

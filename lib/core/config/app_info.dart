@@ -4,7 +4,7 @@ abstract final class AppInfo {
   static const version = '0.1.0';
 
   /// Where the Chess.com API team can find the developer.
-  static const contactUrl = 'https://github.com/amitgp853/move_wise';
+  static const contactUrl = 'https://github.com/amitgp853/rooksight';
 
   /// Where people can support the developer, linked from Settings.
   static const kofiUrl = 'https://ko-fi.com/amitgp853';
@@ -13,7 +13,7 @@ abstract final class AppInfo {
   /// allowed, and the Gemini models. Edit `config/remote.json` on `main`;
   /// phones pick it up within an hour or so (GitHub caches it for minutes).
   static const remoteConfigUrl =
-      'https://raw.githubusercontent.com/amitgp853/move_wise/main/config/remote.json';
+      'https://raw.githubusercontent.com/amitgp853/rooksight/main/config/remote.json';
 
   /// The store page, when `remote.json` doesn't give one.
   static const playStoreUrl =

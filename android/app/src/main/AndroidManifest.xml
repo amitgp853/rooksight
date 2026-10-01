@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Gemini, Chess.com, Lichess, the remote config and usage counts. Debug
+         builds get this from src/debug; release builds need it here. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Voice questions to the AI Coach (speech_to_text). -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Scan a board (camera). Phones without a camera can still upload a photo. -->

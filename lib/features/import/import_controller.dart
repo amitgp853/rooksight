@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/analytics/analytics.dart';
 import '../../core/storage/game_repository.dart';
 import '../../core/storage/import_log.dart';
 import '../../core/storage/settings_store.dart';
@@ -83,7 +84,17 @@ class ImportController extends Notifier<ImportProgress> {
         now: now,
       ).run(username, range, isCancelled: () => _cancelled),
     };
-    _run = run.listen((progress) => state = progress);
+    final analytics = ref.read(analyticsProvider);
+    _run = run.listen((progress) {
+      if (state.isRunning && !progress.isRunning) {
+        analytics.track(Events.importFinished, {
+          'platform': platform.name,
+          'outcome': progress.error?.name ?? progress.phase.name,
+          'added': progress.added,
+        });
+      }
+      state = progress;
+    });
   }
 
   /// Stops after the month being fetched (at once if waiting out a 429).

@@ -13,13 +13,17 @@ abstract final class ApiKeys {
 
   static bool get hasGemini => gemini.isNotEmpty;
 
-  /// Flash models are free on the Gemini API free tier. Override with
-  /// `GEMINI_MODEL` to try another (e.g. `gemini-3.5-flash-lite` if the free
-  /// limits are tight).
+  /// Flash models are free on the Gemini API free tier. `config/remote.json`
+  /// can switch every installed app to another; `GEMINI_MODEL` overrides both
+  /// on a development build (e.g. `gemini-3.5-flash-lite` if the free limits
+  /// are tight).
   static const geminiModel = String.fromEnvironment(
     'GEMINI_MODEL',
     defaultValue: 'gemini-3.8-flash',
   );
+
+  /// Whether `GEMINI_MODEL` was given, so it wins over the remote config.
+  static const geminiModelOverridden = bool.hasEnvironment('GEMINI_MODEL');
 
   /// Used when [geminiModel] stays overloaded ("high demand") after retries.
   static const geminiFallbackModel = String.fromEnvironment(
@@ -36,4 +40,12 @@ abstract final class ApiKeys {
     'GEMINI_THINKING_LEVEL',
     defaultValue: 'low',
   );
+
+  /// TelemetryDeck, for anonymous usage counts (see `core/analytics`). Both
+  /// come from the TelemetryDeck dashboard. Without them nothing is sent.
+  static const telemetryDeckAppId = String.fromEnvironment('TELEMETRYDECK_APP_ID');
+  static const telemetryDeckNamespace = String.fromEnvironment('TELEMETRYDECK_NAMESPACE');
+
+  static bool get hasTelemetryDeck =>
+      telemetryDeckAppId.isNotEmpty && telemetryDeckNamespace.isNotEmpty;
 }

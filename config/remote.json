@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "update": {
+    "android": {
+      "latestBuild": 1,
+      "minBuild": 1,
+      "storeUrl": "https://play.google.com/store/apps/details?id=com.amitgp853.movewise"
+    },
+    "ios": {
+      "latestBuild": 1,
+      "minBuild": 1
+    },
+    "message": ""
+  },
+  "llm": {
+    "model": "gemini-3.8-flash",
+    "fallbackModel": "gemini-3.5-flash-lite",
+    "thinkingLevel": "low"
+  }
+}

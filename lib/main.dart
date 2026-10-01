@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'app.dart';
 import 'core/board/board_style.dart';
@@ -8,6 +9,7 @@ import 'core/llm/gemini_key.dart';
 import 'core/storage/database.dart';
 import 'core/storage/game_repository.dart';
 import 'core/storage/settings_store.dart';
+import 'core/update/app_update.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,9 +19,10 @@ Future<void> main() async {
   final database = AppDatabase();
   final keyStorage = SecureGeminiKeyStorage();
   // Settings load before the first frame, so the saved theme shows at once.
-  final (settings, geminiKey, _) = await (
+  final (settings, geminiKey, package, _) = await (
     SettingsStore.load(database),
     keyStorage.read(),
+    PackageInfo.fromPlatform(),
     precachePieces(),
   ).wait;
 
@@ -30,6 +33,7 @@ Future<void> main() async {
         settingsStoreProvider.overrideWithValue(settings),
         geminiKeyStorageProvider.overrideWithValue(keyStorage),
         savedGeminiKeyAtStartProvider.overrideWithValue(geminiKey),
+        appBuildProvider.overrideWithValue(int.tryParse(package.buildNumber) ?? 0),
       ],
       child: const MoveWiseApp(),
     ),

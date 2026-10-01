@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/analytics/analytics.dart';
 import '../../../core/storage/game_repository.dart';
 import '../../../core/storage/settings_store.dart';
 import '../../../engine/chess_engine.dart';
@@ -322,6 +323,20 @@ class GameController extends Notifier<GameSession> {
     if (result == null || game.moves.isEmpty) return;
 
     final config = session.config;
+    // Counted once: not again when a practice game ends after a take-back.
+    if (session.savedGameId == null) {
+      ref.read(analyticsProvider).track(Events.gameFinished, {
+        'elo': config.level.elo,
+        'result': switch (result.pgn) {
+          '1/2-1/2' => 'draw',
+          '1-0' when config.playerSide == Side.white => 'win',
+          '0-1' when config.playerSide == Side.black => 'win',
+          _ => 'loss',
+        },
+        'reason': result.reason.name,
+        'practice': config.practice,
+      });
+    }
     final timeControl = config.timeControl;
     final endedAt = _now();
     final startedAt = session.startedAt ?? endedAt;

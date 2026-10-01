@@ -6,7 +6,8 @@ reviewed by Stockfish on your phone, and you can ask the AI Coach why you keep l
 then come back to that chat later. Every move the AI mentions is checked against the
 engine and the rules before you see it.
 
-Flutter · Android and iOS · no login, no backend, free to run.
+Flutter · Android and iOS · no login, no backend, free to run ·
+[support it on Ko-fi](https://ko-fi.com/amitgp853).
 
 <p align="center">
   <img src="design/screenshots/home.png" width="200" alt="Home">
@@ -209,6 +210,12 @@ Icons and splash come from `flutter_launcher_icons.yaml` and
 The full design (colour tokens, type, motion spec, every screen) is in
 [`design/`](design/design-spec.md), made in Claude Design ("Night Study").
 The piece set and the logo, the analyst's rook, are custom.
+
+## Support
+
+MoveWise is free, open source and has no ads. If it has helped you improve at
+chess, you can [buy me a coffee on Ko-fi](https://ko-fi.com/amitgp853). The same
+link is in the app under **Settings → Support MoveWise**. Thank you!
 
 ## Licence
 

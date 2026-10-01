@@ -9,6 +9,7 @@ import '../../core/storage/analysis_repository.dart';
 import '../../core/storage/saved_position_repository.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/update/update_gate.dart';
 import '../../core/widgets/logo_mark.dart';
 import '../games/games_screen.dart' show savedGamesProvider;
 import '../pass_play/domain/unfinished_pass_game.dart';
@@ -78,6 +79,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.s4),
+            const UpdateCard(),
             if (continuePass) ...[
               _ContinueCard.pass(
                 unfinishedPass,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/analytics/analytics.dart';
 import '../../core/settings/display_settings.dart';
 import '../../core/llm/gemini_client.dart';
 import '../../core/llm/llm_client.dart';
@@ -161,18 +162,22 @@ class ReviewController extends Notifier<ReviewState> {
     if (moments.isEmpty) return;
     state = state.copyWith(explainPhase: ExplainPhase.running, explainError: () => null);
     final llm = ref.read(llmClientProvider);
+    final analytics = ref.read(analyticsProvider);
     try {
       final explanations = await ReviewExplainer(llm).explain(analysis, saved.record, moments);
       await ref
           .read(analysisRepositoryProvider)
           .saveReview(gameId, StoredReview(model: llm.model, json: explanations.toJson()));
+      analytics.track(Events.reviewExplained, {'outcome': 'ok'});
       if (_disposed) return;
       state = state.copyWith(explainPhase: ExplainPhase.done, explanations: explanations);
     } on LlmFailure catch (failure) {
+      analytics.track(Events.reviewExplained, {'outcome': outcomeOf(failure)});
       if (!_disposed) {
         state = state.copyWith(explainPhase: ExplainPhase.failed, explainError: () => failure);
       }
     } catch (_) {
+      analytics.track(Events.reviewExplained, {'outcome': 'error'});
       if (!_disposed) {
         state = state.copyWith(
           explainPhase: ExplainPhase.failed,

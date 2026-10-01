@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../core/analytics/analytics.dart';
 import '../../core/llm/gemini_client.dart';
 import '../../core/motion/reduce_motion.dart';
 import '../../core/routing/app_router.dart';
@@ -264,6 +265,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   Future<void> _read(ScanPhoto photo, Uint8List cropped) async {
     final run = ++_run;
     bool stale() => !mounted || run != _run;
+    final analytics = ref.read(analyticsProvider);
     _go(_Reading(photo, cropped, const []));
     try {
       final result = await ref
@@ -275,7 +277,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
             },
             isCancelled: stale,
           );
-      if (result == null || stale()) return;
+      if (result == null) return;
+      analytics.track(Events.scanRead, {'outcome': 'ok'});
+      if (stale()) return;
       _answers[_fingerprint(cropped)] = result;
       _misses = 0;
       // A moment on "Position ready" before the board opens.
@@ -283,6 +287,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
       if (!mounted || stale()) return;
       await _answer(result, photo, cropped);
     } on ScanFailure catch (failure) {
+      analytics.track(Events.scanRead, {'outcome': failure.kind.name});
       if (stale()) return;
       // What the photo shows won't change; a lost connection or a busy
       // server might, so those aren't kept.

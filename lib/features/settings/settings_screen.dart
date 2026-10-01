@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/analytics/analytics.dart';
 import '../../core/board/move_wise_board.dart';
+import '../../core/config/api_keys.dart';
 import '../../core/config/app_info.dart';
 import '../../core/llm/gemini_client.dart';
 import '../../core/llm/gemini_key.dart';
@@ -52,6 +54,9 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const _Section(title: 'Sound and motion', child: _SoundAndMotion()),
           const _Section(title: 'Game review', child: _ReviewDepth()),
+          // Only builds that send usage stats offer to stop them.
+          if (ApiKeys.hasTelemetryDeck) const _Section(title: 'Privacy', child: _UsageStats()),
+          const _Section(title: 'Support MoveWise', child: _SupportCard()),
           _Section(
             title: 'Developer',
             child: Column(
@@ -616,6 +621,30 @@ class _SoundAndMotion extends ConsumerWidget {
   }
 }
 
+/// The anonymous usage stats toggle. Not in the design; follows its card style.
+class _UsageStats extends ConsumerWidget {
+  const _UsageStats();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _Card(
+      children: [
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text('Share anonymous usage stats', style: _fieldLabel(context)),
+          subtitle: Text(
+            'Counts like “a game was played” or “a board was scanned”, so I know what to '
+            'improve. Never your games, chats, usernames or keys.',
+            style: _help(context),
+          ),
+          value: ref.watch(usageStatsEnabledProvider),
+          onChanged: ref.read(usageStatsEnabledProvider.notifier).set,
+        ),
+      ],
+    );
+  }
+}
+
 class _ReviewDepth extends ConsumerWidget {
   const _ReviewDepth();
 
@@ -636,6 +665,43 @@ class _ReviewDepth extends ConsumerWidget {
           'Deeper analysis is more accurate but takes longer. It all runs on this phone, '
           'offline.',
           style: _help(context),
+        ),
+      ],
+    );
+  }
+}
+
+/// A thank-you note and a link to Ko-fi. Not in the design; follows its card style.
+class _SupportCard extends StatelessWidget {
+  const _SupportCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return _Card(
+      children: [
+        Text('Enjoying ${AppInfo.name}?', style: _fieldLabel(context)),
+        Text(
+          '${AppInfo.name} is free, open source and has no ads. If it has helped you improve '
+          'at chess, you can buy me a coffee. Thank you! – Amit Gupta',
+          style: _help(context),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: () => _openLink(context, AppInfo.kofiUrl),
+            icon: const Icon(Icons.coffee_outlined, size: 18),
+            label: const Text('Support on Ko-fi'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 40),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              backgroundColor: colors.bgElevated,
+              side: BorderSide(color: colors.border),
+              foregroundColor: colors.textPrimary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              textStyle: context.type.body.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+          ),
         ),
       ],
     );

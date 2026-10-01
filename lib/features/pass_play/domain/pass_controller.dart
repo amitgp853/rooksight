@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/analytics/analytics.dart';
 import '../../../core/storage/game_repository.dart';
 import '../../../core/storage/settings_store.dart';
 import '../../play/domain/game_clock.dart';
@@ -203,6 +204,10 @@ class PassController extends Notifier<PassSession> {
     if (result == null || game.moves.isEmpty) return;
 
     final config = session.config;
+    ref.read(analyticsProvider).track(Events.passGameFinished, {
+      'reason': result.reason.name,
+      'moves': game.moves.length,
+    });
     final timeControl = config.timeControl;
     final endedAt = _now();
     final startedAt = session.startedAt ?? endedAt;

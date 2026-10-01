@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 import '../config/api_keys.dart';
+import '../config/remote_config.dart';
 import 'gemini_key.dart';
 import 'llm_client.dart';
 
@@ -303,18 +304,37 @@ class _Retryable implements Exception {
   final bool once;
 }
 
-/// The app's language model: Gemini with the player's key. A new key (saved
-/// or removed in Settings) builds a new client.
-final llmClientProvider = Provider<LlmClient>(
-  (ref) => GeminiClient(
+/// The app's language model: Gemini with the player's key, on the models
+/// [geminiModels] picks. A new key (saved or removed in Settings) or a new
+/// remote config builds a new client.
+final llmClientProvider = Provider<LlmClient>((ref) {
+  final (:model, :fallbacks, :thinkingLevel) = geminiModels(
+    ApiKeys.geminiModelOverridden ? null : ref.watch(remoteConfigProvider.select((c) => c.models)),
+  );
+  return GeminiClient(
     apiKey: ref.watch(geminiKeyProvider),
-    model: ApiKeys.geminiModel,
-    thinkingLevel: ApiKeys.geminiThinkingLevel,
-    fallbackModels: [
-      if (ApiKeys.geminiFallbackModel != ApiKeys.geminiModel) ApiKeys.geminiFallbackModel,
-    ],
-  ),
-);
+    model: model,
+    thinkingLevel: thinkingLevel,
+    fallbackModels: fallbacks,
+  );
+});
+
+/// The models to use: the [remote] ones where given, else the built-in ones.
+/// The built-in models always stay as fallbacks, so a remote model name that
+/// Gemini doesn't know (a typo, a retired model) costs one failed request,
+/// never the AI features.
+({String model, List<String> fallbacks, String thinkingLevel}) geminiModels(RemoteModels? remote) {
+  final model = remote?.model ?? ApiKeys.geminiModel;
+  return (
+    model: model,
+    fallbacks: {
+      ?remote?.fallbackModel,
+      ApiKeys.geminiModel,
+      ApiKeys.geminiFallbackModel,
+    }.where((m) => m != model).toList(),
+    thinkingLevel: remote?.thinkingLevel ?? ApiKeys.geminiThinkingLevel,
+  );
+}
 
 /// Whether there's a key; the AI features are offered only then.
 final llmConfiguredProvider = Provider<bool>((ref) => ref.watch(geminiKeyProvider).isNotEmpty);

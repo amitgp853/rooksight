@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/routing/app_router.dart';
 import 'core/settings/display_settings.dart';
 import 'core/theme/app_theme.dart';
+import 'core/update/update_gate.dart';
 import 'features/splash/intro.dart';
 
 class MoveWiseApp extends ConsumerWidget {
@@ -18,7 +19,7 @@ class MoveWiseApp extends ConsumerWidget {
       darkTheme: AppTheme.dark(),
       themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(routerProvider),
-      builder: (context, child) => IntroGate(child: child!),
+      builder: (context, child) => IntroGate(child: UpdateGate(child: child!)),
     );
   }
 }

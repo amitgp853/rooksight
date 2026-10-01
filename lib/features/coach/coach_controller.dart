@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/analytics/analytics.dart';
 import '../../core/llm/gemini_client.dart';
 import '../../core/llm/llm_client.dart';
 import '../../core/settings/display_settings.dart';
@@ -209,9 +210,11 @@ class CoachController extends Notifier<CoachState> {
           }),
         );
         _update(turn, (t) => t.copyWith(answer: answer));
+        _track(turn, null);
         await _saveAnswer(answer, turn, tools);
       } on Object catch (error) {
         if (error is! LlmFailure) debugPrint('Coach failed: $error');
+        _track(turn, error);
         // Steps still running when it failed never will finish.
         _update(turn, (t) => t.copyWith(error: error, steps: [...t.steps.where((s) => s.done)]));
       }
@@ -219,6 +222,11 @@ class CoachController extends Notifier<CoachState> {
       keepAlive.close();
     }
   }
+
+  void _track(int turn, Object? error) => ref.read(analyticsProvider).track(Events.coachAsked, {
+    'outcome': error is NotAnswered ? 'not_answered' : outcomeOf(error),
+    'steps': turn < state.turns.length ? state.turns[turn].steps.length : 0,
+  });
 
   /// Stores the question, creating the chat with the first one.
   Future<void> _saveQuestion(String text, CoachFocus? focus, DateTime at) async {

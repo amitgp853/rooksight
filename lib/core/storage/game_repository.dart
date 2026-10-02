@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:dartchess/dartchess.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';

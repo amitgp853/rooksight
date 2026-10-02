@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:flutter/painting.dart';
 
 /// Board colour themes, used by the board and the Settings theme picker.

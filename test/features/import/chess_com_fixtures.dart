@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 /// A Chess.com archive game as the API returns it (trimmed to the fields
 /// Rooksight reads). The PGN carries clock comments, as real ones do.
 Map<String, Object?> chessComGame({

@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:dartchess/dartchess.dart';
 import 'package:rooksight/engine/chess_engine.dart';
 import 'package:rooksight/engine/uci.dart';

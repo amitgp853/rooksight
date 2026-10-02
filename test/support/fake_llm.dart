@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:rooksight/core/llm/llm_client.dart';
 
 /// A language model for tests: answers with [reply] (or throws [failure])

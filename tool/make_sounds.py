@@ -1,3 +1,6 @@
+# Copyright (C) 2026 Amit Gupta
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Synthesises Rooksight's board sounds into assets/sounds/*.wav.
 
 A wooden piece set down on a wooden board, by modal synthesis: a short,

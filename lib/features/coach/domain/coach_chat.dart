@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import '../../../core/storage/chat_repository.dart';
 import 'coach_agent.dart';
 import 'coach_move.dart';

@@ -52,6 +52,12 @@ app.*.map.json
 env*.json
 dart_defines*.json
 lib/**/secrets.dart
+*.pem
+*.p12
+*.jks
+*.keystore
+key.properties
+**/service-account*.json
 
 # Claude Code files: local only
 .claude/

@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +21,7 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/theme/board_themes.dart';
+import '../../core/widgets/logo_mark.dart';
 import '../../core/widgets/segmented_switch.dart';
 import '../import/domain/importer.dart' show ImportPlatform;
 import '../scan/domain/scan_usage.dart';
@@ -34,8 +38,6 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-    final type = context.type;
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -65,15 +67,7 @@ class SettingsScreen extends ConsumerWidget {
           // Only builds that send usage stats offer to stop them.
           if (ApiKeys.hasTelemetryDeck) const _Section(title: 'Privacy', child: _UsageStats()),
           const _Section(title: 'Support Rooksight', child: _SupportCard()),
-          Text(
-            '${AppInfo.name} ${AppInfo.version} · Stockfish runs on your device',
-            textAlign: TextAlign.center,
-            style: type.label.copyWith(
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              color: colors.textTertiary,
-            ),
-          ),
+          const _Section(title: 'About', child: _AboutCard()),
         ],
       ),
     );
@@ -730,6 +724,61 @@ class _SupportCard extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               textStyle: context.type.body.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Version, copyright and licence, with the source code and the licence page:
+/// the GPL asks that both are easy to find. Not in the design; follows its
+/// card style.
+class _AboutCard extends StatelessWidget {
+  const _AboutCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    Widget row(IconData icon, String label, IconData trailing, VoidCallback onTap) => ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon, size: 20, color: colors.textSecondary),
+      title: Text(label, style: _fieldLabel(context)),
+      trailing: Icon(trailing, size: 18, color: colors.textSecondary),
+      onTap: onTap,
+    );
+    return _Card(
+      children: [
+        Text(
+          '${AppInfo.name} ${AppInfo.version} · Copyright © ${AppInfo.copyrightYear} '
+          '${AppInfo.copyrightHolder} · ${AppInfo.license}',
+          style: _fieldLabel(context),
+        ),
+        Text('Chess engine: Stockfish (GPL-3.0)', style: _help(context)),
+        Divider(height: AppSpacing.s2, color: colors.border),
+        row(
+          Icons.code_rounded,
+          'Source code',
+          Icons.open_in_new_rounded,
+          () => _openLink(context, AppInfo.sourceUrl),
+        ),
+        row(
+          Icons.description_outlined,
+          'Licences',
+          Icons.chevron_right_rounded,
+          () => showLicensePage(
+            context: context,
+            applicationName: AppInfo.name,
+            applicationVersion: AppInfo.version,
+            applicationIcon: const Padding(
+              padding: EdgeInsets.all(AppSpacing.s2),
+              child: LogoMark(size: 48),
+            ),
+            applicationLegalese:
+                'Copyright © ${AppInfo.copyrightYear} ${AppInfo.copyrightHolder}\n'
+                'Free software under the GPL-3.0-or-later.\n'
+                '“${AppInfo.name}” and its logo are trademarks of '
+                '${AppInfo.copyrightHolder} and are not covered by the GPL.',
           ),
         ),
       ],

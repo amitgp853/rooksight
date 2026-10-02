@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import '../settings/widgets/ai_setup_sheet.dart';
 import 'dart:async';
 import 'dart:math' as math;

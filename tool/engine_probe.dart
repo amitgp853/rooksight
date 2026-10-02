@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Debug probe: runs real Stockfish searches through StockfishEngine on a
 // device or simulator and prints the UCI traffic with timings, then exits.
 //

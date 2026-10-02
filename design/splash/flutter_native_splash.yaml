@@ -1,3 +1,4 @@
+# Copyright (C) 2026 Amit Gupta. All rights reserved. Not covered by the GPL; see TRADEMARKS.md.
 # Rooksight native splash — run: dart run flutter_native_splash:create
 # Copy the PNGs in this folder to assets/splash/ first.
 flutter_native_splash:

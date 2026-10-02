@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:dartchess/dartchess.dart';
 
 /// Checks that moves a language model writes are real moves, so an AI

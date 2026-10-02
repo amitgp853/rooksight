@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:flutter/foundation.dart';
 
 /// Keys and settings passed in at build time, never stored in the repo:

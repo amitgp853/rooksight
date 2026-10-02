@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'dart:typed_data';
 
 /// Decides from the camera preview's brightness whether to suggest more

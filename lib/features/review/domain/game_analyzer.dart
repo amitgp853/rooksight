@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import '../../../engine/chess_engine.dart';
 import '../../play/domain/game_state.dart';
 import 'position_eval.dart';

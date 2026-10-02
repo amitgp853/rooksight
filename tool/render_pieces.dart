@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // Renders the Rooksight piece set from `design/pieces/*.svg` to the PNGs that
 // chessground needs (it only accepts raster images).
 //

@@ -273,24 +273,22 @@ Thank you!
 
 ## Licence
 
-Copyright (C) 2026 amitgp853
+Free and open source. Official builds and the Rooksight name are only from Amit Gupta.
 
-Rooksight is free software: you can redistribute it and/or modify it under the
-terms of the [GNU General Public License v3.0](LICENSE) (GPL-3.0-only).
+Copyright (C) 2026 Amit Gupta. Rooksight is free software under the
+[GNU General Public License v3.0 or later](LICENSE) (GPL-3.0-or-later): you may
+run, study, change and share it. If you share it or a modified version, you must
+share its full source under the same licence. It comes with no warranty.
 
-In short: you may run, study and change it. If you share it or a modified
-version, in any form, you must share its full source under the same licence,
-keep this copyright notice, and state what you changed. It comes with no
-warranty.
+- [LICENSE](LICENSE): the full GPL-3.0 text.
+- [NOTICE](NOTICE): copyright, what the GPL covers, and the third-party software
+  and fonts Rooksight uses (Stockfish, chessground and dartchess under GPL-3.0;
+  Sora, Instrument Sans and JetBrains Mono under the OFL).
+- [TRADEMARKS.md](TRADEMARKS.md): the Rooksight name and logo are trademarks and
+  **not** under the GPL. Forks are welcome under a different name and logo.
 
-It builds on these GPL-3.0 projects, which is why Rooksight uses the same
-licence:
+The code, the piece set and the board sounds are under the GPL. The logo, app
+icons and splash artwork are all rights reserved.
 
-- [Stockfish](https://stockfishchess.org), via
-  [multistockfish](https://github.com/lichess-org/dart-multistockfish)
-- [dartchess](https://github.com/lichess-org/dartchess) and
-  [chessground](https://github.com/lichess-org/flutter-chessground) from Lichess
-- [sound_effect](https://github.com/lichess-org/flutter-sound-effect)
-
-The Rooksight piece set, logo, design and board sounds are part of this
-repository and covered by the same licence.
+Contributions are accepted under the [Contributor License Agreement](CLA.md); see
+[CONTRIBUTING.md](CONTRIBUTING.md).

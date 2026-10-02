@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;

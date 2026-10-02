@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import 'app.dart';
 import 'core/board/board_style.dart';
+import 'core/config/extra_licenses.dart';
 import 'core/llm/gemini_key.dart';
 import 'core/storage/database.dart';
 import 'core/storage/game_repository.dart';
@@ -15,6 +19,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Fonts are bundled in assets/google_fonts/; never download them.
   GoogleFonts.config.allowRuntimeFetching = false;
+  registerExtraLicenses();
 
   final database = AppDatabase();
   final keyStorage = SecureGeminiKeyStorage();

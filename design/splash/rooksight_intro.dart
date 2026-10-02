@@ -1,3 +1,4 @@
+// Copyright (C) 2026 Amit Gupta. All rights reserved. Not covered by the GPL; see TRADEMARKS.md.
 // Rooksight animated intro — shown right after the native splash (same background colour,
 // same logo position, so the hand-off is seamless). ~1.2 s, then calls [onDone].
 // Honors reduced motion: if MediaQuery.disableAnimations is true it shows the final frame.

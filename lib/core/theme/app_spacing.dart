@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 /// 4-pt spacing scale. Names follow the design tokens (`space.1` = 4px).
 abstract final class AppSpacing {
   static const double s1 = 4;

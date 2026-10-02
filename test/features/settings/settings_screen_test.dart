@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -222,14 +225,19 @@ void main() {
     expect(container.read(themeModeProvider), ThemeMode.light);
   });
 
-  testWidgets('the footer shows the version', (tester) async {
+  testWidgets('About shows the version, copyright and licence, and opens the licences', (
+    tester,
+  ) async {
     await pumpSettings(tester);
-    await tester.scrollUntilVisible(
-      find.textContaining('Stockfish runs on your device'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text('Rooksight 0.1.0 · Stockfish runs on your device'), findsOneWidget);
+    await reveal(tester, find.text('Licences'));
+    expect(find.text('Rooksight 0.1.0 · Copyright © 2026 Amit Gupta · GPL-3.0'), findsOneWidget);
+    expect(find.text('Chess engine: Stockfish (GPL-3.0)'), findsOneWidget);
+    expect(find.text('Source code'), findsOneWidget);
+
+    await tester.tap(find.text('Licences'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(LicensePage), findsOneWidget);
   });
 
   testWidgets('one username per site, each with its own Import', (tester) async {

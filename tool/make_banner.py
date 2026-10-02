@@ -1,3 +1,6 @@
+# Copyright (C) 2026 Amit Gupta
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Builds the README banner (design/banner.png) from the app screenshots.
 
 Usage: python3 tool/make_banner.py   (needs Pillow)

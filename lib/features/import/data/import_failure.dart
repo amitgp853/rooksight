@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 /// Why talking to Chess.com or Lichess failed.
 sealed class ImportFailure implements Exception {
   const ImportFailure();

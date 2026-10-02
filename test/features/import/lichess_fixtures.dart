@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Amit Gupta
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 /// A Lichess export game as the API returns it with `pgnInJson` and
 /// `opening` (trimmed to the fields Rooksight reads).
 Map<String, Object?> lichessGame({

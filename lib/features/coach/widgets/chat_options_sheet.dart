@@ -51,6 +51,7 @@ class _ChatOptions extends StatelessWidget {
     void close(_Action? action) => Navigator.of(context).pop(action);
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpacing.s2,
       children: [

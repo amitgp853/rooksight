@@ -40,6 +40,7 @@ class PassResultSheet extends ConsumerWidget {
     return Semantics(
       label: 'Game over',
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppSpacing.s4,
         children: [

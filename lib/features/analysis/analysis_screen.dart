@@ -366,6 +366,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
       builder: (context) => Material(
         type: MaterialType.transparency,
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(

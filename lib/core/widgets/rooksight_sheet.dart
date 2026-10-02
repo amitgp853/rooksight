@@ -12,6 +12,10 @@ const _sheetCurve = Cubic(0.2, 0.9, 0.3, 1);
 
 /// Shows a bottom sheet in the Rooksight style. With [reduceMotion] it fades
 /// in (200ms) instead of sliding.
+///
+/// The sheet is as tall as its content, up to just below the status bar, so
+/// [builder]'s root `Column` needs `mainAxisSize: MainAxisSize.min`;
+/// otherwise it fills that whole height.
 Future<T?> showRooksightSheet<T>(
   BuildContext context, {
   required bool reduceMotion,

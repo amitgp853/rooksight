@@ -22,6 +22,7 @@ class OptionsSheet extends ConsumerWidget {
     void close() => Navigator.of(context).pop();
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 6,
       children: [
@@ -175,6 +176,7 @@ class ResultSheet extends ConsumerWidget {
     return Semantics(
       label: 'Game over',
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: AppSpacing.s4,
         children: [

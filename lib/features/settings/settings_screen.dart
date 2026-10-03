@@ -62,6 +62,7 @@ class SettingsScreen extends ConsumerWidget {
               onSelect: ref.read(themeModeProvider.notifier).set,
             ),
           ),
+          const _Section(title: 'Playing', child: _Premoves()),
           const _Section(title: 'Sound and motion', child: _SoundAndMotion()),
           const _Section(title: 'Game review', child: _ReviewDepth()),
           // Only builds that send usage stats offer to stop them.
@@ -640,6 +641,30 @@ class _SoundAndMotion extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The premove toggle. Not in the design; follows its card style.
+class _Premoves extends ConsumerWidget {
+  const _Premoves();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _Card(
+      children: [
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text('Premoves', style: _fieldLabel(context)),
+          subtitle: Text(
+            'Move while Stockfish is thinking; your move plays as soon as it replies. '
+            'Tap the board to cancel.',
+            style: _help(context),
+          ),
+          value: ref.watch(premovesEnabledProvider),
+          onChanged: ref.read(premovesEnabledProvider.notifier).set,
+        ),
+      ],
     );
   }
 }

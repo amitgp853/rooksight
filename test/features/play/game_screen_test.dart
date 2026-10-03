@@ -115,6 +115,62 @@ void main() {
     expect(find.text('e4'), findsOneWidget);
   });
 
+  group('premove', () {
+    /// Moves on the board during Stockfish's turn, without waiting it out.
+    Future<void> queue(WidgetTester tester, Square from, Square to) async {
+      await tester.tapAt(squareCentre(tester, from));
+      await tester.pump();
+      await tester.tapAt(squareCentre(tester, to));
+      await tester.pump();
+    }
+
+    testWidgets("a move on Stockfish's turn plays after its reply", (tester) async {
+      final engine = FakeEngine(delay: const Duration(seconds: 1));
+      final container = await pumpGame(tester, engine: engine);
+      await queue(tester, Square.e2, Square.e4);
+      await queue(tester, Square.g1, Square.f3);
+
+      expect(container.read(gameControllerProvider).premove, Move.parse('g1f3'));
+      expect(find.text('Premove: knight to f3'), findsOneWidget);
+
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(GameController.premoveDelay);
+      await tester.pump(const Duration(seconds: 2)); // Stockfish's next reply.
+      final moves = container.read(gameControllerProvider).game.moves;
+      expect(moves.map((m) => m.san).take(3), ['e4', moves[1].san, 'Nf3']);
+      expect(find.textContaining('Premove'), findsNothing);
+    });
+
+    testWidgets('Cancel drops it, on the board too', (tester) async {
+      final engine = FakeEngine(delay: const Duration(seconds: 1));
+      final container = await pumpGame(tester, engine: engine);
+      await queue(tester, Square.e2, Square.e4);
+      await queue(tester, Square.g1, Square.f3);
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pump();
+      expect(container.read(gameControllerProvider).premove, isNull);
+      final board = tester.widget<Chessboard>(find.byType(Chessboard));
+      expect(board.controller.premove, isNull);
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(container.read(gameControllerProvider).game.moves, hasLength(2));
+    });
+
+    testWidgets("off in Settings, the board ignores moves on Stockfish's turn", (tester) async {
+      final engine = FakeEngine(delay: const Duration(seconds: 1));
+      final container = await pumpGame(tester, engine: engine);
+      container.read(premovesEnabledProvider.notifier).set(false);
+      await tester.pump();
+      await queue(tester, Square.e2, Square.e4);
+      await queue(tester, Square.g1, Square.f3);
+
+      expect(container.read(gameControllerProvider).premove, isNull);
+      await tester.pump(const Duration(seconds: 2));
+      expect(container.read(gameControllerProvider).game.moves, hasLength(2));
+    });
+  });
+
   testWidgets('an illegal tap does not move', (tester) async {
     final container = await pumpGame(tester);
 

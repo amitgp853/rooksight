@@ -49,6 +49,10 @@ class GameController extends Notifier<GameSession> {
   /// …and accepts when its evaluation is at most this (in pawns, from its side).
   static const drawAcceptEval = 0.3;
 
+  /// A premove waits this long after Stockfish's move, so that move is seen
+  /// landing (its 200ms slide) before the player's piece sets off.
+  static const premoveDelay = Duration(milliseconds: 200);
+
   late ChessEngine _engine;
   late Random _random;
   late DateTime Function() _now;
@@ -128,6 +132,14 @@ class GameController extends Notifier<GameSession> {
     return true;
   }
 
+  /// Queues [move] to play right after Stockfish's reply, or cancels the
+  /// queued one when null. Only while Stockfish is to move.
+  void setPremove(Move? move) {
+    final canQueue = !state.game.isOver && !state.paused && state.game.turn == _config.engineSide;
+    if (move != null && !canQueue) return;
+    if (state.premove != move) state = state.copyWith(premove: () => move);
+  }
+
   void resign() => _finish(GameResult.win(_config.engineSide, GameEndReason.resignation));
 
   /// Offers Stockfish a draw. It accepts from move [drawOfferMinMove] when it
@@ -173,6 +185,7 @@ class GameController extends Notifier<GameSession> {
       engineThinking: false,
       hint: () => null,
       notice: () => null,
+      premove: () => null,
       // Back at the start, clocks wait for White's first move again.
       clock: () => game.moves.isEmpty ? clock?.stop(now) : clock?.resume(game.turn, now),
     );
@@ -215,7 +228,7 @@ class GameController extends Notifier<GameSession> {
     if (!state.canPause || state.paused) return;
     _userPaused = true;
     pauseClock();
-    state = state.copyWith(paused: true, hint: () => null);
+    state = state.copyWith(paused: true, hint: () => null, premove: () => null);
   }
 
   void resume() {
@@ -277,9 +290,31 @@ class GameController extends Notifier<GameSession> {
       engineThinking: false,
       hint: () => null,
       notice: () => null,
+      // A premove waits for Stockfish: the player's own move or the end of
+      // the game drops it.
+      premove: mover == _config.playerSide || next.isOver ? () => null : null,
     );
     _scheduleFlag();
     if (next.isOver) unawaited(_saveFinishedGame());
+  }
+
+  /// Plays the queued premove once Stockfish's move has landed. Dropped with
+  /// a notice if Stockfish's reply made it illegal.
+  void _schedulePremove() {
+    final premove = state.premove;
+    if (premove == null || state.game.isOver) return;
+    final generation = _generation;
+    final game = state.game;
+    Timer(premoveDelay, () {
+      // Stale if the game moved on meanwhile: a take-back, a move by hand, a
+      // cancel.
+      if (!ref.mounted || generation != _generation) return;
+      if (state.game != game || state.premove != premove) return;
+      state = state.copyWith(premove: () => null);
+      if (!play(premove)) {
+        state = state.copyWith(notice: () => 'Premove cancelled: it was no longer legal.');
+      }
+    });
   }
 
   /// Ends the game now (resignation, agreed draw, timeout).
@@ -292,6 +327,7 @@ class GameController extends Notifier<GameSession> {
       clock: () => state.clock?.stop(_now()),
       engineThinking: false,
       hint: () => null,
+      premove: () => null,
     );
     unawaited(_saveFinishedGame());
   }
@@ -398,6 +434,7 @@ class GameController extends Notifier<GameSession> {
       final next = uci == null ? null : game.play(Move.parse(uci)!);
       if (next == null) throw StateError('Engine gave no playable move: $uci');
       _applyMove(next, _config.engineSide);
+      _schedulePremove();
     } catch (_) {
       if (isCurrent()) state = state.copyWith(engineThinking: false, engineError: true);
     } finally {
@@ -425,15 +462,33 @@ List<String> _legalMoves(Position position) => [
 String hintText(Position position, NormalMove move) {
   final piece = position.board.pieceAt(move.from);
   if (piece == null) return 'Look for the best move.';
-  final isCastling = piece.role == Role.king && (move.from.file - move.to.file).abs() > 1;
-  if (isCastling) return 'Consider castling.';
-  final name = switch (piece.role) {
-    Role.pawn => 'pawn',
-    Role.knight => 'knight',
-    Role.bishop => 'bishop',
-    Role.rook => 'rook',
-    Role.queen => 'queen',
-    Role.king => 'king',
-  };
-  return 'Look at your $name on ${move.from.name}.';
+  if (_isCastling(piece, move)) return 'Consider castling.';
+  return 'Look at your ${_roleName(piece.role)} on ${move.from.name}.';
 }
+
+/// The queued premove in words, e.g. "knight to f3". It isn't legal yet (it
+/// is Stockfish's turn), so there is no SAN for it.
+String premoveText(Position position, Move move) {
+  if (move is! NormalMove) return move.uci;
+  final piece = position.board.pieceAt(move.from);
+  if (piece == null) return '${move.from.name} to ${move.to.name}';
+  if (_isCastling(piece, move)) {
+    return move.to.file > move.from.file ? 'castle short' : 'castle long';
+  }
+  final promotion = move.promotion;
+  return '${_roleName(piece.role)} to ${move.to.name}'
+      '${promotion == null ? '' : ', promoting to a ${_roleName(promotion)}'}';
+}
+
+/// A king moving two files, or onto its own rook (how chessground offers it).
+bool _isCastling(Piece piece, NormalMove move) =>
+    piece.role == Role.king && (move.from.file - move.to.file).abs() > 1;
+
+String _roleName(Role role) => switch (role) {
+  Role.pawn => 'pawn',
+  Role.knight => 'knight',
+  Role.bishop => 'bishop',
+  Role.rook => 'rook',
+  Role.queen => 'queen',
+  Role.king => 'king',
+};

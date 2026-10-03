@@ -35,6 +35,7 @@ class GameSession {
     this.savedGameId,
     this.saveFailed = false,
     this.paused = false,
+    this.premove,
   });
 
   final GameConfig config;
@@ -70,6 +71,10 @@ class GameSession {
   /// The player paused a timed game: the clock is stopped, the board hidden.
   final bool paused;
 
+  /// A move the player queued during Stockfish's turn, played as soon as
+  /// Stockfish replies if it is still legal then.
+  final Move? premove;
+
   /// A timed game still going can be paused.
   bool get canPause => clock != null && !game.isOver;
 
@@ -94,6 +99,7 @@ class GameSession {
     int? savedGameId,
     bool? saveFailed,
     bool? paused,
+    Move? Function()? premove,
   }) {
     return GameSession(
       config: config ?? this.config,
@@ -109,6 +115,7 @@ class GameSession {
       savedGameId: savedGameId ?? this.savedGameId,
       saveFailed: saveFailed ?? this.saveFailed,
       paused: paused ?? this.paused,
+      premove: premove != null ? premove() : this.premove,
     );
   }
 }

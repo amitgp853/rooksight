@@ -70,6 +70,11 @@ final soundEnabledProvider = NotifierProvider<BoolSetting, bool>(
   () => BoolSetting('sound', fallback: true),
 );
 
+/// Premoves against Stockfish on or off.
+final premovesEnabledProvider = NotifierProvider<BoolSetting, bool>(
+  () => BoolSetting('premoves', fallback: true),
+);
+
 /// Haptic feedback on or off.
 final hapticsEnabledProvider = NotifierProvider<BoolSetting, bool>(
   () => BoolSetting('haptics', fallback: true),

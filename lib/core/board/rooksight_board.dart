@@ -25,6 +25,7 @@ class RooksightBoard extends ConsumerWidget {
     this.shapes = const {},
     this.annotations = const {},
     this.pieceOrientation = PieceOrientationBehavior.facingUser,
+    this.premoves = false,
   });
 
   final ChessboardController controller;
@@ -42,12 +43,17 @@ class RooksightBoard extends ConsumerWidget {
   /// Which way the pieces face; over-the-board play turns them.
   final PieceOrientationBehavior pieceOrientation;
 
+  /// Lets the player queue a move during the opponent's turn; it shows on
+  /// [controller]'s `premove`.
+  final bool premoves;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = rooksightBoardSettings(
       theme: ref.watch(boardThemeProvider),
       colors: context.colors,
       reduceMotion: shouldReduceMotion(context, ref),
+      premoves: premoves,
     ).copyWith(pieceOrientationBehavior: pieceOrientation);
     Widget board(double size) => Chessboard(
       size: size,

@@ -309,6 +309,16 @@ class _MessageArea extends ConsumerWidget {
         text: ResultCopy.of(session).title,
         action: TextButton(onPressed: onShowResult, child: const Text('See result')),
       );
+    } else if (session.premove case final premove?) {
+      message = _Toast(
+        tint: colors.focus,
+        icon: Icons.schedule_rounded,
+        text: 'Premove: ${premoveText(session.game.position, premove)}',
+        action: TextButton(
+          onPressed: () => ref.read(gameControllerProvider.notifier).setPremove(null),
+          child: const Text('Cancel'),
+        ),
+      );
     } else if (session.notice case final notice?) {
       message = _Toast(text: notice);
     } else if (session.hint case final hint?) {

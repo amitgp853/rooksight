@@ -172,6 +172,110 @@ void main() {
     });
   });
 
+  group('premove', () {
+    /// Stockfish answers 1. e4 with 1... e5, then its first legal move.
+    FakeEngine scripted() => FakeEngine(
+      reply: (fen) => [
+        line(
+          fen.startsWith('rnbqkbnr/pppppppp/8/8/4P3/') ? 'e7e5' : FakeEngine.firstLegalMove(fen),
+        ),
+      ],
+    );
+    GameConfig strong(GameConfig c) => c.copyWith(level: EloLevel.of(2000));
+    Move move(String uci) => Move.parse(uci)!;
+
+    test('plays right after Stockfish has replied and its move has landed', () {
+      withGame(scripted(), (async, container, controller) {
+        play(controller, 'e2e4');
+        controller.setPremove(move('g1f3'));
+        expect(session(container).premove, move('g1f3'));
+
+        async.elapse(GameController.minThinkTime);
+        expect(session(container).game.moves.map((m) => m.san), ['e4', 'e5']);
+
+        async.elapse(GameController.premoveDelay);
+        expect(session(container).game.moves.map((m) => m.san), ['e4', 'e5', 'Nf3']);
+        expect(session(container).premove, isNull);
+        expect(session(container).isPlayerTurn, isFalse); // Stockfish's turn again.
+      }, config: strong);
+    });
+
+    test("is dropped with a notice when Stockfish's reply makes it illegal", () {
+      withGame(scripted(), (async, container, controller) {
+        play(controller, 'e2e4');
+        controller.setPremove(move('e4e5')); // 1... e5 blocks the pawn.
+        async.elapse(GameController.minThinkTime + GameController.premoveDelay);
+
+        expect(session(container).game.moves, hasLength(2));
+        expect(session(container).premove, isNull);
+        expect(session(container).notice, contains('no longer legal'));
+        expect(session(container).isPlayerTurn, isTrue);
+      }, config: strong);
+    });
+
+    test('can be cancelled before Stockfish replies', () {
+      withGame(scripted(), (async, container, controller) {
+        play(controller, 'e2e4');
+        controller.setPremove(move('g1f3'));
+        controller.setPremove(null);
+        async.elapse(const Duration(seconds: 1));
+        expect(session(container).game.moves, hasLength(2));
+        expect(session(container).premove, isNull);
+      }, config: strong);
+    });
+
+    test('a move by hand while it waits replaces it', () {
+      withGame(scripted(), (async, container, controller) {
+        play(controller, 'e2e4');
+        controller.setPremove(move('g1f3'));
+        async.elapse(GameController.minThinkTime);
+        play(controller, 'b1c3');
+        async.elapse(GameController.premoveDelay);
+        expect(session(container).game.moves.map((m) => m.san), ['e4', 'e5', 'Nc3']);
+        expect(session(container).premove, isNull);
+      }, config: strong);
+    });
+
+    test("only during Stockfish's turn", () {
+      withGame(scripted(), (async, container, controller) {
+        controller.setPremove(move('e2e4'));
+        expect(session(container).premove, isNull);
+      }, config: strong);
+    });
+
+    test('a take-back clears it', () {
+      final engine = FakeEngine(delay: const Duration(seconds: 1));
+      withGame(engine, (async, container, controller) {
+        play(controller, 'e2e4');
+        controller.setPremove(move('g1f3'));
+        controller.undo();
+        expect(session(container).premove, isNull);
+        async.elapse(const Duration(seconds: 2));
+        expect(session(container).game.moves, isEmpty);
+      }, config: (c) => strong(c).copyWith(practice: true));
+    });
+
+    test('resigning clears it', () {
+      withGame(scripted(), (async, container, controller) {
+        play(controller, 'e2e4');
+        controller.setPremove(move('g1f3'));
+        controller.resign();
+        async.elapse(const Duration(seconds: 1));
+        expect(session(container).premove, isNull);
+        expect(session(container).game.moves, hasLength(1));
+      }, config: strong);
+    });
+
+    test('is described in words', () {
+      final start = Chess.initial;
+      expect(premoveText(start, move('g1f3')), 'knight to f3');
+      expect(premoveText(start, move('e2e4')), 'pawn to e4');
+      expect(premoveText(start, move('e1g1')), 'castle short');
+      expect(premoveText(start, move('e1a1')), 'castle long');
+      expect(premoveText(start, move('a2a8q')), 'pawn to a8, promoting to a queen');
+    });
+  });
+
   test('resigning hands Stockfish the win', () {
     withGame(FakeEngine(), (async, container, controller) {
       controller.resign();

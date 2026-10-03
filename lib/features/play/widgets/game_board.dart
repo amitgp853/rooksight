@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/board/board_style.dart';
 import '../../../core/board/rooksight_board.dart';
 import '../../../core/feedback/haptics.dart';
+import '../../../core/settings/display_settings.dart';
 import '../../../core/theme/app_theme.dart';
 import '../domain/game_controller.dart';
 import '../domain/game_session.dart';
@@ -47,6 +48,12 @@ class _GameBoardState extends ConsumerState<GameBoard> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    _board.premoveNotifier.addListener(_onBoardPremove);
+  }
+
+  @override
   void didUpdateWidget(GameBoard old) {
     super.didUpdateWidget(old);
     if (old.viewPly != widget.viewPly) {
@@ -56,8 +63,21 @@ class _GameBoardState extends ConsumerState<GameBoard> {
 
   @override
   void dispose() {
+    _board.premoveNotifier.removeListener(_onBoardPremove);
     _board.dispose();
     super.dispose();
+  }
+
+  /// The player set or cancelled a premove on the board (moving during
+  /// Stockfish's turn, or tapping to cancel): pass it to the game.
+  void _onBoardPremove() {
+    final move = _board.premove;
+    if (move == ref.read(gameControllerProvider).premove) return;
+    ref.haptic(Haptic.selection);
+    ref.read(gameControllerProvider.notifier).setPremove(move);
+    // The game may refuse it (e.g. it just ended); keep the board in step.
+    final kept = ref.read(gameControllerProvider).premove;
+    if (_board.premove != kept) _board.premove = kept;
   }
 
   GameData _gameData(GameSession session) {
@@ -88,6 +108,8 @@ class _GameBoardState extends ConsumerState<GameBoard> {
       if (previous?.game != next.game || previous?.paused != next.paused) {
         _board.updatePosition(_gameData(next));
       }
+      // Played, dropped or cleared by the game (take-back, pause, game over).
+      if (_board.premove != next.premove) _board.premove = next.premove;
     });
     final hint = ref.watch(gameControllerProvider.select((session) => session.hint));
 
@@ -95,6 +117,7 @@ class _GameBoardState extends ConsumerState<GameBoard> {
       controller: _board,
       orientation: widget.orientation,
       size: widget.size,
+      premoves: ref.watch(premovesEnabledProvider),
       shapes: {
         if (hint != null && widget.viewPly == null)
           hintArrow(context.colors, from: hint.move.from, to: hint.move.to),

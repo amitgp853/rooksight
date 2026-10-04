@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:dartchess/dartchess.dart' show Side;
-import 'package:llm_tool_calling/llm_tool_calling.dart';
+import 'package:llm_tool/llm_tool.dart';
 
 part 'chess_tools.g.dart';
 
-// The coach's tools as the model sees them. `llm_tool_calling_generator`
+// The coach's tools as the model sees them. `llm_tool_generator`
 // turns each function into a ToolDefinition (`<name>Tool`, all of them in
 // [chessTools]) with a JSON Schema built from its parameters, and `call()`
 // checks the model's arguments against it.
@@ -49,7 +49,7 @@ final class GetPosition extends CoachCommand {
 
 /// Stockfish's evaluation and best line for a chess position. Use it to
 /// check a move or to look deeper at a position from a game.
-@Tool(name: 'analyze_position')
+@LlmTool(name: 'analyze_position')
 AnalyzePosition analyzePosition(@Param('The position in FEN.') String fen) => AnalyzePosition(fen);
 
 /// The player's mistakes in one reviewed game: each move, the evaluation
@@ -57,7 +57,7 @@ AnalyzePosition analyzePosition(@Param('The position in FEN.') String fen) => An
 /// and the position before it (FEN). "best_line_material" and
 /// "allowed_material" are the mover's material change in pawns at the end of
 /// each line, left out when nothing changes.
-@Tool(name: 'get_game_mistakes')
+@LlmTool(name: 'get_game_mistakes')
 GetGameMistakes getGameMistakes(
   @Param('A game id from the list of games.', name: 'game_id') int gameId,
 ) => GetGameMistakes(gameId);
@@ -65,7 +65,7 @@ GetGameMistakes getGameMistakes(
 /// The player's results across their recent games: by opening and colour,
 /// mistakes and blunders per game and by game phase, losses from winning
 /// positions, and their three costliest moves.
-@Tool(name: 'get_my_stats')
+@LlmTool(name: 'get_my_stats')
 GetMyStats getMyStats() => const GetMyStats();
 
 /// Stockfish's verdict on one move in a position: whether it's legal, the
@@ -74,7 +74,7 @@ GetMyStats getMyStats() => const GetMyStats();
 /// pawns it loses, and the opponent's best reply. Use it when the player
 /// asks about a move that wasn't played, e.g. "what about Nf3 instead?". An
 /// illegal move comes back with the legal moves.
-@Tool(name: 'evaluate_move')
+@LlmTool(name: 'evaluate_move')
 EvaluateMove evaluateMove(
   @Param('The position before the move, in FEN, copied from a tool result.') String fen,
   @Param('The move, in SAN (Nf3, exd5, O-O, e8=Q) or UCI (g1f3).') String move,
@@ -84,7 +84,7 @@ EvaluateMove evaluateMove(
 /// move played, the positions before and after it (FEN), and, if the game
 /// was reviewed, Stockfish's facts about it. Use it for a move the player
 /// names that isn't among the mistakes already looked up.
-@Tool(name: 'get_position')
+@LlmTool(name: 'get_position')
 GetPosition getPosition(
   @Param('A game id from the list of games.', name: 'game_id') int gameId,
   @Param(

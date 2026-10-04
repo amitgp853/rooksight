@@ -5,7 +5,7 @@ targets:
       drift_dev:
         generate_for:
           - lib/core/storage/**
-      llm_tool_calling_generator:llm_tool_calling:
+      llm_tool_generator:llm_tool:
         generate_for:
           - lib/features/coach/domain/chess_tools.dart
       source_gen:combining_builder:

@@ -8,7 +8,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:llm_tool_calling/llm_tool_calling.dart' show withoutAdditionalProperties;
+import 'package:llm_tool/llm_tool.dart' show withoutAdditionalProperties;
 
 import '../config/api_keys.dart';
 import '../config/remote_config.dart';

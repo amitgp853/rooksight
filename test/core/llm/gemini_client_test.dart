@@ -429,7 +429,7 @@ void main() {
   });
 
   group('tool calling', () {
-    const tool = LlmTool(
+    const tool = LlmToolSpec(
       name: 'analyze_position',
       description: 'Stockfish on a position.',
       parameters: {
@@ -446,7 +446,7 @@ void main() {
           messages: [LlmMessage.user('Hi')],
           tools: [
             tool,
-            LlmTool(name: 'get_my_stats', description: 'Stats.'),
+            LlmToolSpec(name: 'get_my_stats', description: 'Stats.'),
           ],
           toolMode: LlmToolMode.none,
         ),
@@ -471,7 +471,7 @@ void main() {
         const LlmRequest(
           messages: [LlmMessage.user('Hi')],
           tools: [
-            LlmTool(
+            LlmToolSpec(
               name: 'analyze_position',
               description: 'Stockfish on a position.',
               parameters: {
@@ -490,7 +490,7 @@ void main() {
                 'additionalProperties': false,
               },
             ),
-            LlmTool(
+            LlmToolSpec(
               name: 'get_my_stats',
               description: 'Stats.',
               parameters: {

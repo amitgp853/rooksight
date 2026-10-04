@@ -5,7 +5,7 @@ import 'dart:math';
 
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/foundation.dart';
-import 'package:llm_tool_calling/llm_tool_calling.dart' show ToolArgumentException;
+import 'package:llm_tool/llm_tool.dart' show ToolArgumentException;
 
 import '../../../core/chess/move_check.dart';
 import '../../../core/chess/uci.dart';
@@ -103,7 +103,11 @@ class CoachTools {
   /// The tools as the model sees them, generated from [chessTools].
   static final declarations = [
     for (final tool in chessTools)
-      LlmTool(name: tool.name, description: tool.description, parameters: tool.parametersSchema),
+      LlmToolSpec(
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.parametersSchema,
+      ),
   ];
 
   static final _byName = {for (final tool in chessTools) tool.name: tool};
@@ -194,7 +198,7 @@ class CoachTools {
       return ToolOutcome({'error': 'Unknown tool ${call.name}.'}, _failed('Couldn’t look that up'));
     }
     try {
-      return switch (await tool.call(call.args) as CoachCommand) {
+      return switch (await tool.call(call.args)) {
         AnalyzePosition(:final fen) => await _analyzePosition(fen, onStart),
         GetGameMistakes(:final gameId) => await _gameMistakes(gameId, onStart),
         GetMyStats() => await _stats(onStart),

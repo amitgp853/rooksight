@@ -105,7 +105,8 @@ final getPositionTool = ToolDefinition(
 );
 
 /// Every tool in this file, e.g. to send to an LLM or look up by name.
-final List<ToolDefinition> chessTools = [
+/// Typed by the tools' common return type, so calling one needs no cast.
+final chessTools = [
   analyzePositionTool,
   getGameMistakesTool,
   getMyStatsTool,

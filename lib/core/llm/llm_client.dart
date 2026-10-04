@@ -60,8 +60,8 @@ class LlmImage {
 /// A tool the model may call: a name, what it does, and a JSON Schema for
 /// its arguments (null when it takes none).
 @immutable
-class LlmTool {
-  const LlmTool({required this.name, required this.description, this.parameters});
+class LlmToolSpec {
+  const LlmToolSpec({required this.name, required this.description, this.parameters});
 
   final String name;
   final String description;
@@ -126,7 +126,7 @@ class LlmRequest {
   /// A JSON Schema the reply must follow; the reply is then JSON text.
   final Map<String, Object?>? jsonSchema;
   final double temperature;
-  final List<LlmTool> tools;
+  final List<LlmToolSpec> tools;
   final LlmToolMode toolMode;
 }
 

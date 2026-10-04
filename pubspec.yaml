@@ -22,7 +22,7 @@ dependencies:
   http: ^1.6.0
   image: ^4.10.1
   image_picker: ^1.2.3
-  llm_tool_calling: ^0.5.0
+  llm_tool: ^0.7.0
   multistockfish: ^0.5.0
   package_info_plus: ^10.2.1
   share_plus: ^13.3.0
@@ -40,7 +40,7 @@ dev_dependencies:
   build_runner: ^2.16.1
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.7
-  llm_tool_calling_generator: ^0.5.0
+  llm_tool_generator: ^0.7.0
 
 flutter:
   uses-material-design: true

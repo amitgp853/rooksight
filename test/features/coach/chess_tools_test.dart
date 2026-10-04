@@ -3,7 +3,7 @@
 
 import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:llm_tool_calling/llm_tool_calling.dart';
+import 'package:llm_tool/llm_tool.dart';
 import 'package:rooksight/core/llm/gemini_client.dart';
 import 'package:rooksight/core/llm/llm_client.dart';
 import 'package:rooksight/features/coach/domain/chess_tools.dart';

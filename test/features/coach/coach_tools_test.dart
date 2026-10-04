@@ -1,6 +1,8 @@
 // Copyright (C) 2026 Amit Gupta
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:llm_tool/llm_tool.dart';
 import 'package:rooksight/core/llm/gemini_client.dart';
@@ -124,6 +126,16 @@ void main() {
 
     test('none of them needs confirming: they only read', () {
       expect(coach.llmTools.where((tool) => tool.requiresConfirmation), isEmpty);
+    });
+
+    test('the tools the model sees match the snapshot', () {
+      // The descriptions and parameters are the prompt Gemini reads, so a
+      // change to them should be a reviewed diff. If a change is intended,
+      // delete the JSON file and run the tests again to write a new one.
+      final file = File('test/features/coach/coach_tools_schemas.json');
+      final snapshot = toolSchemaSnapshot(coach.llmTools);
+      if (!file.existsSync()) file.writeAsStringSync(snapshot);
+      expect(snapshot, file.readAsStringSync());
     });
   });
 

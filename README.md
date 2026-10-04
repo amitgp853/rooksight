@@ -81,7 +81,7 @@ config/       remote.json: the app's remote settings (see below)
 ```
 
 **Stack:** Flutter, Riverpod, go_router, Drift, dartchess, chessground,
-multistockfish (Stockfish 16), Gemini over plain REST, llm_tool_calling (the
+multistockfish (Stockfish 16), Gemini over plain REST, llm_tool (the
 coach's tool definitions), camera and image_picker (scan), speech_to_text (voice
 questions), share_plus, TelemetryDeck (usage counts).
 
@@ -116,9 +116,9 @@ sequenceDiagram
   `analyze_position(fen)`, `evaluate_move(fen, move)` ("what about Nf3
   instead?": legality from dartchess, the verdict from Stockfish, judged like a
   review) and `get_position(game_id, move_number, side)` (a move by its number,
-  so the model never counts half-moves or writes a FEN itself). Each is a plain Dart function marked `@Tool()` in
+  so the model never counts half-moves or writes a FEN itself). Each is a plain Dart function marked `@LlmTool()` in
   [chess_tools.dart](lib/features/coach/domain/chess_tools.dart);
-  [llm_tool_calling](https://pub.dev/packages/llm_tool_calling) generates its
+  [llm_tool](https://pub.dev/packages/llm_tool) generates its
   JSON Schema from the function's parameters and doc comment, and checks the
   model's arguments before anything runs. Wrong arguments go back to the model
   as an error it can fix, and the player sees a plain "Couldn’t look that up".

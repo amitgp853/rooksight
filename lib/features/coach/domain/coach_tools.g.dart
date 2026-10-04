@@ -14,7 +14,7 @@ extension CoachToolsLlmTools on CoachTools {
     ToolDefinition(
       name: "analyze_position",
       description:
-          "Stockfish's evaluation and best line for a chess position. Use it to check a move or to look deeper at a position from a game. The evaluation is in pawns from the point of view of the side to move (\"side_to_move\" in the result): positive means the side to move is better. It's capped at ±10; a forced mate comes back as \"mate_in\" instead (positive: the side to move mates; negative: it gets mated).",
+          "Stockfish's evaluation and best line for a chess position. Use it to check a move or to look deeper at a position from a game. Evals are in pawns for the side to move, capped at ±10; \"mate_in\" is a forced mate, negative when the side to move gets mated.",
       parametersSchema: {
         "type": "object",
         "properties": {
@@ -32,7 +32,7 @@ extension CoachToolsLlmTools on CoachTools {
     ToolDefinition(
       name: "get_game_mistakes",
       description:
-          "The player's mistakes in one reviewed game, with the game's summary: opponent, date, the player's colour, ratings, opening, result and how it ended, accuracy, and counts of blunders, mistakes and inaccuracies. Then the moments, in game order: the player's costliest mistakes (six at most), and always the move the question is about. Each moment has the move and its verdict, the evaluation before and after (in pawns, for the side that moved), Stockfish's best move and line, what the move allowed, pieces left hanging, any forced mate, and the position before it (FEN). \"best_line_material\" and \"allowed_material\" are the mover's material change in pawns at the end of each line, left out when nothing changes. A game that isn't reviewed comes back with only a note.",
+          "The player's mistakes in one reviewed game: each move, the evaluation before and after, Stockfish's best move and line, what the move allowed, and the position before it (FEN). \"best_line_material\" and \"allowed_material\" are the mover's material change in pawns at the end of each line, left out when nothing changes. Also the game's summary (ratings, opening, result, accuracy, error counts) and always the move the question is about.",
       parametersSchema: {
         "type": "object",
         "properties": {

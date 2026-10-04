@@ -17,6 +17,17 @@ Matcher _rejects(String problem) =>
 
 void main() {
   group('declarations', () {
+    test('CoachTools names match the generated tools', () {
+      // A rename on one side only would leave the agent unable to run a tool.
+      expect(chessTools.map((tool) => tool.name), [
+        CoachTools.analyzePosition,
+        CoachTools.getGameMistakes,
+        CoachTools.getMyStats,
+        CoachTools.evaluateMove,
+        CoachTools.getPosition,
+      ]);
+    });
+
     test('Gemini gets the same tools as before the generator', () {
       // The schemas that were written by hand: generating them must not
       // change a byte of the request.

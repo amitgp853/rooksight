@@ -59,10 +59,8 @@ AnalyzePosition analyzePosition(@Param('The position in FEN.') String fen) => An
 /// each line, left out when nothing changes.
 @Tool(name: 'get_game_mistakes')
 GetGameMistakes getGameMistakes(
-  // Snake case to match the game_id in the prompt and every tool result.
-  // ignore: non_constant_identifier_names
-  @Param('A game id from the list of games.') int game_id,
-) => GetGameMistakes(game_id);
+  @Param('A game id from the list of games.', name: 'game_id') int gameId,
+) => GetGameMistakes(gameId);
 
 /// The player's results across their recent games: by opening and colour,
 /// mistakes and blunders per game and by game phase, losses from winning
@@ -88,10 +86,11 @@ EvaluateMove evaluateMove(
 /// names that isn't among the mistakes already looked up.
 @Tool(name: 'get_position')
 GetPosition getPosition(
-  // Snake case to match the game_id in the prompt and every tool result.
-  // ignore: non_constant_identifier_names
-  @Param('A game id from the list of games.') int game_id,
-  // ignore: non_constant_identifier_names
-  @Param('The move number, as on a score sheet: 14 for "14. Nf3" or "14...Nf6".') int move_number,
+  @Param('A game id from the list of games.', name: 'game_id') int gameId,
+  @Param(
+    'The move number, as on a score sheet: 14 for "14. Nf3" or "14...Nf6".',
+    name: 'move_number',
+  )
+  int moveNumber,
   @Param('Which side made the move.') Side side,
-) => GetPosition(game_id, move_number, side);
+) => GetPosition(gameId, moveNumber, side);

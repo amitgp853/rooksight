@@ -74,7 +74,8 @@ class RooksightIntro extends ConsumerStatefulWidget {
   ConsumerState<RooksightIntro> createState() => _RooksightIntroState();
 }
 
-class _RooksightIntroState extends ConsumerState<RooksightIntro> with SingleTickerProviderStateMixin {
+class _RooksightIntroState extends ConsumerState<RooksightIntro>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this);
   bool _started = false;
   bool _reduced = false;

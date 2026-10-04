@@ -104,10 +104,15 @@ class FakeChatRepository implements ChatRepository {
         _messages[c.id]!.any((m) => m.body.toLowerCase().contains(term));
     return [
       for (final c in _chats.values.where(matches))
-        _copy(c, preview: _messages[c.id]!.lastWhere(
-          (m) => m.role == ChatRole.coach,
-          orElse: () => StoredMessage(role: ChatRole.coach, at: c.createdAt, body: ''),
-        ).body),
+        _copy(
+          c,
+          preview: _messages[c.id]!
+              .lastWhere(
+                (m) => m.role == ChatRole.coach,
+                orElse: () => StoredMessage(role: ChatRole.coach, at: c.createdAt, body: ''),
+              )
+              .body,
+        ),
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
   }
 

@@ -1,16 +1,20 @@
 // Copyright (C) 2026 Amit Gupta
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:math';
+
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/foundation.dart';
 import 'package:llm_tool_calling/llm_tool_calling.dart' show ToolArgumentException;
 
 import '../../../core/chess/move_check.dart';
+import '../../../core/chess/uci.dart';
 import '../../../core/llm/llm_client.dart';
 import '../../../core/storage/analysis_repository.dart';
 import '../../../core/storage/game_repository.dart';
 import '../../../engine/chess_engine.dart';
 import '../../../engine/uci.dart';
+import '../../play/domain/game_state.dart';
 import '../../play/domain/pgn_import.dart';
 import '../../play/widgets/result_copy.dart' show moveLabel;
 import '../../review/domain/game_analysis.dart';
@@ -87,6 +91,8 @@ class CoachTools {
   static const analyzePosition = 'analyze_position';
   static const getGameMistakes = 'get_game_mistakes';
   static const getMyStats = 'get_my_stats';
+  static const evaluateMove = 'evaluate_move';
+  static const getPosition = 'get_position';
 
   /// Games listed in each question, newest first.
   static const recentGames = 10;
@@ -107,6 +113,8 @@ class CoachTools {
     analyzePosition: 'Stockfish’s view of a position',
     getGameMistakes: 'The mistakes in your game',
     getMyStats: 'Your stats',
+    evaluateMove: 'Stockfish’s view of a move',
+    getPosition: 'A move from your game',
   };
 
   /// Moves (SAN without `+`/`#`) the tools have reported.
@@ -190,6 +198,13 @@ class CoachTools {
         AnalyzePosition(:final fen) => await _analyzePosition(fen, onStart),
         GetGameMistakes(:final gameId) => await _gameMistakes(gameId, onStart),
         GetMyStats() => await _stats(onStart),
+        EvaluateMove(:final fen, :final move) => await _evaluateMove(fen, move, onStart),
+        GetPosition(:final gameId, :final moveNumber, :final side) => await _position(
+          gameId,
+          moveNumber,
+          side,
+          onStart,
+        ),
       };
     } on ToolArgumentException catch (error) {
       // The message is written for the model, so it can fix its call; the
@@ -254,6 +269,182 @@ class CoachTools {
     );
   }
 
+  Future<ToolOutcome> _evaluateMove(String fen, String text, void Function(String) onStart) async {
+    final Position position;
+    try {
+      position = Chess.fromSetup(Setup.parseFen(fen));
+    } on Object {
+      onStart('Reading a position…');
+      return ToolOutcome({'error': 'Not a valid FEN.'}, _failed('Couldn’t read that position'));
+    }
+    if (position.isGameOver) {
+      return ToolOutcome({
+        'error': 'The game is over in this position.',
+      }, _failed('The game was already over there'));
+    }
+    final move = _parseMove(position, text);
+    if (move == null) {
+      // The legal moves let the model correct a typo or a mix-up of sides.
+      return ToolOutcome({
+        'legal': false,
+        'error': '$text is not a legal move in this position.',
+        'legal_moves': MoveCheck.legalSans(position).toList()..sort(),
+      }, _failed('That move isn’t legal there', detail: text));
+    }
+
+    final mover = position.turn;
+    final (after, san) = position.makeSan(move);
+    final known = _positions[_key(position.fen)];
+    onStart(
+      known == null ? 'Trying $san with Stockfish…' : 'Trying $san instead of ${known.move.label}…',
+    );
+
+    final best = (await _engine.search(position.fen, SearchLimits(depth: depth))).firstOrNull;
+    if (best == null) {
+      return ToolOutcome({'error': 'Stockfish gave no line.'}, _failed('Stockfish had no answer'));
+    }
+    final bestLine = sanLine(position, best.pv.take(6));
+    final bestEval = cappedPawns(best.score);
+    final playedBest = bestLine.firstOrNull == san;
+
+    // The move's eval for the side making it. Stockfish's best move needs no
+    // second search (two searches would disagree a little on the same move).
+    final double moveEval;
+    var reply = const <String>[];
+    if (after.isCheckmate) {
+      moveEval = evalCap;
+    } else if (after.isGameOver) {
+      moveEval = 0;
+    } else if (playedBest) {
+      moveEval = bestEval;
+      reply = bestLine.skip(1).toList();
+    } else {
+      final line = (await _engine.search(after.fen, SearchLimits(depth: depth))).firstOrNull;
+      if (line == null) {
+        return ToolOutcome({
+          'error': 'Stockfish gave no line.',
+        }, _failed('Stockfish had no answer'));
+      }
+      moveEval = -cappedPawns(line.score);
+      reply = sanLine(after, line.pv.take(5));
+    }
+    final loss = playedBest ? 0.0 : max(0.0, bestEval - moveEval);
+    final quality = playedBest ? null : errorQuality(loss: loss, after: moveEval);
+    moves.addAll([san, ...bestLine, ...reply].map(MoveCheck.strip));
+
+    return ToolOutcome(
+      {
+        'side_to_move': mover.name,
+        'move': san,
+        'legal': true,
+        'verdict': playedBest ? 'best' : quality?.name ?? 'good',
+        if (after.isCheckmate) 'result': 'checkmate' else if (after.isGameOver) 'result': 'draw',
+        'eval_after_move': _round(moveEval),
+        'best_move': ?bestLine.firstOrNull,
+        'eval_after_best': _round(bestEval),
+        if (!playedBest) ...{
+          'pawns_lost': _round(loss, 1),
+          if (bestLine.isNotEmpty) 'best_line': bestLine.join(' '),
+        },
+        if (reply.isNotEmpty) 'reply_line': reply.join(' '),
+        'depth': best.depth,
+      },
+      AgentStep(
+        playedBest
+            ? 'Verified best move: $san'
+            : switch (quality) {
+                MoveQuality.blunder => '$san would be a blunder',
+                MoveQuality.mistake => '$san would be a mistake',
+                MoveQuality.inaccuracy => '$san would be an inaccuracy',
+                _ => '$san holds up',
+              },
+        detail: [
+          '$san ${_pawns(moveEval)}',
+          if (!playedBest && bestLine.isNotEmpty) 'best ${bestLine.first} ${_pawns(bestEval)}',
+          'depth ${best.depth}',
+        ].join(' · '),
+        done: true,
+      ),
+    );
+  }
+
+  Future<ToolOutcome> _position(
+    int id,
+    int number,
+    Side side,
+    void Function(String) onStart,
+  ) async {
+    final saved = await _games.byId(id);
+    if (saved == null) {
+      onStart('Looking for a game…');
+      return ToolOutcome({'error': 'No game with id $id.'}, _failed('Couldn’t find that game'));
+    }
+    final record = saved.record;
+    final game = gameFromPgn(record.pgn);
+
+    // Half-moves from the game's start (which may be a set-up position).
+    final start = game.history.first;
+    final index =
+        (number - start.fullmoves) * 2 +
+        (side == Side.black ? 1 : 0) -
+        (start.turn == Side.black ? 1 : 0);
+    if (index < 0 || index >= game.moves.length) {
+      final asked = side == Side.white ? '$number.' : '$number…';
+      return ToolOutcome(
+        {
+          'error': game.moves.isEmpty
+              ? 'Game $id has no moves.'
+              : 'Game $id has no move $asked: its last move is '
+                    '${moveLabel(game, game.moves.length - 1)}.',
+        },
+        _failed(
+          'Couldn’t find that move',
+          detail: 'Move $number in your game vs ${_opponent(record)}',
+        ),
+      );
+    }
+    final label = moveLabel(game, index);
+    onStart('Finding $label in your game vs ${_opponent(record)}…');
+
+    final played = {
+      'game_id': saved.id,
+      'move_id': index,
+      'move': label,
+      'by': side == record.playerSide ? 'player' : 'opponent',
+      'fen_before': game.history[index].fen,
+      'fen_after': game.history[index + 1].fen,
+    };
+    final stored = await _analyses.analysis(saved.id);
+    final analysis = stored != null && stored.complete
+        ? GameAnalysis(game, stored.evals.map(PositionEval.fromJson).toList())
+        : null;
+    if (analysis == null || index >= analysis.moves.length) {
+      _remember(saved, game, index);
+      return ToolOutcome({
+        ...played,
+        'reviewed': false,
+      }, AgentStep(label, detail: 'vs ${_opponent(record)} · not reviewed yet', done: true));
+    }
+
+    final m = analysis.moves[index];
+    _remember(saved, game, index, analysis: analysis, quality: m.quality);
+    return ToolOutcome(
+      {
+        ...played,
+        'reviewed': true,
+        ...factsFor(analysis, m, player: record.playerSide).toJson()
+          ..remove('id')
+          ..remove('move')
+          ..remove('by'),
+      },
+      AgentStep(
+        label,
+        detail: ['vs ${_opponent(record)}', ?m.quality?.label].join(' · '),
+        done: true,
+      ),
+    );
+  }
+
   Future<ToolOutcome> _gameMistakes(int id, void Function(String) onStart) async {
     final saved = await _games.byId(id);
     if (saved == null) {
@@ -291,7 +482,7 @@ class CoachTools {
         },
     ];
     for (final m in chosen) {
-      _remember(saved, analysis, m);
+      _remember(saved, game, m.index, analysis: analysis, quality: m.quality);
     }
 
     final counts = analysis.counts(side);
@@ -334,7 +525,13 @@ class CoachTools {
     final stats = PlayerStats.of(games);
     final weaknesses = findWeaknesses(games).take(3);
     for (final w in stats.worst) {
-      _remember(w.game.saved, w.game.analysis!, w.moment);
+      _remember(
+        w.game.saved,
+        w.game.game,
+        w.moment.index,
+        analysis: w.game.analysis,
+        quality: w.moment.quality,
+      );
     }
     double? round(double? x) => x == null ? null : double.parse(x.toStringAsFixed(2));
 
@@ -396,28 +593,45 @@ class CoachTools {
     );
   }
 
-  /// Notes move [m] of a game as one the answer may mention and point to.
-  void _remember(SavedGame saved, GameAnalysis analysis, MoveReview m) {
-    final game = analysis.game;
-    final best = bestLineSan(analysis, m.index, maxPlies: 1).firstOrNull;
+  /// Notes move [index] of a game as one the answer may mention and point
+  /// to, with Stockfish's lines around it when the game was reviewed.
+  void _remember(
+    SavedGame saved,
+    GameState game,
+    int index, {
+    GameAnalysis? analysis,
+    MoveQuality? quality,
+  }) {
+    final best = analysis == null ? null : bestLineSan(analysis, index, maxPlies: 1).firstOrNull;
     final move = CoachMove(
       gameId: saved.id,
-      index: m.index,
-      label: moveLabel(game, m.index),
-      quality: m.quality,
+      index: index,
+      label: moveLabel(game, index),
+      quality: quality,
       best: best,
-      fen: game.history[m.index + 1].fen,
-      lastMove: game.moves[m.index].move,
+      fen: game.history[index + 1].fen,
+      lastMove: game.moves[index].move,
       orientation: saved.record.playerSide,
       opponent: _opponent(saved.record),
       playedAt: saved.record.endedAt,
     );
-    gameMoves[(saved.id, m.index)] = move;
-    _positions[_key(game.history[m.index].fen)] = (move: move, best: best);
-    moves.add(MoveCheck.strip(game.moves[m.index].san));
-    for (final san in [...bestLineSan(analysis, m.index), ...bestLineSan(analysis, m.index + 1)]) {
+    gameMoves[(saved.id, index)] = move;
+    _positions[_key(game.history[index].fen)] = (move: move, best: best);
+    moves.add(MoveCheck.strip(game.moves[index].san));
+    if (analysis == null) return;
+    for (final san in [...bestLineSan(analysis, index), ...bestLineSan(analysis, index + 1)]) {
       moves.add(MoveCheck.strip(san));
     }
+  }
+
+  /// [text] as a legal move in [position]: SAN (`Nf3`, `O-O`) or UCI
+  /// (`g1f3`); null if it's neither, or not legal here.
+  static Move? _parseMove(Position position, String text) {
+    // Castling is often typed with zeros (0-0); no other move has a 0.
+    final cleaned = text.trim().replaceAll('0', 'O');
+    if (position.parseSan(cleaned) case final move?) return move;
+    final uci = parseUci(cleaned.toLowerCase());
+    return uci != null && position.isLegal(uci) ? uci : null;
   }
 
   Future<String?> _focusLabel(CoachFocus focus) async {
@@ -454,10 +668,15 @@ class CoachTools {
       return (json: {'mate_in': mate}, label: mate > 0 ? 'mate in $mate' : 'mated in ${-mate}');
     }
     final pawns = cappedPawns(score);
-    final text = pawns.toStringAsFixed(1);
-    return (
-      json: {'eval': double.parse(pawns.toStringAsFixed(2))},
-      label: pawns > 0 ? '+$text' : text.replaceFirst('-', '−'),
-    );
+    return (json: {'eval': _round(pawns)}, label: _pawns(pawns));
   }
+
+  /// `+0.4`, `−1.2`: an eval for the screen.
+  static String _pawns(double pawns) {
+    final text = pawns.toStringAsFixed(1);
+    return pawns > 0 ? '+$text' : text.replaceFirst('-', '−');
+  }
+
+  static double _round(double pawns, [int digits = 2]) =>
+      double.parse(pawns.toStringAsFixed(digits));
 }

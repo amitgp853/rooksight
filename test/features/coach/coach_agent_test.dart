@@ -3,6 +3,7 @@
 
 import 'dart:convert';
 
+import 'package:dartchess/dartchess.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rooksight/core/llm/llm_client.dart';
 import 'package:rooksight/engine/uci.dart';
@@ -124,6 +125,182 @@ void main() {
       expect(outcome.result['error'], isNotNull);
       expect(outcome.step.done, isTrue);
       expect(outcome.step.detail, 'Stockfish’s view of a position');
+    });
+
+    group('evaluate_move', () {
+      // After 2. g4?? Black mates at once.
+      final afterG4 = Chess.fromSetup(Setup.parseFen(beforeG4)).play(Move.parse('g2g4')!).fen;
+
+      setUp(() {
+        final usual = engine.reply!;
+        engine.reply = (fen) => fen == afterG4
+            ? [
+                const EngineLine(rank: 1, depth: 16, score: EngineScore.mate(1), pv: ['d8h4']),
+              ]
+            : usual(fen);
+      });
+
+      test('a move that wasn\'t best: its eval, Stockfish\'s, and the reply', () async {
+        final labels = <String>[];
+        final outcome = await tools.run(
+          const LlmToolCall(name: CoachTools.evaluateMove, args: {'fen': beforeG4, 'move': 'g4'}),
+          onStart: labels.add,
+        );
+        expect(labels, ['Trying g4 with Stockfish…']);
+        expect(outcome.result, {
+          'side_to_move': 'white',
+          'move': 'g4',
+          'legal': true,
+          'verdict': 'blunder',
+          'eval_after_move': -10.0,
+          'best_move': 'd4',
+          'eval_after_best': -0.55,
+          'pawns_lost': 9.4,
+          'best_line': 'd4 Nf6',
+          'reply_line': 'Qh4#',
+          'depth': 16,
+        });
+        expect(outcome.step.label, 'g4 would be a blunder');
+        expect(outcome.step.detail, 'g4 −10.0 · best d4 −0.6 · depth 16');
+        // Each move it reported may now be named in the answer.
+        expect(tools.moves, containsAll(['g4', 'd4', 'Nf6', 'Qh4']));
+      });
+
+      test('Stockfish\'s own move is verified with one search', () async {
+        final outcome = await run(CoachTools.evaluateMove, {'fen': beforeG4, 'move': 'd4'});
+        expect(outcome.result['verdict'], 'best');
+        expect(outcome.result, isNot(contains('pawns_lost')));
+        expect(outcome.result['reply_line'], 'Nf6');
+        expect(outcome.step.label, 'Verified best move: d4');
+        expect(engine.searches, hasLength(1));
+      });
+
+      test('a position from a game is named in the step', () async {
+        await run(CoachTools.getGameMistakes, {'game_id': mateId});
+        final labels = <String>[];
+        await tools.run(
+          const LlmToolCall(name: CoachTools.evaluateMove, args: {'fen': beforeG4, 'move': 'd4'}),
+          onStart: labels.add,
+        );
+        expect(labels, ['Trying d4 instead of 2. g4…']);
+      });
+
+      test('UCI works as well as SAN', () async {
+        final outcome = await run(CoachTools.evaluateMove, {'fen': beforeG4, 'move': 'd2d4'});
+        expect(outcome.result['move'], 'd4');
+      });
+
+      test('castling with zeros or in UCI', () async {
+        const fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1';
+        for (final move in ['O-O', '0-0', 'e1g1']) {
+          final outcome = await run(CoachTools.evaluateMove, {'fen': fen, 'move': move});
+          expect(outcome.result['move'], 'O-O', reason: move);
+        }
+        final long = await run(CoachTools.evaluateMove, {'fen': fen, 'move': '0-0-0'});
+        expect(long.result['move'], 'O-O-O');
+      });
+
+      test('a promotion', () async {
+        const fen = '7k/4P3/8/8/8/8/8/K7 w - - 0 1';
+        final outcome = await run(CoachTools.evaluateMove, {'fen': fen, 'move': 'e8=Q+'});
+        expect(outcome.result['move'], 'e8=Q+');
+      });
+
+      test('an illegal move comes back with the legal ones, without Stockfish', () async {
+        final outcome = await run(CoachTools.evaluateMove, {'fen': beforeG4, 'move': 'Qh5'});
+        expect(outcome.result['legal'], false);
+        expect(outcome.result['error'], contains('Qh5'));
+        expect(outcome.result['legal_moves'], containsAll(['d4', 'g4', 'Nc3']));
+        expect(outcome.step.label, 'That move isn’t legal there');
+        expect(engine.searches, isEmpty);
+      });
+
+      test('a mating move needs no search after it', () async {
+        final outcome = await run(CoachTools.evaluateMove, {'fen': afterG4, 'move': 'Qh4'});
+        expect(outcome.result['move'], 'Qh4#');
+        expect(outcome.result['result'], 'checkmate');
+        expect(outcome.result['eval_after_move'], 10.0);
+      });
+
+      test('a finished game has no moves to try', () async {
+        final mated = Chess.fromSetup(Setup.parseFen(afterG4)).play(Move.parse('d8h4')!).fen;
+        final outcome = await run(CoachTools.evaluateMove, {'fen': mated, 'move': 'e4'});
+        expect(outcome.result['error'], contains('over'));
+        expect(engine.searches, isEmpty);
+      });
+    });
+
+    group('get_position', () {
+      test('a reviewed move: what was played, the positions and Stockfish\'s facts', () async {
+        final labels = <String>[];
+        final outcome = await tools.run(
+          LlmToolCall(
+            name: CoachTools.getPosition,
+            args: {'game_id': mateId, 'move_number': 2, 'side': 'white'},
+          ),
+          onStart: labels.add,
+        );
+        expect(labels, ['Finding 2. g4 in your game vs Stockfish 1600…']);
+        expect(outcome.result, containsPair('move', '2. g4'));
+        expect(outcome.result, containsPair('move_id', 2));
+        expect(outcome.result, containsPair('by', 'player'));
+        expect(outcome.result, containsPair('fen_before', beforeG4));
+        expect(outcome.result, containsPair('reviewed', true));
+        expect(outcome.result, containsPair('verdict', 'Blunder'));
+        expect(outcome.result, containsPair('best_move', '2. d4'));
+        expect(outcome.step.label, '2. g4');
+        expect(outcome.step.detail, 'vs Stockfish 1600 · Blunder');
+        // The answer may point to it, and Stockfish's view of it is named.
+        expect(tools.gameMoves.keys, contains((mateId, 2)));
+        final ask = <String>[];
+        await tools.run(
+          const LlmToolCall(name: CoachTools.analyzePosition, args: {'fen': beforeG4}),
+          onStart: ask.add,
+        );
+        expect(ask, ['Asking Stockfish about move 2…']);
+      });
+
+      test('a move of a game that isn\'t reviewed is still found', () async {
+        final outcome = await run(CoachTools.getPosition, {
+          'game_id': sicilianId,
+          'move_number': 2,
+          'side': 'black',
+        });
+        expect(outcome.result, containsPair('move', '2…Nf6'));
+        expect(outcome.result, containsPair('by', 'player'));
+        expect(outcome.result, containsPair('reviewed', false));
+        expect(outcome.step.detail, 'vs magnus_fan · not reviewed yet');
+        expect(tools.moves, contains('Nf6'));
+        expect(tools.gameMoves.keys, contains((sicilianId, 3)));
+      });
+
+      test('a move past the end says where the game ends', () async {
+        final outcome = await run(CoachTools.getPosition, {
+          'game_id': mateId,
+          'move_number': 3,
+          'side': 'white',
+        });
+        expect(outcome.result['error'], contains('its last move is 2…Qh4#'));
+        expect(outcome.step.label, 'Couldn’t find that move');
+      });
+
+      test('move 0 doesn\'t exist', () async {
+        final outcome = await run(CoachTools.getPosition, {
+          'game_id': mateId,
+          'move_number': 0,
+          'side': 'black',
+        });
+        expect(outcome.result['error'], isNotNull);
+      });
+
+      test('an unknown game', () async {
+        final outcome = await run(CoachTools.getPosition, {
+          'game_id': 99,
+          'move_number': 1,
+          'side': 'white',
+        });
+        expect(outcome.result['error'], 'No game with id 99.');
+      });
     });
 
     test('the context lists recent games and the move asked about', () async {
@@ -286,6 +463,18 @@ void main() {
       expect(failed.detail, 'The mistakes in your game');
       expect(engine.searches, isEmpty);
       expect(result.body, 'Sorry.');
+    });
+
+    test('a move only evaluate_move reported may be named in the answer', () async {
+      final llm = FakeLlm(
+        turns: [
+          toolCall(CoachTools.evaluateMove, {'fen': beforeG4, 'move': 'd4'}),
+        ],
+        reply: answer(body: 'd4 keeps the balance. Nc3 was good too.'),
+      );
+      final result = await CoachAgent(llm, tools).ask('What about d4?', onStep: (_, _) {});
+      // d4 came from Stockfish; nothing reported Nc3, so its sentence goes.
+      expect(result.body, 'd4 keeps the balance.');
     });
 
     test('a question that isn\'t about chess gets the fixed reply', () async {

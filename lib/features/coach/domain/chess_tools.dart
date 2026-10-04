@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Amit Gupta
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:llm_tool_calling/llm_tool_calling.dart';
 
 part 'chess_tools.g.dart';
@@ -33,6 +34,19 @@ final class GetMyStats extends CoachCommand {
   const GetMyStats();
 }
 
+final class EvaluateMove extends CoachCommand {
+  const EvaluateMove(this.fen, this.move);
+  final String fen;
+  final String move;
+}
+
+final class GetPosition extends CoachCommand {
+  const GetPosition(this.gameId, this.moveNumber, this.side);
+  final int gameId;
+  final int moveNumber;
+  final Side side;
+}
+
 /// Stockfish's evaluation and best line for a chess position. Use it to
 /// check a move or to look deeper at a position from a game.
 @Tool(name: 'analyze_position')
@@ -55,3 +69,29 @@ GetGameMistakes getGameMistakes(
 /// positions, and their three costliest moves.
 @Tool(name: 'get_my_stats')
 GetMyStats getMyStats() => const GetMyStats();
+
+/// Stockfish's verdict on one move in a position: whether it's legal, the
+/// evaluation after it and after Stockfish's best move (both for the side
+/// making the move, in pawns; 10 means a forced win, -10 a forced loss), the
+/// pawns it loses, and the opponent's best reply. Use it when the player
+/// asks about a move that wasn't played, e.g. "what about Nf3 instead?". An
+/// illegal move comes back with the legal moves.
+@Tool(name: 'evaluate_move')
+EvaluateMove evaluateMove(
+  @Param('The position before the move, in FEN, copied from a tool result.') String fen,
+  @Param('The move, in SAN (Nf3, exd5, O-O, e8=Q) or UCI (g1f3).') String move,
+) => EvaluateMove(fen, move);
+
+/// One move of a game, by its number as the player says it ("move 14"): the
+/// move played, the positions before and after it (FEN), and, if the game
+/// was reviewed, Stockfish's facts about it. Use it for a move the player
+/// names that isn't among the mistakes already looked up.
+@Tool(name: 'get_position')
+GetPosition getPosition(
+  // Snake case to match the game_id in the prompt and every tool result.
+  // ignore: non_constant_identifier_names
+  @Param('A game id from the list of games.') int game_id,
+  // ignore: non_constant_identifier_names
+  @Param('The move number, as on a score sheet: 14 for "14. Nf3" or "14...Nf6".') int move_number,
+  @Param('Which side made the move.') Side side,
+) => GetPosition(game_id, move_number, side);

@@ -1,6 +1,7 @@
 // Copyright (C) 2026 Amit Gupta
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'package:dartchess/dartchess.dart' show Side;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:llm_tool_calling/llm_tool_calling.dart';
 import 'package:rooksight/core/llm/gemini_client.dart';
@@ -22,8 +23,9 @@ void main() {
       final body = GeminiClient.requestBody(
         LlmRequest(messages: const [LlmMessage.user('?')], tools: CoachTools.declarations),
       );
-      final declarations = ((body['tools']! as List).single as Map)['functionDeclarations'];
-      expect(declarations, [
+      final declarations =
+          ((body['tools']! as List).single as Map)['functionDeclarations'] as List<Object?>;
+      expect(declarations.take(3), [
         {
           'name': 'analyze_position',
           'description':
@@ -63,11 +65,39 @@ void main() {
       ]);
     });
 
+    test('get_position\'s side is one of two values, as Gemini gets it', () {
+      final body = GeminiClient.requestBody(
+        LlmRequest(messages: const [LlmMessage.user('?')], tools: CoachTools.declarations),
+      );
+      final declarations =
+          ((body['tools']! as List).single as Map)['functionDeclarations'] as List<Object?>;
+      final getPosition = declarations.last! as Map<String, Object?>;
+      expect(getPosition['name'], 'get_position');
+      expect(getPosition['parameters'], {
+        'type': 'object',
+        'properties': {
+          'game_id': {'type': 'integer', 'description': 'A game id from the list of games.'},
+          'move_number': {
+            'type': 'integer',
+            'description': 'The move number, as on a score sheet: 14 for "14. Nf3" or "14...Nf6".',
+          },
+          'side': {
+            'type': 'string',
+            'enum': ['white', 'black'],
+            'description': 'Which side made the move.',
+          },
+        },
+        'required': ['game_id', 'move_number', 'side'],
+      });
+    });
+
     test('the names CoachTools uses are the generated ones', () {
       expect(chessTools.map((tool) => tool.name), [
         CoachTools.analyzePosition,
         CoachTools.getGameMistakes,
         CoachTools.getMyStats,
+        CoachTools.evaluateMove,
+        CoachTools.getPosition,
       ]);
     });
 
@@ -149,6 +179,66 @@ void main() {
 
     test('any argument is reported', () {
       expect(getMyStatsTool.call({'limit': 20}), _rejects('limit is not a known argument'));
+    });
+  });
+
+  group('evaluate_move', () {
+    test('a FEN and a move become the command', () async {
+      final command = await evaluateMoveTool.call({'fen': _fen, 'move': 'Nf6'});
+      expect(
+        command,
+        isA<EvaluateMove>().having((c) => c.fen, 'fen', _fen).having((c) => c.move, 'move', 'Nf6'),
+      );
+    });
+
+    test('both are required', () {
+      expect(evaluateMoveTool.call({'move': 'Nf6'}), _rejects('fen is required'));
+      expect(evaluateMoveTool.call({'fen': _fen}), _rejects('move is required'));
+    });
+
+    test('a move that isn\'t text is reported', () {
+      expect(
+        evaluateMoveTool.call({'fen': _fen, 'move': 5}),
+        _rejects('move must be a string, got integer'),
+      );
+    });
+  });
+
+  group('get_position', () {
+    test('a game, a move number and a side become the command', () async {
+      final command = await getPositionTool.call({
+        'game_id': 3,
+        'move_number': 14,
+        'side': 'black',
+      });
+      expect(
+        command,
+        isA<GetPosition>()
+            .having((c) => c.gameId, 'gameId', 3)
+            .having((c) => c.moveNumber, 'moveNumber', 14)
+            .having((c) => c.side, 'side', Side.black),
+      );
+    });
+
+    test('a side other than white or black is reported with both choices', () {
+      expect(
+        getPositionTool.call({'game_id': 3, 'move_number': 14, 'side': 'w'}),
+        _rejects('side must be one of "white", "black", got "w"'),
+      );
+    });
+
+    test('a move number sent as text is reported', () {
+      expect(
+        getPositionTool.call({'game_id': 3, 'move_number': '14', 'side': 'white'}),
+        _rejects('move_number must be an integer, got string'),
+      );
+    });
+
+    test('every missing argument is reported at once', () {
+      expect(
+        getPositionTool.call({'game_id': 3}),
+        _rejects('move_number is required; side is required'),
+      );
     });
   });
 }

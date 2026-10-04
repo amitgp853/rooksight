@@ -120,6 +120,17 @@ MoveReview reviewMove(
   );
 }
 
+/// The error a move was, from the pawns it [loss] against Stockfish's best
+/// and the eval [after] it (the mover's view); null if it wasn't one.
+MoveQuality? errorQuality({required double loss, required double after}) {
+  if (loss > ReviewRules.blunder) return MoveQuality.blunder;
+  if (after < ReviewRules.stillWinning) {
+    if (loss > ReviewRules.mistake) return MoveQuality.mistake;
+    if (loss > ReviewRules.inaccuracy) return MoveQuality.inaccuracy;
+  }
+  return null;
+}
+
 MoveQuality? _classify({
   required Position positionBefore,
   required Position positionAfter,
@@ -130,11 +141,7 @@ MoveQuality? _classify({
   required double after,
   required double loss,
 }) {
-  if (loss > ReviewRules.blunder) return MoveQuality.blunder;
-  if (after < ReviewRules.stillWinning) {
-    if (loss > ReviewRules.mistake) return MoveQuality.mistake;
-    if (loss > ReviewRules.inaccuracy) return MoveQuality.inaccuracy;
-  }
+  if (errorQuality(loss: loss, after: after) case final error?) return error;
 
   // `!` / `!!`: the top move when the alternative was clearly worse, and
   // finding it took thought: not escaping check, not simply recapturing.

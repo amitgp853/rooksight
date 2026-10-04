@@ -99,9 +99,9 @@ sequenceDiagram
   participant SF as Stockfish
 
   You->>Agent: "Why do I keep losing?"
-  Agent->>Model: question + your recent games + 3 tool definitions
+  Agent->>Model: question + your recent games + 5 tool definitions
   loop at most 5 tool calls
-    Model-->>Agent: call get_my_stats / get_game_mistakes / analyze_position
+    Model-->>Agent: call a tool, e.g. get_my_stats or evaluate_move
     Agent->>Tools: run it (step shown live)
     Tools->>SF: analyse positions if needed
     Tools-->>Agent: compact summary (never raw engine output)
@@ -113,7 +113,10 @@ sequenceDiagram
 ```
 
 - **Tools:** `get_my_stats()`, `get_game_mistakes(game_id)`,
-  `analyze_position(fen)`. Each is a plain Dart function marked `@Tool()` in
+  `analyze_position(fen)`, `evaluate_move(fen, move)` ("what about Nf3
+  instead?": legality from dartchess, the verdict from Stockfish, judged like a
+  review) and `get_position(game_id, move_number, side)` (a move by its number,
+  so the model never counts half-moves or writes a FEN itself). Each is a plain Dart function marked `@Tool()` in
   [chess_tools.dart](lib/features/coach/domain/chess_tools.dart);
   [llm_tool_calling](https://pub.dev/packages/llm_tool_calling) generates its
   JSON Schema from the function's parameters and doc comment, and checks the

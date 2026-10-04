@@ -99,7 +99,8 @@ class CoachTools {
   /// Games listed in each question, newest first.
   static const recentGames = 10;
 
-  /// Errors per game sent to the model.
+  /// Errors per game sent to the model. [_gameMistakes]'s description
+  /// gives the number too: change both.
   static const maxMistakes = 6;
 
   /// The tools, generated from the @LlmTool methods below.
@@ -223,9 +224,15 @@ class CoachTools {
   }
 
   /// Stockfish's evaluation and best line for a chess position. Use it to
-  /// check a move or to look deeper at a position from a game.
+  /// check a move or to look deeper at a position from a game. The
+  /// evaluation is in pawns from the point of view of the side to move
+  /// ("side_to_move" in the result): positive means the side to move is
+  /// better. It's capped at ±10; a forced mate comes back as "mate_in"
+  /// instead (positive: the side to move mates; negative: it gets mated).
   @LlmTool(name: 'analyze_position')
-  Future<ToolOutcome> _analyzePosition(@Param('The position in FEN.') String fen) async {
+  Future<ToolOutcome> _analyzePosition(
+    @Param('The position in FEN, copied from a tool result.') String fen,
+  ) async {
     final Position position;
     try {
       position = Chess.fromSetup(Setup.parseFen(fen));
@@ -274,11 +281,17 @@ class CoachTools {
     );
   }
 
-  /// The player's mistakes in one reviewed game: each move, the evaluation
-  /// before and after, Stockfish's best move and line, what the move allowed,
-  /// and the position before it (FEN). "best_line_material" and
-  /// "allowed_material" are the mover's material change in pawns at the end of
-  /// each line, left out when nothing changes.
+  /// The player's mistakes in one reviewed game, with the game's summary:
+  /// opponent, date, the player's colour, ratings, opening, result and how it
+  /// ended, accuracy, and counts of blunders, mistakes and inaccuracies. Then
+  /// the moments, in game order: the player's costliest mistakes (six at
+  /// most), and always the move the question is about. Each moment has the
+  /// move and its verdict, the evaluation before and after (in pawns, for the
+  /// side that moved), Stockfish's best move and line, what the move allowed,
+  /// pieces left hanging, any forced mate, and the position before it (FEN).
+  /// "best_line_material" and "allowed_material" are the mover's material
+  /// change in pawns at the end of each line, left out when nothing changes.
+  /// A game that isn't reviewed comes back with only a note.
   @LlmTool(name: 'get_game_mistakes')
   Future<ToolOutcome> _gameMistakes(
     @Param('A game id from the list of games.', name: 'game_id') int id,
@@ -353,9 +366,9 @@ class CoachTools {
     );
   }
 
-  /// The player's results across their recent games: by opening and colour,
+  /// The player's results across their last 50 games: by opening and colour,
   /// mistakes and blunders per game and by game phase, losses from winning
-  /// positions, and their three costliest moves.
+  /// positions, their three costliest moves and their top three weaknesses.
   @LlmTool(name: 'get_my_stats')
   Future<ToolOutcome> _stats() async {
     final total = (await _games.watchAll().first).length;
@@ -551,7 +564,7 @@ class CoachTools {
   Future<ToolOutcome> _position(
     @Param('A game id from the list of games.', name: 'game_id') int id,
     @Param(
-      'The move number, as on a score sheet: 14 for "14. Nf3" or "14...Nf6".',
+      'The move number, as on a score sheet: 14 for "14. Nf3" or "14…Nf6".',
       name: 'move_number',
     )
     int number,

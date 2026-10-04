@@ -116,10 +116,11 @@ sequenceDiagram
   `analyze_position(fen)`, `evaluate_move(fen, move)` ("what about Nf3
   instead?": legality from dartchess, the verdict from Stockfish, judged like a
   review) and `get_position(game_id, move_number, side)` (a move by its number,
-  so the model never counts half-moves or writes a FEN itself). Each is a plain Dart function marked `@LlmTool()` in
-  [chess_tools.dart](lib/features/coach/domain/chess_tools.dart);
+  so the model never counts half-moves or writes a FEN itself). Each is a
+  method of `CoachTools`, an `@LlmToolset()` class, marked `@LlmTool()` in
+  [coach_tools.dart](lib/features/coach/domain/coach_tools.dart);
   [llm_tool](https://pub.dev/packages/llm_tool) generates its
-  JSON Schema from the function's parameters and doc comment, and checks the
+  JSON Schema from the method's parameters and doc comment, and checks the
   model's arguments before anything runs. Wrong arguments go back to the model
   as an error it can fix, and the player sees a plain "Couldn’t look that up".
 - **Budget:** at most 5 tool calls. After that the model must answer, so a

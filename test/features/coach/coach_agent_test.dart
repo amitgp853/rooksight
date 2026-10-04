@@ -343,7 +343,7 @@ void main() {
       ).ask('What went wrong?', onStep: (i, step) => steps[i] = step);
 
       expect(llm.requests, hasLength(2));
-      expect(llm.requests.first.tools, CoachTools.declarations);
+      expect(llm.requests.first.tools, tools.declarations);
       expect(llm.requests.first.messages.last.text, contains('Question: What went wrong?'));
       final toolResult = llm.requests.last.messages.last.toolResults.single;
       expect(toolResult.call.name, CoachTools.getGameMistakes);

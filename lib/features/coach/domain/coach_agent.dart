@@ -181,7 +181,7 @@ Reply with JSON only:
         LlmRequest(
           system: system,
           messages: List.unmodifiable(messages),
-          tools: CoachTools.declarations,
+          tools: tools.declarations,
           toolMode: mustAnswer ? LlmToolMode.none : LlmToolMode.auto,
           jsonSchema: answerSchema,
         ),

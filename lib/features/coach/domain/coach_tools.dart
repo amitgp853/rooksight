@@ -5,7 +5,7 @@ import 'dart:math';
 
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/foundation.dart';
-import 'package:llm_tool/llm_tool.dart' show ToolArgumentException;
+import 'package:llm_tool/llm_tool.dart';
 
 import '../../../core/chess/move_check.dart';
 import '../../../core/chess/uci.dart';
@@ -24,8 +24,9 @@ import '../../review/domain/move_review.dart';
 import '../../review/domain/position_eval.dart';
 import '../../stats/domain/player_stats.dart';
 import '../../stats/domain/weaknesses.dart';
-import 'chess_tools.dart';
 import 'coach_move.dart';
+
+part 'coach_tools.g.dart';
 
 /// One line in the coach's list of steps: "running" until [done].
 @immutable
@@ -70,6 +71,7 @@ class CoachFocus {
 ///
 /// The tools remember every move they reported ([moves]) and every game move
 /// they described ([gameMoves]): an answer may only mention those.
+@LlmToolset()
 class CoachTools {
   CoachTools({
     required GameRepository games,
@@ -87,7 +89,7 @@ class CoachTools {
   /// Stockfish's search depth for [analyzePosition].
   final int depth;
 
-  // The names set by @Tool in chess_tools.dart, as constants.
+  // The tools' names, as set by the @LlmTool annotations below.
   static const analyzePosition = 'analyze_position';
   static const getGameMistakes = 'get_game_mistakes';
   static const getMyStats = 'get_my_stats';
@@ -100,9 +102,12 @@ class CoachTools {
   /// Errors per game sent to the model.
   static const maxMistakes = 6;
 
-  /// The tools as the model sees them, generated from [chessTools].
-  static final declarations = [
-    for (final tool in chessTools)
+  /// The tools, generated from the @LlmTool methods below.
+  late final _tools = llmTools;
+
+  /// The tools as the model sees them.
+  late final declarations = [
+    for (final tool in _tools)
       LlmToolSpec(
         name: tool.name,
         description: tool.description,
@@ -110,7 +115,10 @@ class CoachTools {
       ),
   ];
 
-  static final _byName = {for (final tool in chessTools) tool.name: tool};
+  late final _byName = {for (final tool in _tools) tool.name: tool};
+
+  /// The running step's label, for the tool [run] is running.
+  void Function(String label) _onStart = (_) {};
 
   /// What each tool looks up, in the player's words, for a failed step.
   static const _lookups = {
@@ -198,18 +206,8 @@ class CoachTools {
       return ToolOutcome({'error': 'Unknown tool ${call.name}.'}, _failed('Couldn’t look that up'));
     }
     try {
-      return switch (await tool.call(call.args)) {
-        AnalyzePosition(:final fen) => await _analyzePosition(fen, onStart),
-        GetGameMistakes(:final gameId) => await _gameMistakes(gameId, onStart),
-        GetMyStats() => await _stats(onStart),
-        EvaluateMove(:final fen, :final move) => await _evaluateMove(fen, move, onStart),
-        GetPosition(:final gameId, :final moveNumber, :final side) => await _position(
-          gameId,
-          moveNumber,
-          side,
-          onStart,
-        ),
-      };
+      _onStart = onStart;
+      return await tool.call(call.args);
     } on ToolArgumentException catch (error) {
       // The message is written for the model, so it can fix its call; the
       // player sees what the coach was trying to look up.
@@ -224,16 +222,19 @@ class CoachTools {
     }
   }
 
-  Future<ToolOutcome> _analyzePosition(String fen, void Function(String) onStart) async {
+  /// Stockfish's evaluation and best line for a chess position. Use it to
+  /// check a move or to look deeper at a position from a game.
+  @LlmTool(name: 'analyze_position')
+  Future<ToolOutcome> _analyzePosition(@Param('The position in FEN.') String fen) async {
     final Position position;
     try {
       position = Chess.fromSetup(Setup.parseFen(fen));
     } on Object {
-      onStart('Reading a position…');
+      _onStart('Reading a position…');
       return ToolOutcome({'error': 'Not a valid FEN.'}, _failed('Couldn’t read that position'));
     }
     final known = _positions[_key(position.fen)];
-    onStart(
+    _onStart(
       known == null
           ? 'Asking Stockfish about this position…'
           : 'Asking Stockfish about move ${_number(known.move.label)}…',
@@ -273,12 +274,182 @@ class CoachTools {
     );
   }
 
-  Future<ToolOutcome> _evaluateMove(String fen, String text, void Function(String) onStart) async {
+  /// The player's mistakes in one reviewed game: each move, the evaluation
+  /// before and after, Stockfish's best move and line, what the move allowed,
+  /// and the position before it (FEN). "best_line_material" and
+  /// "allowed_material" are the mover's material change in pawns at the end of
+  /// each line, left out when nothing changes.
+  @LlmTool(name: 'get_game_mistakes')
+  Future<ToolOutcome> _gameMistakes(
+    @Param('A game id from the list of games.', name: 'game_id') int id,
+  ) async {
+    final saved = await _games.byId(id);
+    if (saved == null) {
+      _onStart('Looking for a game…');
+      return ToolOutcome({'error': 'No game with id $id.'}, _failed('Couldn’t find that game'));
+    }
+    final record = saved.record;
+    _onStart('Looking at your game vs ${_opponent(record)}…');
+
+    final stored = await _analyses.analysis(saved.id);
+    final game = gameFromPgn(record.pgn);
+    if (stored == null || !stored.complete) {
+      return ToolOutcome({
+        'game_id': saved.id,
+        'reviewed': false,
+        'note': 'Not analysed yet. The player can open the game\'s review to analyse it.',
+      }, AgentStep('Your game vs ${_opponent(record)}', detail: 'Not reviewed yet', done: true));
+    }
+
+    final analysis = GameAnalysis(game, stored.evals.map(PositionEval.fromJson).toList());
+    final side = record.playerSide;
+    final errors = analysis.moves.where((m) => m.side == side && (m.quality?.isError ?? false));
+    final worst = (errors.toList()..sort((a, b) => b.loss.compareTo(a.loss))).take(maxMistakes);
+    final focused = focus?.gameId == saved.id && focus!.isMove
+        ? analysis.moves.where((m) => m.index == focus!.index)
+        : const <MoveReview>[];
+    final chosen = {...worst, ...focused}.toList()..sort((a, b) => a.index.compareTo(b.index));
+
+    final mistakes = [
+      for (final m in chosen)
+        {
+          ...factsFor(analysis, m, player: side).toJson()..remove('id'),
+          'move_id': m.index,
+          'fen_before': game.history[m.index].fen,
+        },
+    ];
+    for (final m in chosen) {
+      _remember(saved, game, m.index, analysis: analysis, quality: m.quality);
+    }
+
+    final counts = analysis.counts(side);
+    final accuracy = analysis.accuracy(side);
+    return ToolOutcome(
+      {
+        'game_id': saved.id,
+        'vs': _opponent(record),
+        'date': _date(record.endedAt),
+        'you_played': side.name,
+        'your_rating': ?record.playerRating,
+        'opponent_rating': ?(record.opponentRating ?? record.engineElo),
+        'opening': ?namedOpening(record, game),
+        'result': record.outcome.name,
+        'ending': ?record.endReason,
+        if (accuracy != null) 'accuracy': accuracy.round(),
+        'blunders': counts[MoveQuality.blunder],
+        'mistakes': counts[MoveQuality.mistake],
+        'inaccuracies': counts[MoveQuality.inaccuracy],
+        'moments': mistakes,
+      },
+      AgentStep(
+        'Your game vs ${_opponent(record)}',
+        detail: [
+          _count(counts[MoveQuality.blunder]!, 'blunder'),
+          _count(counts[MoveQuality.mistake]!, 'mistake'),
+          if (accuracy != null) 'accuracy ${accuracy.round()}%',
+        ].join(' · '),
+        done: true,
+      ),
+    );
+  }
+
+  /// The player's results across their recent games: by opening and colour,
+  /// mistakes and blunders per game and by game phase, losses from winning
+  /// positions, and their three costliest moves.
+  @LlmTool(name: 'get_my_stats')
+  Future<ToolOutcome> _stats() async {
+    final total = (await _games.watchAll().first).length;
+    final checked = total < 50 ? total : 50;
+    _onStart('Checking your last $checked ${checked == 1 ? 'game' : 'games'}…');
+
+    final games = await loadStatsGames(_games, _analyses, limit: checked);
+    final stats = PlayerStats.of(games);
+    final weaknesses = findWeaknesses(games).take(3);
+    for (final w in stats.worst) {
+      _remember(
+        w.game.saved,
+        w.game.game,
+        w.moment.index,
+        analysis: w.game.analysis,
+        quality: w.moment.quality,
+      );
+    }
+    double? round(double? x) => x == null ? null : double.parse(x.toStringAsFixed(2));
+
+    return ToolOutcome(
+      {
+        'games': stats.games,
+        'wins': stats.wins,
+        'draws': stats.draws,
+        'losses': stats.losses,
+        'openings': [
+          for (final o in stats.byOpening.take(5))
+            {
+              'name': o.name,
+              'as': o.side.name,
+              'games': o.games,
+              'wins': o.wins,
+              'draws': o.draws,
+              'losses': o.losses,
+            },
+        ],
+        'reviewed_games': stats.reviewed,
+        'top_weaknesses': [
+          for (final w in weaknesses)
+            {'name': w.title, 'evidence': w.detail, 'games': w.games.length},
+        ],
+        if (stats.reviewed == 0)
+          'note': 'No games reviewed yet, so there are no error stats. Reviewing a game adds them.'
+        else ...{
+          'average_accuracy': ?stats.averageAccuracy?.round(),
+          'blunders_per_game': round(stats.blundersPerGame),
+          'mistakes_per_game': round(stats.mistakesPerGame),
+          'errors_by_phase': {
+            for (final MapEntry(key: phase, value: c) in stats.errorsByPhase.entries)
+              phase: {'mistakes': c.mistakes, 'blunders': c.blunders},
+          },
+          'losses_from_winning_positions': stats.lossesFromWinning,
+          'costliest_moves': [
+            for (final w in stats.worst)
+              {
+                'game_id': w.game.saved.id,
+                'move_id': w.moment.index,
+                'move': moveLabel(w.game.game, w.moment.index),
+                'verdict': w.moment.quality?.label,
+                'pawns_lost': double.parse(w.moment.loss.toStringAsFixed(1)),
+                'best_move': ?bestMoveLabel(w.game.analysis!, w.moment.index),
+              },
+          ],
+        },
+      },
+      AgentStep(
+        'Checked your last $checked ${checked == 1 ? 'game' : 'games'}',
+        detail: [
+          '${stats.games} games',
+          '${stats.reviewed} reviewed',
+          _count(stats.losses, 'loss', 'losses'),
+        ].join(' · '),
+        done: true,
+      ),
+    );
+  }
+
+  /// Stockfish's verdict on one move in a position: whether it's legal, the
+  /// evaluation after it and after Stockfish's best move (both for the side
+  /// making the move, in pawns; 10 means a forced win, -10 a forced loss), the
+  /// pawns it loses, and the opponent's best reply. Use it when the player
+  /// asks about a move that wasn't played, e.g. "what about Nf3 instead?". An
+  /// illegal move comes back with the legal moves.
+  @LlmTool(name: 'evaluate_move')
+  Future<ToolOutcome> _evaluateMove(
+    @Param('The position before the move, in FEN, copied from a tool result.') String fen,
+    @Param('The move, in SAN (Nf3, exd5, O-O, e8=Q) or UCI (g1f3).', name: 'move') String text,
+  ) async {
     final Position position;
     try {
       position = Chess.fromSetup(Setup.parseFen(fen));
     } on Object {
-      onStart('Reading a position…');
+      _onStart('Reading a position…');
       return ToolOutcome({'error': 'Not a valid FEN.'}, _failed('Couldn’t read that position'));
     }
     if (position.isGameOver) {
@@ -299,7 +470,7 @@ class CoachTools {
     final mover = position.turn;
     final (after, san) = position.makeSan(move);
     final known = _positions[_key(position.fen)];
-    onStart(
+    _onStart(
       known == null ? 'Trying $san with Stockfish…' : 'Trying $san instead of ${known.move.label}…',
     );
 
@@ -372,15 +543,23 @@ class CoachTools {
     );
   }
 
+  /// One move of a game, by its number as the player says it ("move 14"): the
+  /// move played, the positions before and after it (FEN), and, if the game
+  /// was reviewed, Stockfish's facts about it. Use it for a move the player
+  /// names that isn't among the mistakes already looked up.
+  @LlmTool(name: 'get_position')
   Future<ToolOutcome> _position(
-    int id,
+    @Param('A game id from the list of games.', name: 'game_id') int id,
+    @Param(
+      'The move number, as on a score sheet: 14 for "14. Nf3" or "14...Nf6".',
+      name: 'move_number',
+    )
     int number,
-    Side side,
-    void Function(String) onStart,
+    @Param('Which side made the move.') Side side,
   ) async {
     final saved = await _games.byId(id);
     if (saved == null) {
-      onStart('Looking for a game…');
+      _onStart('Looking for a game…');
       return ToolOutcome({'error': 'No game with id $id.'}, _failed('Couldn’t find that game'));
     }
     final record = saved.record;
@@ -408,7 +587,7 @@ class CoachTools {
       );
     }
     final label = moveLabel(game, index);
-    onStart('Finding $label in your game vs ${_opponent(record)}…');
+    _onStart('Finding $label in your game vs ${_opponent(record)}…');
 
     final played = {
       'game_id': saved.id,
@@ -444,154 +623,6 @@ class CoachTools {
       AgentStep(
         label,
         detail: ['vs ${_opponent(record)}', ?m.quality?.label].join(' · '),
-        done: true,
-      ),
-    );
-  }
-
-  Future<ToolOutcome> _gameMistakes(int id, void Function(String) onStart) async {
-    final saved = await _games.byId(id);
-    if (saved == null) {
-      onStart('Looking for a game…');
-      return ToolOutcome({'error': 'No game with id $id.'}, _failed('Couldn’t find that game'));
-    }
-    final record = saved.record;
-    onStart('Looking at your game vs ${_opponent(record)}…');
-
-    final stored = await _analyses.analysis(saved.id);
-    final game = gameFromPgn(record.pgn);
-    if (stored == null || !stored.complete) {
-      return ToolOutcome({
-        'game_id': saved.id,
-        'reviewed': false,
-        'note': 'Not analysed yet. The player can open the game\'s review to analyse it.',
-      }, AgentStep('Your game vs ${_opponent(record)}', detail: 'Not reviewed yet', done: true));
-    }
-
-    final analysis = GameAnalysis(game, stored.evals.map(PositionEval.fromJson).toList());
-    final side = record.playerSide;
-    final errors = analysis.moves.where((m) => m.side == side && (m.quality?.isError ?? false));
-    final worst = (errors.toList()..sort((a, b) => b.loss.compareTo(a.loss))).take(maxMistakes);
-    final focused = focus?.gameId == saved.id && focus!.isMove
-        ? analysis.moves.where((m) => m.index == focus!.index)
-        : const <MoveReview>[];
-    final chosen = {...worst, ...focused}.toList()..sort((a, b) => a.index.compareTo(b.index));
-
-    final mistakes = [
-      for (final m in chosen)
-        {
-          ...factsFor(analysis, m, player: side).toJson()..remove('id'),
-          'move_id': m.index,
-          'fen_before': game.history[m.index].fen,
-        },
-    ];
-    for (final m in chosen) {
-      _remember(saved, game, m.index, analysis: analysis, quality: m.quality);
-    }
-
-    final counts = analysis.counts(side);
-    final accuracy = analysis.accuracy(side);
-    return ToolOutcome(
-      {
-        'game_id': saved.id,
-        'vs': _opponent(record),
-        'date': _date(record.endedAt),
-        'you_played': side.name,
-        'your_rating': ?record.playerRating,
-        'opponent_rating': ?(record.opponentRating ?? record.engineElo),
-        'opening': ?namedOpening(record, game),
-        'result': record.outcome.name,
-        'ending': ?record.endReason,
-        if (accuracy != null) 'accuracy': accuracy.round(),
-        'blunders': counts[MoveQuality.blunder],
-        'mistakes': counts[MoveQuality.mistake],
-        'inaccuracies': counts[MoveQuality.inaccuracy],
-        'moments': mistakes,
-      },
-      AgentStep(
-        'Your game vs ${_opponent(record)}',
-        detail: [
-          _count(counts[MoveQuality.blunder]!, 'blunder'),
-          _count(counts[MoveQuality.mistake]!, 'mistake'),
-          if (accuracy != null) 'accuracy ${accuracy.round()}%',
-        ].join(' · '),
-        done: true,
-      ),
-    );
-  }
-
-  Future<ToolOutcome> _stats(void Function(String) onStart) async {
-    final total = (await _games.watchAll().first).length;
-    final checked = total < 50 ? total : 50;
-    onStart('Checking your last $checked ${checked == 1 ? 'game' : 'games'}…');
-
-    final games = await loadStatsGames(_games, _analyses, limit: checked);
-    final stats = PlayerStats.of(games);
-    final weaknesses = findWeaknesses(games).take(3);
-    for (final w in stats.worst) {
-      _remember(
-        w.game.saved,
-        w.game.game,
-        w.moment.index,
-        analysis: w.game.analysis,
-        quality: w.moment.quality,
-      );
-    }
-    double? round(double? x) => x == null ? null : double.parse(x.toStringAsFixed(2));
-
-    return ToolOutcome(
-      {
-        'games': stats.games,
-        'wins': stats.wins,
-        'draws': stats.draws,
-        'losses': stats.losses,
-        'openings': [
-          for (final o in stats.byOpening.take(5))
-            {
-              'name': o.name,
-              'as': o.side.name,
-              'games': o.games,
-              'wins': o.wins,
-              'draws': o.draws,
-              'losses': o.losses,
-            },
-        ],
-        'reviewed_games': stats.reviewed,
-        'top_weaknesses': [
-          for (final w in weaknesses)
-            {'name': w.title, 'evidence': w.detail, 'games': w.games.length},
-        ],
-        if (stats.reviewed == 0)
-          'note': 'No games reviewed yet, so there are no error stats. Reviewing a game adds them.'
-        else ...{
-          'average_accuracy': ?stats.averageAccuracy?.round(),
-          'blunders_per_game': round(stats.blundersPerGame),
-          'mistakes_per_game': round(stats.mistakesPerGame),
-          'errors_by_phase': {
-            for (final MapEntry(key: phase, value: c) in stats.errorsByPhase.entries)
-              phase: {'mistakes': c.mistakes, 'blunders': c.blunders},
-          },
-          'losses_from_winning_positions': stats.lossesFromWinning,
-          'costliest_moves': [
-            for (final w in stats.worst)
-              {
-                'game_id': w.game.saved.id,
-                'move_id': w.moment.index,
-                'move': moveLabel(w.game.game, w.moment.index),
-                'verdict': w.moment.quality?.label,
-                'pawns_lost': double.parse(w.moment.loss.toStringAsFixed(1)),
-                'best_move': ?bestMoveLabel(w.game.analysis!, w.moment.index),
-              },
-          ],
-        },
-      },
-      AgentStep(
-        'Checked your last $checked ${checked == 1 ? 'game' : 'games'}',
-        detail: [
-          '${stats.games} games',
-          '${stats.reviewed} reviewed',
-          _count(stats.losses, 'loss', 'losses'),
-        ].join(' · '),
         done: true,
       ),
     );

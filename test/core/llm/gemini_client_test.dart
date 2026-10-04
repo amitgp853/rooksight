@@ -466,6 +466,69 @@ void main() {
       });
     });
 
+    test('schemas fit Gemini\'s parameters field', () {
+      final body = GeminiClient.requestBody(
+        const LlmRequest(
+          messages: [LlmMessage.user('Hi')],
+          tools: [
+            LlmTool(
+              name: 'analyze_position',
+              description: 'Stockfish on a position.',
+              parameters: {
+                'type': 'object',
+                'properties': {
+                  'fen': {'type': 'string'},
+                  'line': {
+                    'type': 'object',
+                    'properties': {
+                      'depth': {'type': 'integer'},
+                    },
+                    'additionalProperties': false,
+                  },
+                },
+                'required': ['fen'],
+                'additionalProperties': false,
+              },
+            ),
+            LlmTool(
+              name: 'get_my_stats',
+              description: 'Stats.',
+              parameters: {
+                'type': 'object',
+                'properties': <String, Object?>{},
+                'required': <String>[],
+                'additionalProperties': false,
+              },
+            ),
+          ],
+        ),
+      );
+      final declarations =
+          ((body['tools']! as List).single as Map)['functionDeclarations'] as List<Object?>;
+      expect(declarations, [
+        {
+          'name': 'analyze_position',
+          'description': 'Stockfish on a position.',
+          // No additionalProperties, at any level: Gemini rejects it here.
+          'parameters': {
+            'type': 'object',
+            'properties': {
+              'fen': {'type': 'string'},
+              'line': {
+                'type': 'object',
+                'properties': {
+                  'depth': {'type': 'integer'},
+                },
+              },
+            },
+            'required': ['fen'],
+          },
+        },
+        // No arguments: no schema, as Gemini rejects an object without properties.
+        {'name': 'get_my_stats', 'description': 'Stats.'},
+      ]);
+    });
+
     test('images go before the text, base64-encoded', () {
       final body = GeminiClient.requestBody(
         LlmRequest(

@@ -81,8 +81,9 @@ config/       remote.json: the app's remote settings (see below)
 ```
 
 **Stack:** Flutter, Riverpod, go_router, Drift, dartchess, chessground,
-multistockfish (Stockfish 16), Gemini over plain REST, camera and image_picker
-(scan), speech_to_text (voice questions), share_plus, TelemetryDeck (usage counts).
+multistockfish (Stockfish 16), Gemini over plain REST, llm_tool_calling (the
+coach's tool definitions), camera and image_picker (scan), speech_to_text (voice
+questions), share_plus, TelemetryDeck (usage counts).
 
 ## The AI Coach agent
 
@@ -112,7 +113,12 @@ sequenceDiagram
 ```
 
 - **Tools:** `get_my_stats()`, `get_game_mistakes(game_id)`,
-  `analyze_position(fen)`.
+  `analyze_position(fen)`. Each is a plain Dart function marked `@Tool()` in
+  [chess_tools.dart](lib/features/coach/domain/chess_tools.dart);
+  [llm_tool_calling](https://pub.dev/packages/llm_tool_calling) generates its
+  JSON Schema from the function's parameters and doc comment, and checks the
+  model's arguments before anything runs. Wrong arguments go back to the model
+  as an error it can fix, and the player sees a plain "Couldn’t look that up".
 - **Budget:** at most 5 tool calls. After that the model must answer, so a
   question costs 2–6 model calls.
 - **Grounding:** the prompt tells the model to use only moves from tool
@@ -239,13 +245,22 @@ Tests cover the Elo mapping, move classification, special rules from FEN
 positions, the clocks (player-only against Stockfish, both sides in Pass & Play),
 Pass & Play (takebacks, draw offers, pause, saving and resuming), Chess.com and
 Lichess parsing and import, the Gemini client (retries, fallback, tool-call
-format), the coach loop with a fake model (tool cap, forced answer, grounding),
+format), the coach's tools (generated schemas, valid and invalid arguments), the
+coach loop with a fake model (tool cap, forced answer, grounding),
 saved chats (storage and migration, search, reopening without an AI call,
 continuing with earlier moves), the weakness checks, the report card image size,
 scanning (photo checks, position checks, the daily limit), the analysis board,
 the remote config (parsing, bad values, caching, offline, refresh timing, model
 fallbacks), forced and optional updates, the analytics categories, and the
 screens.
+
+Generated code (the Drift database and the coach's tool definitions, the
+`*.g.dart` files) is committed. After changing a table or a `@Tool` function:
+
+```sh
+dart run build_runner build
+dart format lib   # build_runner writes 80 columns; the project uses 100
+```
 
 Tools in `tool/` regenerate assets: `render_pieces.dart` (piece PNGs),
 `make_sounds.py` (move sounds), `make_banner.py` (the README banner). `engine_probe.dart` prints Stockfish's UCI

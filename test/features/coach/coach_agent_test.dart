@@ -123,6 +123,7 @@ void main() {
       final outcome = await run(CoachTools.analyzePosition, {'fen': beforeG4});
       expect(outcome.result['error'], isNotNull);
       expect(outcome.step.done, isTrue);
+      expect(outcome.step.detail, 'Stockfish’s view of a position');
     });
 
     test('the context lists recent games and the move asked about', () async {
@@ -263,6 +264,27 @@ void main() {
       );
       final result = await CoachAgent(llm, tools).ask('?', onStep: (_, _) {});
       expect(llm.requests.last.messages.last.toolResults.single.result['error'], isNotNull);
+      expect(result.body, 'Sorry.');
+    });
+
+    test('bad arguments go back as the problem, and the loop goes on', () async {
+      final steps = <AgentStep>[];
+      final llm = FakeLlm(
+        turns: [
+          toolCall(CoachTools.getGameMistakes, {'game_id': 'the last one'}),
+        ],
+        reply: answer(body: 'Sorry.'),
+      );
+      final result = await CoachAgent(
+        llm,
+        tools,
+      ).ask('?', onStep: (index, step) => steps.add(step));
+      final error = llm.requests.last.messages.last.toolResults.single.result['error'];
+      expect(error, contains('game_id must be an integer, got string'));
+      final failed = steps.singleWhere((s) => s.label == 'Couldn’t look that up');
+      // In the player's words, never the tool's name.
+      expect(failed.detail, 'The mistakes in your game');
+      expect(engine.searches, isEmpty);
       expect(result.body, 'Sorry.');
     });
 

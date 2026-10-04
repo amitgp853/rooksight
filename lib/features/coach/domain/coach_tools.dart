@@ -3,6 +3,7 @@
 
 import 'package:dartchess/dartchess.dart';
 import 'package:flutter/foundation.dart';
+import 'package:llm_tool_calling/llm_tool_calling.dart' show ToolArgumentException;
 
 import '../../../core/chess/move_check.dart';
 import '../../../core/llm/llm_client.dart';
@@ -19,6 +20,7 @@ import '../../review/domain/move_review.dart';
 import '../../review/domain/position_eval.dart';
 import '../../stats/domain/player_stats.dart';
 import '../../stats/domain/weaknesses.dart';
+import 'chess_tools.dart';
 import 'coach_move.dart';
 
 /// One line in the coach's list of steps: "running" until [done].
@@ -81,6 +83,7 @@ class CoachTools {
   /// Stockfish's search depth for [analyzePosition].
   final int depth;
 
+  // The names set by @Tool in chess_tools.dart, as constants.
   static const analyzePosition = 'analyze_position';
   static const getGameMistakes = 'get_game_mistakes';
   static const getMyStats = 'get_my_stats';
@@ -91,44 +94,20 @@ class CoachTools {
   /// Errors per game sent to the model.
   static const maxMistakes = 6;
 
-  static const declarations = [
-    LlmTool(
-      name: analyzePosition,
-      description:
-          'Stockfish\'s evaluation and best line for a chess position. Use it to '
-          'check a move or to look deeper at a position from a game.',
-      parameters: {
-        'type': 'object',
-        'properties': {
-          'fen': {'type': 'string', 'description': 'The position in FEN.'},
-        },
-        'required': ['fen'],
-      },
-    ),
-    LlmTool(
-      name: getGameMistakes,
-      description:
-          'The player\'s mistakes in one reviewed game: each move, the evaluation '
-          'before and after, Stockfish\'s best move and line, what the move '
-          'allowed, and the position before it (FEN). "best_line_material" and '
-          '"allowed_material" are the mover\'s material change in pawns at the '
-          'end of each line, left out when nothing changes.',
-      parameters: {
-        'type': 'object',
-        'properties': {
-          'game_id': {'type': 'integer', 'description': 'A game id from the list of games.'},
-        },
-        'required': ['game_id'],
-      },
-    ),
-    LlmTool(
-      name: getMyStats,
-      description:
-          'The player\'s results across their recent games: by opening and colour, '
-          'mistakes and blunders per game and by game phase, losses from winning '
-          'positions, and their three costliest moves.',
-    ),
+  /// The tools as the model sees them, generated from [chessTools].
+  static final declarations = [
+    for (final tool in chessTools)
+      LlmTool(name: tool.name, description: tool.description, parameters: tool.parametersSchema),
   ];
+
+  static final _byName = {for (final tool in chessTools) tool.name: tool};
+
+  /// What each tool looks up, in the player's words, for a failed step.
+  static const _lookups = {
+    analyzePosition: 'Stockfish’s view of a position',
+    getGameMistakes: 'The mistakes in your game',
+    getMyStats: 'Your stats',
+  };
 
   /// Moves (SAN without `+`/`#`) the tools have reported.
   final moves = <String>{};
@@ -202,25 +181,34 @@ class CoachTools {
   /// Runs [call]. [onStart] gets the running step's label once known.
   /// Never throws: failures go back to the model as `error`.
   Future<ToolOutcome> run(LlmToolCall call, {required void Function(String label) onStart}) async {
+    final tool = _byName[call.name];
+    if (tool == null) {
+      return ToolOutcome({'error': 'Unknown tool ${call.name}.'}, _failed('Couldn’t look that up'));
+    }
     try {
-      return switch (call.name) {
-        analyzePosition => await _analyzePosition(call.args['fen'], onStart),
-        getGameMistakes => await _gameMistakes(_int(call.args['game_id']), onStart),
-        getMyStats => await _stats(onStart),
-        _ => ToolOutcome({'error': 'Unknown tool ${call.name}.'}, _failed('Unknown tool')),
+      return switch (await tool.call(call.args) as CoachCommand) {
+        AnalyzePosition(:final fen) => await _analyzePosition(fen, onStart),
+        GetGameMistakes(:final gameId) => await _gameMistakes(gameId, onStart),
+        GetMyStats() => await _stats(onStart),
       };
+    } on ToolArgumentException catch (error) {
+      // The message is written for the model, so it can fix its call; the
+      // player sees what the coach was trying to look up.
+      return ToolOutcome({
+        'error': '$error',
+      }, _failed('Couldn’t look that up', detail: _lookups[tool.name]));
     } on Object catch (error) {
       debugPrint('Coach tool ${call.name} failed: $error');
       return ToolOutcome({
         'error': 'The tool failed.',
-      }, _failed('Something went wrong', detail: call.name));
+      }, _failed('Something went wrong', detail: _lookups[tool.name]));
     }
   }
 
-  Future<ToolOutcome> _analyzePosition(Object? fen, void Function(String) onStart) async {
+  Future<ToolOutcome> _analyzePosition(String fen, void Function(String) onStart) async {
     final Position position;
     try {
-      position = Chess.fromSetup(Setup.parseFen(fen! as String));
+      position = Chess.fromSetup(Setup.parseFen(fen));
     } on Object {
       onStart('Reading a position…');
       return ToolOutcome({'error': 'Not a valid FEN.'}, _failed('Couldn’t read that position'));
@@ -266,8 +254,8 @@ class CoachTools {
     );
   }
 
-  Future<ToolOutcome> _gameMistakes(int? id, void Function(String) onStart) async {
-    final saved = id == null ? null : await _games.byId(id);
+  Future<ToolOutcome> _gameMistakes(int id, void Function(String) onStart) async {
+    final saved = await _games.byId(id);
     if (saved == null) {
       onStart('Looking for a game…');
       return ToolOutcome({'error': 'No game with id $id.'}, _failed('Couldn’t find that game'));
@@ -449,13 +437,6 @@ class CoachTools {
 
   /// `23` from `23. Nxd5` or `23…Nxd5`.
   static String _number(String label) => RegExp(r'^\d+').stringMatch(label) ?? label;
-
-  static int? _int(Object? value) => switch (value) {
-    final int i => i,
-    final double d when d == d.roundToDouble() => d.toInt(),
-    final String s => int.tryParse(s),
-    _ => null,
-  };
 
   static String _opponent(GameRecord record) =>
       record.opponentName ??

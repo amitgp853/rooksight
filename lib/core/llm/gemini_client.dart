@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:llm_tool_calling/llm_tool_calling.dart' show withoutAdditionalProperties;
 
 import '../config/api_keys.dart';
 import '../config/remote_config.dart';
@@ -93,11 +94,7 @@ class GeminiClient implements LlmClient {
   Future<LlmReply> respond(LlmRequest request) async {
     if (_apiKey.isEmpty) throw const LlmMissingKey();
 
-    final models = {
-      if (request.light) ?lightModel,
-      _primary,
-      ...fallbackModels,
-    }.toList();
+    final models = {if (request.light) ?lightModel, _primary, ...fallbackModels}.toList();
     for (final (i, candidate) in models.indexed) {
       final body = requestBody(
         request,
@@ -133,7 +130,11 @@ class GeminiClient implements LlmClient {
         {
           'functionDeclarations': [
             for (final tool in request.tools)
-              {'name': tool.name, 'description': tool.description, 'parameters': ?tool.parameters},
+              {
+                'name': tool.name,
+                'description': tool.description,
+                'parameters': ?_parameters(tool.parameters),
+              },
           ],
         },
       ],
@@ -158,6 +159,16 @@ class GeminiClient implements LlmClient {
       },
     },
   };
+
+  /// A tool's [schema] for Gemini's `parameters` field, which rejects
+  /// `additionalProperties`; nothing for a tool without arguments.
+  static Map<String, Object?>? _parameters(Map<String, Object?>? schema) {
+    if (schema == null) return null;
+    if (schema['properties'] case final Map<Object?, Object?> properties when properties.isEmpty) {
+      return null;
+    }
+    return withoutAdditionalProperties(schema);
+  }
 
   static Object? _content(LlmMessage message) {
     // A model turn goes back exactly as Gemini sent it (with its signatures).

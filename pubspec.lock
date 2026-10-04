@@ -709,6 +709,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  llm_tool_calling:
+    dependency: "direct main"
+    description:
+      name: llm_tool_calling
+      sha256: "1333d2db2b99e6ad6321ca5295976472570c129ca9e4d39e3c3d27f97601c628"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
+  llm_tool_calling_generator:
+    dependency: "direct dev"
+    description:
+      name: llm_tool_calling_generator
+      sha256: "20469da976fe2fe07273e6ca03c929c55229c90af3878720383eedeaf21900aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0"
   logging:
     dependency: transitive
     description:
